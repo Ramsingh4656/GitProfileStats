@@ -124,6 +124,14 @@ export class GitHubService {
   }
 
   /**
+   * Fetches the profile of a user by username.
+   */
+  public async getUser(username: string, token?: string): Promise<GitHubUser> {
+    return this.request<GitHubUser>(`/users/${username}`, token);
+  }
+
+
+  /**
    * Fetches repositories.
    * If username is provided, fetches public repositories for that user.
    * If username is not provided, fetches repositories for the authenticated user.
