@@ -13,6 +13,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   WEB_BASE_URL: z.string().default('http://localhost:3000'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  GITHUB_CLIENT_ID: z.string(),
+  GITHUB_CLIENT_SECRET: z.string(),
+  GITHUB_CALLBACK_URL: z.string(),
+  GITHUB_TOKEN: z.string(),
 });
 
 const parsed = envSchema.safeParse(process.env);
