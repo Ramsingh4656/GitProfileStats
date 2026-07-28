@@ -31,5 +31,5 @@ app.use('/api/v1', routes);
 app.use(errorHandler);
 
 app.listen(env.PORT, () => {
-  logger.info(`🚀 API Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+  logger.info(`🚀 API Server running on port ${env.PORT.toString()} in ${env.NODE_ENV} mode`);
 });

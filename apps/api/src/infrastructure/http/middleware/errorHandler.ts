@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { DomainError } from '../../../domain/errors/DomainError.js';
 import { logger } from '../../../config/logger.js';
 

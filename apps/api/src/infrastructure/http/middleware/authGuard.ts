@@ -1,5 +1,11 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { AuthenticationError } from '../../../domain/errors/DomainError.js';
+
+interface IAuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+  };
+}
 
 export const authGuard = (req: Request, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
@@ -15,6 +21,6 @@ export const authGuard = (req: Request, _res: Response, next: NextFunction): voi
   }
 
   // Simulated authentication: token value is treated as the user ID for development/skeleton testing
-  (req as any).user = { id: token };
+  (req as IAuthenticatedRequest).user = { id: token };
   next();
 };
