@@ -6,7 +6,7 @@ export const errorHandler = (
   error: Error,
   req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ): void => {
   if (error instanceof DomainError) {
     res.status(error.statusCode).json({

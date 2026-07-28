@@ -7,7 +7,7 @@ import { IUserProfileResponse } from '../../dtos/UserProfileDTO.js';
 export class GetUserProfileUseCase {
   constructor(
     @inject('IUserRepository')
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
   ) {}
 
   public async execute(userId: string): Promise<IUserProfileResponse> {

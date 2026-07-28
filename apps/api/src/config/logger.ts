@@ -3,12 +3,15 @@ import { env } from './env.js';
 
 export const logger = pino({
   level: env.LOG_LEVEL,
-  transport: env.NODE_ENV !== 'production' ? {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      ignore: 'pid,hostname',
-      translateTime: 'SYS:standard',
-    },
-  } : undefined,
+  transport:
+    env.NODE_ENV !== 'production'
+      ? {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            ignore: 'pid,hostname',
+            translateTime: 'SYS:standard',
+          },
+        }
+      : undefined,
 });

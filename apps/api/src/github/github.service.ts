@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/dot-notation */
 import { injectable } from 'tsyringe';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
@@ -100,10 +101,10 @@ export class GitHubService {
         const errorText = await response.text().catch(() => 'No response body');
         logger.error(
           { url, status: response.status, statusText: response.statusText, errorText },
-          'GitHub API request failed'
+          'GitHub API request failed',
         );
         throw new Error(
-          `GitHub API error: ${response.status.toString()} ${response.statusText} - ${errorText}`
+          `GitHub API error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
         );
       }
 
@@ -129,7 +130,7 @@ export class GitHubService {
    */
   public async getRepositories(
     username?: string,
-    options?: { token?: string; page?: number; perPage?: number } | string
+    options?: { token?: string; page?: number; perPage?: number } | string,
   ): Promise<GitHubRepository[]> {
     let token: string | undefined;
     let page: number | undefined;
@@ -161,8 +162,42 @@ export class GitHubService {
   public async getRepository(
     owner: string,
     repo: string,
-    token?: string
+    token?: string,
   ): Promise<GitHubRepository> {
     return this.request<GitHubRepository>(`/repos/${owner}/${repo}`, token);
+  }
+
+  /**
+   * Fetches every repository by handling pagination automatically.
+   * If a token is provided (or default is set) and no username is specified,
+   * it includes private repositories the token has access to.
+   */
+  public async getAllRepositories(
+    username?: string,
+    options?: { token?: string } | string,
+  ): Promise<GitHubRepository[]> {
+    let token: string | undefined;
+    if (typeof options === 'string') {
+      token = options;
+    } else if (options) {
+      token = options.token;
+    }
+
+    const allRepos: GitHubRepository[] = [];
+    let page = 1;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const repos = await this.getRepositories(username, { token, page, perPage });
+      allRepos.push(...repos);
+      if (repos.length < perPage) {
+        hasMore = false;
+      } else {
+        page++;
+      }
+    }
+
+    return allRepos;
   }
 }

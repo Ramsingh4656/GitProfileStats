@@ -1,7 +1,10 @@
 export abstract class DomainError extends Error {
   public abstract readonly statusCode: number;
 
-  constructor(message: string, public readonly code: string) {
+  constructor(
+    message: string,
+    public readonly code: string,
+  ) {
     super(message);
     Object.setPrototypeOf(this, new.target.prototype);
     Error.captureStackTrace(this, this.constructor);

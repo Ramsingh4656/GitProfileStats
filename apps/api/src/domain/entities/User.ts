@@ -16,14 +16,30 @@ export class User {
     return new User(props);
   }
 
-  public get id(): string { return this.props.id; }
-  public get githubId(): string { return this.props.githubId; }
-  public get username(): string { return this.props.username; }
-  public get email(): string | null { return this.props.email; }
-  public get avatarUrl(): string { return this.props.avatarUrl; }
-  public get tier(): 'FREE' | 'PRO' { return this.props.tier; }
-  public get createdAt(): Date { return this.props.createdAt; }
-  public get updatedAt(): Date { return this.props.updatedAt; }
+  public get id(): string {
+    return this.props.id;
+  }
+  public get githubId(): string {
+    return this.props.githubId;
+  }
+  public get username(): string {
+    return this.props.username;
+  }
+  public get email(): string | null {
+    return this.props.email;
+  }
+  public get avatarUrl(): string {
+    return this.props.avatarUrl;
+  }
+  public get tier(): 'FREE' | 'PRO' {
+    return this.props.tier;
+  }
+  public get createdAt(): Date {
+    return this.props.createdAt;
+  }
+  public get updatedAt(): Date {
+    return this.props.updatedAt;
+  }
 
   public upgradeToPro(): void {
     this.props.tier = 'PRO';

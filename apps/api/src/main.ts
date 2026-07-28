@@ -35,7 +35,8 @@ app.get('/health', healthController.check);
 app.get('/api/test/github', (req, res, next) => {
   void (async () => {
     try {
-      const token = (req.query.token as string) || (req.headers['x-github-token'] as string) || undefined;
+      const token =
+        (req.query.token as string) || (req.headers['x-github-token'] as string) || undefined;
       const gitHubService = container.resolve(GitHubService);
       const user = await gitHubService.getAuthenticatedUser(token);
       res.json({
@@ -59,5 +60,3 @@ app.use(errorHandler);
 app.listen(env.PORT, () => {
   logger.info(`🚀 API Server running on port ${env.PORT.toString()} in ${env.NODE_ENV} mode`);
 });
-
-

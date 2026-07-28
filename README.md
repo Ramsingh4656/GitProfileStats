@@ -80,16 +80,16 @@ pnpm dev
 
 ### Available Scripts
 
-| Command              | Description                                  |
-| :------------------- | :------------------------------------------- |
-| `pnpm dev`           | Start all apps in development mode           |
-| `pnpm build`         | Build all apps and packages                  |
-| `pnpm lint`          | Lint all workspaces                          |
-| `pnpm typecheck`     | Run TypeScript type-checking                 |
-| `pnpm test`          | Run all tests                                |
-| `pnpm format`        | Format all files with Prettier               |
-| `pnpm db:migrate`    | Run Prisma database migrations               |
-| `pnpm db:generate`   | Regenerate Prisma client                     |
+| Command            | Description                        |
+| :----------------- | :--------------------------------- |
+| `pnpm dev`         | Start all apps in development mode |
+| `pnpm build`       | Build all apps and packages        |
+| `pnpm lint`        | Lint all workspaces                |
+| `pnpm typecheck`   | Run TypeScript type-checking       |
+| `pnpm test`        | Run all tests                      |
+| `pnpm format`      | Format all files with Prettier     |
+| `pnpm db:migrate`  | Run Prisma database migrations     |
+| `pnpm db:generate` | Regenerate Prisma client           |
 
 ---
 

@@ -12,7 +12,7 @@ interface IAuthenticatedRequest extends Request {
 export class UserController {
   constructor(
     @inject(GetUserProfileUseCase)
-    private readonly getUserProfileUseCase: GetUserProfileUseCase
+    private readonly getUserProfileUseCase: GetUserProfileUseCase,
   ) {}
 
   public getUserProfile = (req: Request, res: Response, next: NextFunction): void => {
