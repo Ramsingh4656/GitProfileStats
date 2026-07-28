@@ -10,7 +10,7 @@ import { routes } from './infrastructure/http/routes/index.js';
 import { errorHandler } from './infrastructure/http/middleware/errorHandler.js';
 import { container } from './config/container.js';
 import { HealthController } from './infrastructure/http/controllers/HealthController.js';
-import { GitHubService } from './github/index.js';
+import { GitHubService, LanguageCollectorService } from './github/index.js';
 
 const app = express();
 
@@ -45,6 +45,22 @@ app.get('/api/test/github', (req, res, next) => {
         'public repositories': user.public_repos,
         followers: user.followers,
       });
+    } catch (error) {
+      next(error);
+    }
+  })();
+});
+
+// Temporary test endpoint for language collection
+app.get('/api/test/github/languages', (req, res, next) => {
+  void (async () => {
+    try {
+      const token =
+        (req.query.token as string) || (req.headers['x-github-token'] as string) || undefined;
+      const username = (req.query.username as string) || undefined;
+      const languageCollector = container.resolve(LanguageCollectorService);
+      const result = await languageCollector.collectLanguages(username, { token });
+      res.json(result);
     } catch (error) {
       next(error);
     }

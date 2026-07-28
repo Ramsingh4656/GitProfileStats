@@ -168,6 +168,17 @@ export class GitHubService {
   }
 
   /**
+   * Fetches languages of a specific repository.
+   */
+  public async getRepositoryLanguages(
+    owner: string,
+    repo: string,
+    token?: string,
+  ): Promise<Record<string, number>> {
+    return this.request<Record<string, number>>(`/repos/${owner}/${repo}/languages`, token);
+  }
+
+  /**
    * Fetches every repository by handling pagination automatically.
    * If a token is provided (or default is set) and no username is specified,
    * it includes private repositories the token has access to.
