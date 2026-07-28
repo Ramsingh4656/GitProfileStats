@@ -8,6 +8,8 @@ import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { routes } from './infrastructure/http/routes/index.js';
 import { errorHandler } from './infrastructure/http/middleware/errorHandler.js';
+import { container } from './config/container.js';
+import { HealthController } from './infrastructure/http/controllers/HealthController.js';
 
 const app = express();
 
@@ -24,6 +26,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint
+const healthController = container.resolve(HealthController);
+app.get('/health', healthController.check);
+
 // API Routes
 app.use('/api/v1', routes);
 
@@ -33,3 +39,4 @@ app.use(errorHandler);
 app.listen(env.PORT, () => {
   logger.info(`🚀 API Server running on port ${env.PORT.toString()} in ${env.NODE_ENV} mode`);
 });
+
