@@ -9,14 +9,8 @@
     "composite": false,
     "declaration": false,
     "declarationMap": false,
-    "baseUrl": ".",
-    "paths": {
-      "@domain/*": ["./src/domain/*"],
-      "@application/*": ["./src/application/*"],
-      "@infrastructure/*": ["./src/infrastructure/*"],
-      "@config/*": ["./src/config/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "exclude": ["node_modules", "dist"]
 }

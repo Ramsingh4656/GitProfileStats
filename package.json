@@ -16,14 +16,9 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "test:coverage": "turbo run test:coverage",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "clean": "turbo run clean && rimraf node_modules",
-    "db:generate": "turbo run db:generate --filter=@gitprofilestats/api",
-    "db:migrate": "turbo run db:migrate --filter=@gitprofilestats/api",
-    "db:push": "turbo run db:push --filter=@gitprofilestats/api",
     "prepare": "husky"
   },
   "devDependencies": {

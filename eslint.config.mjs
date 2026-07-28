@@ -11,7 +11,6 @@ export default tseslint.config(
       '**/.next/**',
       '**/coverage/**',
       '**/.turbo/**',
-      '**/prisma/migrations/**',
     ],
   },
 

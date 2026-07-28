@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe';
-import { IUserRepository } from '../../../domain/interfaces/IUserRepository.js';
+import type { IUserRepository } from '../../../domain/interfaces/IUserRepository.js';
 import { UserNotFoundError } from '../../../domain/errors/DomainError.js';
 import { IUserProfileResponse } from '../../dtos/UserProfileDTO.js';
 

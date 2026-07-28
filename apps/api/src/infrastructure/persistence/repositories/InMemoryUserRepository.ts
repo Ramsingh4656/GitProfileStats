@@ -1,6 +1,6 @@
 import { injectable } from 'tsyringe';
-import { User } from '../../../../domain/entities/User.js';
-import { IUserRepository } from '../../../../domain/interfaces/IUserRepository.js';
+import { User } from '../../../domain/entities/User.js';
+import { IUserRepository } from '../../../domain/interfaces/IUserRepository.js';
 
 @injectable()
 export class InMemoryUserRepository implements IUserRepository {
