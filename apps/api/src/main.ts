@@ -10,7 +10,7 @@ import { routes } from './infrastructure/http/routes/index.js';
 import { errorHandler } from './infrastructure/http/middleware/errorHandler.js';
 import { container } from './config/container.js';
 import { HealthController } from './infrastructure/http/controllers/HealthController.js';
-import { GitHubService, LanguageCollectorService, StatsService } from './github/index.js';
+import { GitHubService, LanguageCollectorService, StatsService, RepositoryStatsService } from './github/index.js';
 
 const app = express();
 
@@ -76,6 +76,22 @@ app.get('/api/test/github/stats', (req, res, next) => {
       const username = (req.query.username as string) || undefined;
       const statsService = container.resolve(StatsService);
       const result = await statsService.getStats(username, { token });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  })();
+});
+
+// Temporary test endpoint for repository stats
+app.get('/api/test/github/repo-stats', (req, res, next) => {
+  void (async () => {
+    try {
+      const token =
+        (req.query.token as string) || (req.headers['x-github-token'] as string) || undefined;
+      const username = (req.query.username as string) || undefined;
+      const repositoryStatsService = container.resolve(RepositoryStatsService);
+      const result = await repositoryStatsService.getRepositoryStats(username, { token });
       res.json(result);
     } catch (error) {
       next(error);

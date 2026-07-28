@@ -10,6 +10,10 @@ export interface IRepositoryStats {
   original: number;
   archived: number;
   disabled: number;
+  totalStars: number;
+  totalForks: number;
+  totalWatchers: number;
+  openIssuesCount: number;
 }
 
 @injectable()
@@ -39,6 +43,10 @@ export class RepositoryStatsService {
     let originalCount = 0;
     let archivedCount = 0;
     let disabledCount = 0;
+    let totalStars = 0;
+    let totalForks = 0;
+    let totalWatchers = 0;
+    let openIssuesCount = 0;
 
     for (const repo of repos) {
       if (repo.private) {
@@ -60,6 +68,11 @@ export class RepositoryStatsService {
       if (repo.disabled) {
         disabledCount++;
       }
+
+      totalStars += repo.stargazers_count ?? 0;
+      totalForks += repo.forks_count ?? 0;
+      totalWatchers += repo.watchers_count ?? 0;
+      openIssuesCount += repo.open_issues_count ?? 0;
     }
 
     const stats: IRepositoryStats = {
@@ -70,6 +83,10 @@ export class RepositoryStatsService {
       original: originalCount,
       archived: archivedCount,
       disabled: disabledCount,
+      totalStars,
+      totalForks,
+      totalWatchers,
+      openIssuesCount,
     };
 
     logger.info({ username }, 'Successfully calculated repository stats');
