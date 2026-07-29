@@ -1,13 +1,15 @@
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export interface Theme {
   name: string;
-  bg: string;
-  text: string;
-  textMuted: string;
-  primary: string;
-  secondary: string;
-  accent: string;
+  background: string;
+  primaryText: string;
+  secondaryText: string;
   border: string;
-  trackBg: string;
+  accent: string;
+  progressColors: {
+    background: string;
+    fill: string;
+  };
   fontFamily?: string;
 }
 
