@@ -122,3 +122,19 @@ export interface IconOptions {
   customAttributes?: Record<string, string>;
 }
 
+export interface TypographyOptions {
+  x: number | string;
+  y: number | string;
+  text: string;
+  maxWidth?: number;
+  color?: string;
+  fontFamily?: string;
+  fontWeight?: string | number;
+  textAnchor?: 'start' | 'middle' | 'end';
+  dominantBaseline?: 'auto' | 'middle' | 'hanging' | 'central' | 'alphabetic';
+  opacity?: number | string;
+  className?: string;
+  customAttributes?: Record<string, string>;
+}
+
+
