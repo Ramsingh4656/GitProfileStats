@@ -3,14 +3,23 @@ import { GitHubService } from './github.service.js';
 import { logger } from '../config/logger.js';
 
 export interface ILanguageStat {
+  language: string;
   bytes: number;
   percentage: number;
+  repositoryCount: number;
 }
 
-export type LanguageCollectionResult = Record<string, ILanguageStat>;
+export type LanguageCollectionResult = ILanguageStat[];
+
+export interface ILanguageCollectorService {
+  collectLanguages(
+    username?: string,
+    options?: { token?: string },
+  ): Promise<LanguageCollectionResult>;
+}
 
 @injectable()
-export class LanguageCollectorService {
+export class LanguageCollectorService implements ILanguageCollectorService {
   constructor(
     @inject(GitHubService)
     private readonly gitHubService: GitHubService,
@@ -46,28 +55,37 @@ export class LanguageCollectorService {
     const languagesArray = await Promise.all(languagePromises);
 
     // 3. Aggregate all languages
-    const combined: Record<string, number> = {};
+    const combinedBytes: Record<string, number> = {};
+    const combinedRepoCount: Record<string, number> = {};
     let totalBytes = 0;
 
     for (const repoLanguages of languagesArray) {
       for (const [lang, bytes] of Object.entries(repoLanguages)) {
-        combined[lang] = (combined[lang] ?? 0) + bytes;
-        totalBytes += bytes;
+        if (bytes > 0) {
+          combinedBytes[lang] = (combinedBytes[lang] ?? 0) + bytes;
+          combinedRepoCount[lang] = (combinedRepoCount[lang] ?? 0) + 1;
+          totalBytes += bytes;
+        }
       }
     }
 
-    // 4. Calculate percentages
-    const result: LanguageCollectionResult = {};
-    for (const [lang, bytes] of Object.entries(combined)) {
+    // 4. Calculate percentages and construct list
+    const result: LanguageCollectionResult = [];
+    for (const [lang, bytes] of Object.entries(combinedBytes)) {
       const percentage = totalBytes > 0 ? Number(((bytes / totalBytes) * 100).toFixed(2)) : 0;
-      result[lang] = {
+      result.push({
+        language: lang,
         bytes,
         percentage,
-      };
+        repositoryCount: combinedRepoCount[lang] ?? 0,
+      });
     }
 
+    // 5. Sort descending by usage (bytes)
+    result.sort((a, b) => b.bytes - a.bytes);
+
     logger.info(
-      { totalBytes, languagesCount: Object.keys(result).length },
+      { totalBytes, languagesCount: result.length },
       'Language stats aggregation completed',
     );
     return result;
