@@ -10,7 +10,7 @@ import { routes } from './infrastructure/http/routes/index.js';
 import { errorHandler } from './infrastructure/http/middleware/errorHandler.js';
 import { container } from './config/container.js';
 import { HealthController } from './infrastructure/http/controllers/HealthController.js';
-import { GitHubService, LanguageCollectorService, StatsService, RepositoryStatsService, CommitStatsService, ContributionService } from './github/index.js';
+import { GitHubService, LanguageCollectorService, StatsService, RepositoryStatsService, CommitStatsService, ContributionService, PullRequestService } from './github/index.js';
 
 const app = express();
 
@@ -124,6 +124,22 @@ app.get('/api/test/github/contribution-stats', (req, res, next) => {
       const username = (req.query.username as string) || undefined;
       const contributionService = container.resolve(ContributionService);
       const result = await contributionService.getContributionStats(username, { token });
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  })();
+});
+
+// Temporary test endpoint for pull request stats
+app.get('/api/test/github/pull-requests', (req, res, next) => {
+  void (async () => {
+    try {
+      const token =
+        (req.query.token as string) || (req.headers['x-github-token'] as string) || undefined;
+      const username = (req.query.username as string) || undefined;
+      const pullRequestService = container.resolve(PullRequestService);
+      const result = await pullRequestService.getPullRequestStats(username, { token });
       res.json(result);
     } catch (error) {
       next(error);
