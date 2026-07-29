@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/naming-convention
+/* eslint-disable @typescript-eslint/naming-convention */
 export interface Theme {
   name: string;
   background: string;
@@ -101,3 +101,24 @@ export interface ProgressBarOptions {
   backgroundColor?: string;
   className?: string;
 }
+
+export type IconName =
+  | 'star'
+  | 'repo'
+  | 'fork'
+  | 'commit'
+  | 'pullRequest'
+  | 'issue'
+  | 'followers'
+  | 'language';
+
+export interface IconOptions {
+  name: IconName;
+  x?: number | string;
+  y?: number | string;
+  size?: number | string;
+  fill?: string;
+  className?: string;
+  customAttributes?: Record<string, string>;
+}
+
