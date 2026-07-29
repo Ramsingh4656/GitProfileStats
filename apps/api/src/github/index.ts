@@ -4,4 +4,6 @@ export * from './stats.service.js';
 export * from './repository-stats.service.js';
 export * from './repository-ranking.service.js';
 export * from './commit-stats.service.js';
+export * from './contribution.service.js';
+
 
