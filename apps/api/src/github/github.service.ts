@@ -219,4 +219,60 @@ export class GitHubService {
 
     return allRepos;
   }
+
+  /**
+   * Helper to perform GraphQL requests against the GitHub GraphQL API.
+   */
+  public async graphql<T>(
+    query: string,
+    variables?: Record<string, any>,
+    token?: string,
+  ): Promise<T> {
+    const url = 'https://api.github.com/graphql';
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'GitProfileStats-API',
+    };
+
+    const activeToken = token || this.defaultToken;
+    if (activeToken) {
+      headers['Authorization'] = `Bearer ${activeToken}`;
+    }
+
+    try {
+      logger.debug({ hasToken: !!activeToken }, 'Sending request to GitHub GraphQL API');
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query, variables }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'No response body');
+        logger.error(
+          { status: response.status, statusText: response.statusText, errorText },
+          'GitHub GraphQL API request failed',
+        );
+        throw new Error(
+          `GitHub GraphQL error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+        );
+      }
+
+      const result = (await response.json()) as { data?: T; errors?: any[] };
+      if (result.errors && result.errors.length > 0) {
+        logger.error({ errors: result.errors }, 'GitHub GraphQL returned errors');
+        throw new Error(`GitHub GraphQL errors: ${JSON.stringify(result.errors)}`);
+      }
+
+      if (!result.data) {
+        throw new Error('GitHub GraphQL returned no data');
+      }
+
+      return result.data;
+    } catch (error) {
+      logger.error({ error }, 'Error calling GitHub GraphQL API');
+      throw error;
+    }
+  }
 }

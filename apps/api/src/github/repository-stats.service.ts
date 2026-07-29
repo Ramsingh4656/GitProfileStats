@@ -69,10 +69,10 @@ export class RepositoryStatsService {
         disabledCount++;
       }
 
-      totalStars += repo.stargazers_count ?? 0;
-      totalForks += repo.forks_count ?? 0;
-      totalWatchers += repo.watchers_count ?? 0;
-      openIssuesCount += repo.open_issues_count ?? 0;
+      totalStars += repo.stargazers_count;
+      totalForks += repo.forks_count;
+      totalWatchers += repo.watchers_count;
+      openIssuesCount += repo.open_issues_count;
     }
 
     const stats: IRepositoryStats = {

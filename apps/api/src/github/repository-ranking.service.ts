@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { injectable, inject } from 'tsyringe';
 import { GitHubService, GitHubRepository } from './github.service.js';
 import { logger } from '../config/logger.js';
