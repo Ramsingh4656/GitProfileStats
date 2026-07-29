@@ -2,6 +2,7 @@
 import { injectable } from 'tsyringe';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
+import { GitHubApiError } from '../domain/errors/DomainError.js';
 
 export interface GitHubUser {
   login: string;
@@ -103,8 +104,10 @@ export class GitHubService {
           { url, status: response.status, statusText: response.statusText, errorText },
           'GitHub API request failed',
         );
-        throw new Error(
+        throw new GitHubApiError(
           `GitHub API error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+          response.status,
+          'GITHUB_API_ERROR',
         );
       }
 
@@ -254,19 +257,25 @@ export class GitHubService {
           { status: response.status, statusText: response.statusText, errorText },
           'GitHub GraphQL API request failed',
         );
-        throw new Error(
+        throw new GitHubApiError(
           `GitHub GraphQL error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+          response.status,
+          'GITHUB_GRAPHQL_ERROR',
         );
       }
 
       const result = (await response.json()) as { data?: T; errors?: any[] };
       if (result.errors && result.errors.length > 0) {
         logger.error({ errors: result.errors }, 'GitHub GraphQL returned errors');
-        throw new Error(`GitHub GraphQL errors: ${JSON.stringify(result.errors)}`);
+        throw new GitHubApiError(
+          `GitHub GraphQL errors: ${JSON.stringify(result.errors)}`,
+          400,
+          'GITHUB_GRAPHQL_ERROR',
+        );
       }
 
       if (!result.data) {
-        throw new Error('GitHub GraphQL returned no data');
+        throw new GitHubApiError('GitHub GraphQL returned no data', 500, 'GITHUB_GRAPHQL_ERROR');
       }
 
       return result.data;

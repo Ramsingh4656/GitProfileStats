@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { routes } from './infrastructure/http/routes/index.js';
+import { githubRoutes } from './infrastructure/http/routes/githubRoutes.js';
 import { errorHandler } from './infrastructure/http/middleware/errorHandler.js';
 import { container } from './config/container.js';
 import { HealthController } from './infrastructure/http/controllers/HealthController.js';
@@ -191,6 +192,7 @@ app.get('/api/test/github/statistics', (req, res, next) => {
 
 // API Routes
 app.use('/api/v1', routes);
+app.use('/api', githubRoutes);
 
 // Centralized error handling
 app.use(errorHandler);

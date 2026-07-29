@@ -31,3 +31,14 @@ export class AuthenticationError extends DomainError {
     super(message, 'AUTHENTICATION_FAILED');
   }
 }
+
+export class GitHubApiError extends DomainError {
+  constructor(
+    message: string,
+    public readonly statusCode: number = 502,
+    code = 'GITHUB_API_ERROR',
+  ) {
+    super(message, code);
+  }
+}
+
