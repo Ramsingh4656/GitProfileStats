@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import { env } from './config/env.js';
 import { logger } from './config/logger.js';
 import { routes } from './infrastructure/http/routes/index.js';
@@ -26,12 +27,17 @@ import {
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
 app.use(cors({ origin: env.WEB_BASE_URL, credentials: true }));
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(express.static(path.resolve(process.cwd(), 'public')));
 
 // Request logger middleware
 app.use((req, res, next) => {

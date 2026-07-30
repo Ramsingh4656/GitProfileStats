@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=device-width, initial-scale=1.0">
+  <title>GitProfileStats — Card Showcase</title>
+  <!-- Modern Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Styling variables for showcase dashboard */
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: rgba(22, 30, 49, 0.7);
+      --bg-input: #121824;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --font-title: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+      background-attachment: fixed;
+      font-family: var(--font-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Header styling */
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-icon {
+      font-size: 2.25rem;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+
+    h1 {
+      font-family: var(--font-title);
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(to right, #ffffff, #d1d5db);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.125rem;
+      margin-top: 0.5rem;
+      font-weight: 400;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 3rem;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .control-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .control-input {
+      background-color: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      padding: 0.75rem 1rem;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      outline: none;
+      width: 100%;
+    }
+
+    .control-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    select.control-input {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.25rem;
+      padding-right: 2.5rem;
+    }
+
+    .checkbox-group {
+      flex-direction: row;
+      align-items: center;
+      min-width: auto;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-group input {
+      width: 1.25rem;
+      height: 1.25rem;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .checkbox-group label {
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 2.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card-wrapper {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.75rem;
+      box-shadow: var(--glass-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-wrapper:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .card-badge {
+      font-size: 0.75rem;
+      background: rgba(59, 130, 246, 0.2);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      color: #60a5fa;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    /* SVG Preview container */
+    .svg-container {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 220px;
+      overflow: auto;
+      border: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    .svg-preview {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Embed Code block */
+    .embed-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .embed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .embed-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      font-weight: 500;
+    }
+
+    .btn-copy:hover {
+      background: var(--accent-gradient);
+      border-color: transparent;
+    }
+
+    .code-block {
+      background: #06090f;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.825rem;
+      color: #34d399;
+      white-space: nowrap;
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      margin-top: 5rem;
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <span class="logo-icon">⚡</span>
+        <h1>GitProfileStats</h1>
+      </div>
+      <p class="subtitle">Premium Dynamic Profile Cards for your GitHub README</p>
+    </header>
+
+    <!-- Controls Panel -->
+    <section class="controls-panel">
+      <div class="control-group">
+        <label for="usernameInput">GitHub Username</label>
+        <input type="text" id="usernameInput" class="control-input" value="demo" placeholder="e.g., octocat">
+      </div>
+
+      <div class="control-group">
+        <label for="themeSelect">Card Theme</label>
+        <select id="themeSelect" class="control-input">
+          <option value="dark">Dark (Default)</option>
+          <option value="light">Light</option>
+          <option value="github">GitHub</option>
+          <option value="dracula">Dracula</option>
+          <option value="nord">Nord</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="langsCountInput">Max Languages (Languages Card)</label>
+        <input type="number" id="langsCountInput" class="control-input" value="5" min="1" max="10">
+      </div>
+
+      <div class="control-group checkbox-group">
+        <input type="checkbox" id="mockCheckbox" checked>
+        <label for="mockCheckbox">Force Mock Preview Data</label>
+      </div>
+    </section>
+
+    <!-- Cards Display Grid -->
+    <main class="cards-grid">
+      <!-- Profile Card -->
+      <article class="card-wrapper" id="profile-wrapper">
+        <div class="card-header">
+          <h2 class="card-title">Profile Card</h2>
+          <span class="card-badge">profile.svg</span>
+        </div>
+        <div class="svg-container">
+          <img id="profilePreview" class="svg-preview" alt="Profile Card Preview">
+        </div>
+        <div class="embed-section">
+          <div class="embed-header">
+            <span class="embed-label">Embed Markdown</span>
+            <button class="btn-copy" onclick="copyEmbed('profileEmbed')">Copy Code</button>
+          </div>
+          <pre id="profileEmbed" class="code-block"></pre>
+        </div>
+      </article>
+
+      <!-- Stats Card -->
+      <article class="card-wrapper" id="stats-wrapper">
+        <div class="card-header">
+          <h2 class="card-title">Stats Card</h2>
+          <span class="card-badge">stats.svg</span>
+        </div>
+        <div class="svg-container">
+          <img id="statsPreview" class="svg-preview" alt="Stats Card Preview">
+        </div>
+        <div class="embed-section">
+          <div class="embed-header">
+            <span class="embed-label">Embed Markdown</span>
+            <button class="btn-copy" onclick="copyEmbed('statsEmbed')">Copy Code</button>
+          </div>
+          <pre id="statsEmbed" class="code-block"></pre>
+        </div>
+      </article>
+
+      <!-- Language Card -->
+      <article class="card-wrapper" id="languages-wrapper">
+        <div class="card-header">
+          <h2 class="card-title">Language Card</h2>
+          <span class="card-badge">languages.svg</span>
+        </div>
+        <div class="svg-container">
+          <img id="languagesPreview" class="svg-preview" alt="Language Card Preview">
+        </div>
+        <div class="embed-section">
+          <div class="embed-header">
+            <span class="embed-label">Embed Markdown</span>
+            <button class="btn-copy" onclick="copyEmbed('languagesEmbed')">Copy Code</button>
+          </div>
+          <pre id="languagesEmbed" class="code-block"></pre>
+        </div>
+      </article>
+
+      <!-- Streak Card -->
+      <article class="card-wrapper" id="streak-wrapper">
+        <div class="card-header">
+          <h2 class="card-title">Streak Card</h2>
+          <span class="card-badge">streak.svg</span>
+        </div>
+        <div class="svg-container">
+          <img id="streakPreview" class="svg-preview" alt="Streak Card Preview">
+        </div>
+        <div class="embed-section">
+          <div class="embed-header">
+            <span class="embed-label">Embed Markdown</span>
+            <button class="btn-copy" onclick="copyEmbed('streakEmbed')">Copy Code</button>
+          </div>
+          <pre id="streakEmbed" class="code-block"></pre>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <p>GitProfileStats System — Created with 💻 and ☕. Backed by Clean Architecture.</p>
+    </footer>
+  </div>
+
+  <script>
+    const host = window.location.origin;
+
+    const usernameInput = document.getElementById('usernameInput');
+    const themeSelect = document.getElementById('themeSelect');
+    const langsCountInput = document.getElementById('langsCountInput');
+    const mockCheckbox = document.getElementById('mockCheckbox');
+
+    const profilePreview = document.getElementById('profilePreview');
+    const statsPreview = document.getElementById('statsPreview');
+    const languagesPreview = document.getElementById('languagesPreview');
+    const streakPreview = document.getElementById('streakPreview');
+
+    const profileEmbed = document.getElementById('profileEmbed');
+    const statsEmbed = document.getElementById('statsEmbed');
+    const languagesEmbed = document.getElementById('languagesEmbed');
+    const streakEmbed = document.getElementById('streakEmbed');
+
+    function updatePreviews() {
+      const username = encodeURIComponent(usernameInput.value.trim() || 'demo');
+      const theme = themeSelect.value;
+      const langsCount = parseInt(langsCountInput.value) || 5;
+      const useMock = mockCheckbox.checked;
+
+      // Base query params
+      const qParams = new URLSearchParams();
+      qParams.set('username', username);
+      if (theme) qParams.set('theme', theme);
+      if (useMock) qParams.set('mock', 'true');
+
+      // Random string to avoid local browser caching during development adjustments
+      const cacheBust = `&cb=${Date.now()}`;
+
+      // Profile Card URLs
+      const profileUrl = `${host}/api/cards/profile.svg?${qParams.toString()}`;
+      profilePreview.src = profileUrl + cacheBust;
+      profileEmbed.textContent = `![GitHub Profile Card](${profileUrl})`;
+
+      // Stats Card URLs
+      const statsUrl = `${host}/api/cards/stats.svg?${qParams.toString()}`;
+      statsPreview.src = statsUrl + cacheBust;
+      statsEmbed.textContent = `![GitHub Stats Card](${statsUrl})`;
+
+      // Languages Card URLs
+      const langParams = new URLSearchParams(qParams);
+      if (langsCount !== 5) langParams.set('langs_count', langsCount);
+      const languagesUrl = `${host}/api/cards/languages.svg?${langParams.toString()}`;
+      languagesPreview.src = languagesUrl + cacheBust;
+      languagesEmbed.textContent = `![GitHub Language Card](${languagesUrl})`;
+
+      // Streak Card URLs
+      const streakUrl = `${host}/api/cards/streak.svg?${qParams.toString()}`;
+      streakPreview.src = streakUrl + cacheBust;
+      streakEmbed.textContent = `![GitHub Streak Card](${streakUrl})`;
+    }
+
+    function copyEmbed(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.background = '#10b981';
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.style.background = '';
+        }, 1500);
+      });
+    }
+
+    // Attach event listeners for real-time reactivity
+    usernameInput.addEventListener('input', updatePreviews);
+    themeSelect.addEventListener('change', updatePreviews);
+    langsCountInput.addEventListener('input', updatePreviews);
+    mockCheckbox.addEventListener('change', updatePreviews);
+
+    // Initial render
+    updatePreviews();
+  </script>
+</body>
+</html>

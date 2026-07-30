@@ -437,7 +437,7 @@ export function renderLayout(computedNode: ComputedNode): string {
             height,
             rx: node.style.rx,
             ry: node.style.ry,
-            fill: node.style.fill,
+            fill: node.style.fill ?? 'none',
             stroke: node.style.stroke,
             strokeWidth: node.style.strokeWidth,
             opacity: node.style.opacity,

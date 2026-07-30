@@ -92,7 +92,7 @@ export function generateThemeStyles(theme: Theme): string {
     theme.fontFamily ??
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
   return `
-    :root {
+    svg {
       --color-bg: ${theme.background};
       --color-text: ${theme.primaryText};
       --color-text-muted: ${theme.secondaryText};
@@ -102,8 +102,6 @@ export function generateThemeStyles(theme: Theme): string {
       --color-border: ${theme.border};
       --color-track-bg: ${theme.progressColors.background};
       --font-family: ${font};
-    }
-    svg {
       background-color: var(--color-bg);
       font-family: var(--font-family);
     }

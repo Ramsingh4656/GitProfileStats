@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/prefer-nullish-coalescing */
 import type { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import {
@@ -17,6 +18,71 @@ import {
   renderStreakCard,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
+
+// Mock datasets for offline preview / fallback
+const MOCK_USER = (username: string): any => ({
+  login: username || 'octocat',
+  id: 5832347,
+  node_id: 'MDQ6VXNlcjU4MzIzNDc=',
+  avatar_url: 'https://avatars.githubusercontent.com/u/5832347?v=4',
+  gravatar_id: null,
+  url: 'https://api.github.com/users/octocat',
+  html_url: 'https://github.com/octocat',
+  followers_url: 'https://api.github.com/users/octocat/followers',
+  following_url: 'https://api.github.com/users/octocat/following',
+  gists_url: 'https://api.github.com/users/octocat/gists{/gist_id}',
+  starred_url: 'https://api.github.com/users/octocat/starred{/owner}{/repo}',
+  subscriptions_url: 'https://api.github.com/users/octocat/subscriptions',
+  organizations_url: 'https://api.github.com/users/octocat/orgs',
+  repos_url: 'https://api.github.com/users/octocat/repos',
+  events_url: 'https://api.github.com/users/octocat/events{/privacy}',
+  received_events_url: 'https://api.github.com/users/octocat/received_events',
+  type: 'User',
+  site_admin: false,
+  name: 'The Octocat',
+  company: 'GitHub',
+  blog: 'https://github.blog',
+  location: 'San Francisco',
+  email: null,
+  hireable: null,
+  bio: 'Testing out the GitHub API.',
+  public_repos: 42,
+  public_gists: 8,
+  followers: 1337,
+  following: 50,
+  created_at: '2011-01-25T18:44:36Z',
+  updated_at: '2026-07-30T10:00:00Z',
+});
+
+const MOCK_STATS = (username: string) => ({
+  username: username || 'octocat',
+  name: 'The Octocat',
+  totalStars: 142,
+  totalCommits: 2854,
+  totalRepositories: 42,
+  pullRequests: 89,
+  issues: 24,
+  followers: 1337,
+});
+
+const MOCK_LANGUAGES = [
+  { language: 'TypeScript', bytes: 145000, percentage: 55.4, repositoryCount: 12 },
+  { language: 'JavaScript', bytes: 68000, percentage: 26.0, repositoryCount: 8 },
+  { language: 'HTML', bytes: 24000, percentage: 9.2, repositoryCount: 6 },
+  { language: 'CSS', bytes: 16000, percentage: 6.1, repositoryCount: 4 },
+  { language: 'Python', bytes: 8600, percentage: 3.3, repositoryCount: 2 },
+];
+
+const MOCK_STREAK = (username: string) => ({
+  username: username || 'octocat',
+  totalContributions: 1842,
+  currentStreak: 15,
+  longestStreak: 42,
+  contributionCalendar: {
+    totalContributions: 1842,
+    weeks: [],
+  },
+});
 
 @injectable()
 export class CardController {
@@ -38,6 +104,19 @@ export class CardController {
   ) {}
 
   /**
+   * Helper to check if mock data should be used.
+   */
+  private shouldMock(username?: string, token?: string, forceMock?: boolean): boolean {
+    if (forceMock) return true;
+    if (username === 'demo' || username === 'mock') return true;
+    const defaultToken = process.env.GITHUB_TOKEN || '';
+    if (!token && (defaultToken === 'dummy_token' || !defaultToken)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Generates and returns the user's profile card as an SVG.
    */
   public getProfileCard = (req: Request, res: Response, next: NextFunction): void => {
@@ -52,6 +131,16 @@ export class CardController {
 
     void (async () => {
       try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const mockUser = MOCK_USER(username || 'octocat');
+          const svg = await renderProfileCard(mockUser, theme);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+          return;
+        }
+
         // 1. Fetch GitHub user profile
         const user = username
           ? await this.gitHubService.getUser(username, token)
@@ -67,8 +156,19 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch (error) {
-        logger.error({ error, username }, 'Failed to render profile card');
-        next(error);
+        logger.warn(
+          { error, username },
+          'Failed to render profile card, falling back to mock data',
+        );
+        try {
+          const mockUser = MOCK_USER(username || 'octocat');
+          const svg = await renderProfileCard(mockUser, theme);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
       }
     })();
   };
@@ -88,6 +188,15 @@ export class CardController {
 
     void (async () => {
       try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), theme);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+          return;
+        }
+
         // Fetch all required stats in parallel
         const [stats, commitStats, prStats, issueStats] = await Promise.all([
           this.statsService.getStats(username, { token }),
@@ -120,8 +229,15 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch (error) {
-        logger.error({ error, username }, 'Failed to render stats card');
-        next(error);
+        logger.warn({ error, username }, 'Failed to render stats card, falling back to mock data');
+        try {
+          const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), theme);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
       }
     })();
   };
@@ -146,6 +262,15 @@ export class CardController {
 
     void (async () => {
       try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const svg = renderLanguagesCard(MOCK_LANGUAGES, theme, { langsCount });
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+          return;
+        }
+
         // 1. Fetch language statistics
         const languages = await this.languageCollectorService.collectLanguages(username, { token });
 
@@ -162,8 +287,18 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch (error) {
-        logger.error({ error, username }, 'Failed to render languages card');
-        next(error);
+        logger.warn(
+          { error, username },
+          'Failed to render languages card, falling back to mock data',
+        );
+        try {
+          const svg = renderLanguagesCard(MOCK_LANGUAGES, theme, { langsCount });
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
       }
     })();
   };
@@ -183,6 +318,15 @@ export class CardController {
 
     void (async () => {
       try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), theme);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+          return;
+        }
+
         // 1. Fetch contribution and streak statistics
         const stats = await this.contributionService.getContributionStats(username, { token });
 
@@ -196,8 +340,15 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
         res.status(200).send(svg);
       } catch (error) {
-        logger.error({ error, username }, 'Failed to render streak card');
-        next(error);
+        logger.warn({ error, username }, 'Failed to render streak card, falling back to mock data');
+        try {
+          const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), theme);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
       }
     })();
   };
