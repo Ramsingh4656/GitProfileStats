@@ -7,9 +7,15 @@ import {
   PullRequestService,
   IssueStatisticsService,
   LanguageCollectorService,
+  ContributionService,
 } from '../../../github/index.js';
 import type { IGitHubRequest } from '../middleware/validation.js';
-import { renderProfileCard, renderStatsCard, renderLanguagesCard } from '../../../cards/index.js';
+import {
+  renderProfileCard,
+  renderStatsCard,
+  renderLanguagesCard,
+  renderStreakCard,
+} from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
 
 @injectable()
@@ -27,6 +33,8 @@ export class CardController {
     private readonly issueStatisticsService: IssueStatisticsService,
     @inject(LanguageCollectorService)
     private readonly languageCollectorService: LanguageCollectorService,
+    @inject(ContributionService)
+    private readonly contributionService: ContributionService,
   ) {}
 
   /**
@@ -155,6 +163,40 @@ export class CardController {
         res.status(200).send(svg);
       } catch (error) {
         logger.error({ error, username }, 'Failed to render languages card');
+        next(error);
+      }
+    })();
+  };
+
+  /**
+   * Generates and returns the user's streak stats card as an SVG.
+   */
+  public getStreakCard = (req: Request, res: Response, next: NextFunction): void => {
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      throw new Error('GitHub parameters not found');
+    }
+    const { username, token } = githubParams;
+    const theme = req.query.theme as string | undefined;
+
+    logger.info({ username, hasToken: !!token, theme }, 'Received request to render streak card');
+
+    void (async () => {
+      try {
+        // 1. Fetch contribution and streak statistics
+        const stats = await this.contributionService.getContributionStats(username, { token });
+
+        logger.debug({ username: stats.username }, 'Fetched contribution stats for streak card');
+
+        // 2. Render SVG Streak Card
+        const svg = renderStreakCard(stats, theme);
+
+        // 3. Return response with SVG headers and caching
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.status(200).send(svg);
+      } catch (error) {
+        logger.error({ error, username }, 'Failed to render streak card');
         next(error);
       }
     })();

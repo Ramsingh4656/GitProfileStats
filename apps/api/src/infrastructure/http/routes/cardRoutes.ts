@@ -15,4 +15,7 @@ router.get('/cards/stats.svg', validateGitHubRequest, cardController.getStatsCar
 // Register languages card route under /cards/languages.svg
 router.get('/cards/languages.svg', validateGitHubRequest, cardController.getLanguagesCard);
 
+// Register streak card route under /cards/streak.svg
+router.get('/cards/streak.svg', validateGitHubRequest, cardController.getStreakCard);
+
 export const cardRoutes = router;

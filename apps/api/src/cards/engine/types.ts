@@ -103,7 +103,16 @@ export interface ProgressBarOptions {
 }
 
 export type IconName =
-  'star' | 'repo' | 'fork' | 'commit' | 'pullRequest' | 'issue' | 'followers' | 'language';
+  | 'star'
+  | 'repo'
+  | 'fork'
+  | 'commit'
+  | 'pullRequest'
+  | 'issue'
+  | 'followers'
+  | 'language'
+  | 'fire'
+  | 'calendar';
 
 export interface IconOptions {
   name: IconName;
