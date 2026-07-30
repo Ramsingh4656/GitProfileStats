@@ -11,7 +11,7 @@ import {
   type IconName,
 } from './engine/index.js';
 
-export interface GitHubStatsData {
+export interface IGitHubStatsData {
   username: string;
   name: string | null;
   totalStars: number;
@@ -66,7 +66,7 @@ function createStatRow(iconName: IconName, label: string, value: number | string
         type: 'leaf',
         width: 16,
         height: 16,
-        render: (x: number, y: number, w: number, h: number) =>
+        render: (x: number, y: number, w: number, _h: number) =>
           icon({
             name: iconName,
             x,
@@ -83,7 +83,7 @@ function createStatRow(iconName: IconName, label: string, value: number | string
           width: estimateTextWidth(label, 13),
           height: 14,
         }),
-        render: (x: number, y: number, w: number, h: number) =>
+        render: (x: number, y: number, _w: number, _h: number) =>
           renderTypography(
             {
               x,
@@ -104,7 +104,7 @@ function createStatRow(iconName: IconName, label: string, value: number | string
           width: estimateTextWidth(valueStr, 13),
           height: 14,
         }),
-        render: (x: number, y: number, w: number, h: number) =>
+        render: (x: number, y: number, _w: number, _h: number) =>
           renderTypography(
             {
               x,
@@ -124,9 +124,9 @@ function createStatRow(iconName: IconName, label: string, value: number | string
 /**
  * Renders a full GitHub Stats Card as an SVG string.
  */
-export async function renderStatsCard(stats: GitHubStatsData, themeName?: string): Promise<string> {
+export function renderStatsCard(stats: IGitHubStatsData, themeName?: string): string {
   const resolvedTheme = resolveTheme(themeName);
-  const titleText = `${stats.name || stats.username}'s GitHub Stats`;
+  const titleText = `${stats.name ?? stats.username}'s GitHub Stats`;
 
   // Build layout tree (490x160)
   const rootNode: ContainerNode = {
@@ -155,7 +155,7 @@ export async function renderStatsCard(stats: GitHubStatsData, themeName?: string
             type: 'leaf',
             width: 20,
             height: 20,
-            render: (x: number, y: number, w: number, h: number) =>
+            render: (x: number, y: number, w: number, _h: number) =>
               icon({
                 name: 'repo',
                 x,
@@ -172,7 +172,7 @@ export async function renderStatsCard(stats: GitHubStatsData, themeName?: string
               width: estimateTextWidth(titleText, 16),
               height: 18,
             }),
-            render: (x: number, y: number, w: number, h: number) =>
+            render: (x: number, y: number, _w: number, _h: number) =>
               renderTypography(
                 {
                   x,

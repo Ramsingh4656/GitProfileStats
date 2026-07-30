@@ -30,13 +30,14 @@ export class CardController {
    * Generates and returns the user's profile card as an SVG.
    */
   public getProfileCard = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      throw new Error('GitHub parameters not found');
+    }
+    const { username, token } = githubParams;
     const theme = req.query.theme as string | undefined;
 
-    logger.info(
-      { username, hasToken: !!token, theme },
-      'Received request to render profile card',
-    );
+    logger.info({ username, hasToken: !!token, theme }, 'Received request to render profile card');
 
     void (async () => {
       try {
@@ -65,13 +66,14 @@ export class CardController {
    * Generates and returns the user's main GitHub stats card as an SVG.
    */
   public getStatsCard = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      throw new Error('GitHub parameters not found');
+    }
+    const { username, token } = githubParams;
     const theme = req.query.theme as string | undefined;
 
-    logger.info(
-      { username, hasToken: !!token, theme },
-      'Received request to render stats card',
-    );
+    logger.info({ username, hasToken: !!token, theme }, 'Received request to render stats card');
 
     void (async () => {
       try {
@@ -88,7 +90,7 @@ export class CardController {
         const totalRepositories = stats.publicRepositories + stats.privateRepositories;
 
         // Render SVG Stats Card
-        const svg = await renderStatsCard(
+        const svg = renderStatsCard(
           {
             username: stats.username,
             name: stats.name,
@@ -113,4 +115,3 @@ export class CardController {
     })();
   };
 }
-
