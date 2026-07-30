@@ -47,15 +47,15 @@ export class CommitStatsService {
 
     // 1. Fetch the user's login and account creation date
     if (!targetUsername) {
-      const data = await this.gitHubService.graphql<{ viewer: { login: string; createdAt: string } }>(
-        `query { viewer { login createdAt } }`,
-        {},
-        options?.token,
-      );
+      const data = await this.gitHubService.graphql<{
+        viewer: { login: string; createdAt: string };
+      }>(`query { viewer { login createdAt } }`, {}, options?.token);
       targetUsername = data.viewer.login;
       createdAt = data.viewer.createdAt;
     } else {
-      const data = await this.gitHubService.graphql<{ user: { login: string; createdAt: string } | null }>(
+      const data = await this.gitHubService.graphql<{
+        user: { login: string; createdAt: string } | null;
+      }>(
         `query($login: String!) { user(login: $login) { login createdAt } }`,
         { login: targetUsername },
         options?.token,
@@ -78,7 +78,7 @@ export class CommitStatsService {
     const startOfYear = new Date(Date.UTC(currentYear, 0, 1, 0, 0, 0, 0));
     const startOfMonth = new Date(Date.UTC(currentYear, now.getUTCMonth(), 1, 0, 0, 0, 0));
     const startOfWeek = new Date(now);
-    
+
     // getUTCDay() returns 0 for Sunday, 1 for Monday, etc.
     startOfWeek.setUTCDate(now.getUTCDate() - now.getUTCDay());
     startOfWeek.setUTCHours(0, 0, 0, 0);
@@ -113,7 +113,8 @@ export class CommitStatsService {
 
     if (signupYear < currentYear) {
       for (let Y = signupYear; Y < currentYear; Y++) {
-        const fromStr = Y === signupYear ? createdAt : new Date(Date.UTC(Y, 0, 1, 0, 0, 0, 0)).toISOString();
+        const fromStr =
+          Y === signupYear ? createdAt : new Date(Date.UTC(Y, 0, 1, 0, 0, 0, 0)).toISOString();
         const toStr = new Date(Date.UTC(Y, 11, 31, 23, 59, 59, 999)).toISOString();
         graphQLQuery += `
           year_${Y.toString()}: contributionsCollection(from: "${fromStr}", to: "${toStr}") {
@@ -142,9 +143,12 @@ export class CommitStatsService {
 
     const { thisYear, thisMonth, thisWeek } = statsData.user;
 
-    const commitsThisYear = thisYear.totalCommitContributions + thisYear.restrictedContributionsCount;
-    const commitsThisMonth = thisMonth.totalCommitContributions + thisMonth.restrictedContributionsCount;
-    const commitsThisWeek = thisWeek.totalCommitContributions + thisWeek.restrictedContributionsCount;
+    const commitsThisYear =
+      thisYear.totalCommitContributions + thisYear.restrictedContributionsCount;
+    const commitsThisMonth =
+      thisMonth.totalCommitContributions + thisMonth.restrictedContributionsCount;
+    const commitsThisWeek =
+      thisWeek.totalCommitContributions + thisWeek.restrictedContributionsCount;
 
     let totalCommits = commitsThisYear;
 

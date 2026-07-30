@@ -23,10 +23,7 @@ export class StatsService {
   /**
    * Generates aggregated statistics for a user.
    */
-  public async getStats(
-    username?: string,
-    options?: { token?: string },
-  ): Promise<IGitHubStats> {
+  public async getStats(username?: string, options?: { token?: string }): Promise<IGitHubStats> {
     logger.info({ username, hasToken: !!options?.token }, 'Generating profile stats');
 
     // 1. Fetch user profile
@@ -51,14 +48,12 @@ export class StatsService {
 
     // Count private repos from fetched list, or fallback to profile fields if available
     const privateReposFromList = repos.filter((repo) => repo.private).length;
-    
+
     const profileRecord = profile as unknown as Record<string, unknown>;
-    const totalPrivateRepos = typeof profileRecord.total_private_repos === 'number'
-      ? profileRecord.total_private_repos
-      : 0;
-    const ownedPrivateRepos = typeof profileRecord.owned_private_repos === 'number'
-      ? profileRecord.owned_private_repos
-      : 0;
+    const totalPrivateRepos =
+      typeof profileRecord.total_private_repos === 'number' ? profileRecord.total_private_repos : 0;
+    const ownedPrivateRepos =
+      typeof profileRecord.owned_private_repos === 'number' ? profileRecord.owned_private_repos : 0;
 
     const profilePrivateRepos = totalPrivateRepos || ownedPrivateRepos;
     const privateRepositories = Math.max(privateReposFromList, profilePrivateRepos);

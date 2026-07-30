@@ -68,15 +68,15 @@ export class ContributionService {
 
     // 1. Fetch the user's login and account creation date
     if (!targetUsername) {
-      const data = await this.gitHubService.graphql<{ viewer: { login: string; createdAt: string } }>(
-        `query { viewer { login createdAt } }`,
-        {},
-        options?.token,
-      );
+      const data = await this.gitHubService.graphql<{
+        viewer: { login: string; createdAt: string };
+      }>(`query { viewer { login createdAt } }`, {}, options?.token);
       targetUsername = data.viewer.login;
       createdAt = data.viewer.createdAt;
     } else {
-      const data = await this.gitHubService.graphql<{ user: { login: string; createdAt: string } | null }>(
+      const data = await this.gitHubService.graphql<{
+        user: { login: string; createdAt: string } | null;
+      }>(
         `query($login: String!) { user(login: $login) { login createdAt } }`,
         { login: targetUsername },
         options?.token,
@@ -88,7 +88,10 @@ export class ContributionService {
       createdAt = data.user.createdAt;
     }
 
-    logger.debug({ username: targetUsername, createdAt }, 'Fetched target user profile for contributions');
+    logger.debug(
+      { username: targetUsername, createdAt },
+      'Fetched target user profile for contributions',
+    );
 
     // 2. Define the year ranges
     const now = new Date();

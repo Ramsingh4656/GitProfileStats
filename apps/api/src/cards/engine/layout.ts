@@ -40,7 +40,10 @@ export interface ContainerNode extends LayoutBaseNode {
 
 export interface LeafNode extends LayoutBaseNode {
   type: 'leaf';
-  measure?: (constraints: { maxWidth: number; maxHeight: number }) => { width: number; height: number };
+  measure?: (constraints: { maxWidth: number; maxHeight: number }) => {
+    width: number;
+    height: number;
+  };
   render: (x: number, y: number, width: number, height: number) => string;
 }
 
@@ -74,7 +77,7 @@ function resolveDimension(
   size: Sizing | undefined,
   constraint: number,
   measureFn: () => number,
-  fallback: number
+  fallback: number,
 ): number {
   if (typeof size === 'number') {
     return size;
@@ -103,7 +106,7 @@ export function computeLayout(
   constraintWidth: number,
   constraintHeight: number,
   x = 0,
-  y = 0
+  y = 0,
 ): ComputedNode {
   const p = getPadding(node.padding);
 
@@ -207,13 +210,13 @@ export function computeLayout(
       node.width,
       constraintWidth,
       () => maxChildWidth + p.left + p.right,
-      maxChildWidth + p.left + p.right
+      maxChildWidth + p.left + p.right,
     );
     let finalHeight = resolveDimension(
       node.height,
       constraintHeight,
       () => totalHeight + p.top + p.bottom,
-      totalHeight + p.top + p.bottom
+      totalHeight + p.top + p.bottom,
     );
 
     // Clip to parent constraints if auto-sized
@@ -240,7 +243,8 @@ export function computeLayout(
     }
 
     // 5. Position and offset children absolute coordinates
-    const totalChildrenHeight = finalChildren.reduce((sum, c) => sum + (c?.height ?? 0), 0) + totalSpacing;
+    const totalChildrenHeight =
+      finalChildren.reduce((sum, c) => sum + (c?.height ?? 0), 0) + totalSpacing;
     const excessHeight = innerHeight - totalChildrenHeight;
     const justifyContent = node.justifyContent ?? 'start';
 
@@ -335,13 +339,13 @@ export function computeLayout(
       node.width,
       constraintWidth,
       () => totalWidth + p.left + p.right,
-      totalWidth + p.left + p.right
+      totalWidth + p.left + p.right,
     );
     let finalHeight = resolveDimension(
       node.height,
       constraintHeight,
       () => maxChildHeight + p.top + p.bottom,
-      maxChildHeight + p.top + p.bottom
+      maxChildHeight + p.top + p.bottom,
     );
 
     // Clip to parent constraints if auto-sized
@@ -368,7 +372,8 @@ export function computeLayout(
     }
 
     // 5. Position and offset children absolute coordinates
-    const totalChildrenWidth = finalChildren.reduce((sum, c) => sum + (c?.width ?? 0), 0) + totalSpacing;
+    const totalChildrenWidth =
+      finalChildren.reduce((sum, c) => sum + (c?.width ?? 0), 0) + totalSpacing;
     const excessWidth = innerWidth - totalChildrenWidth;
     const justifyContent = node.justifyContent ?? 'start';
 
@@ -437,7 +442,7 @@ export function renderLayout(computedNode: ComputedNode): string {
             strokeWidth: node.style.strokeWidth,
             opacity: node.style.opacity,
             className: node.style.className,
-          })
+          }),
         );
       }
 

@@ -12,7 +12,8 @@ export const THEMES: Record<string, Theme> = {
       background: '#eaeef2',
       fill: '#0969da',
     },
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
   },
   dark: {
     name: 'dark',
@@ -25,7 +26,8 @@ export const THEMES: Record<string, Theme> = {
       background: '#161b22',
       fill: '#58a6ff',
     },
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
   },
   github: {
     name: 'github',
@@ -38,7 +40,8 @@ export const THEMES: Record<string, Theme> = {
       background: '#161b22',
       fill: '#2ea44f',
     },
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
   },
   dracula: {
     name: 'dracula',
@@ -85,7 +88,9 @@ export function resolveTheme(themeInput?: string | Theme): Theme {
 }
 
 export function generateThemeStyles(theme: Theme): string {
-  const font = theme.fontFamily ?? '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
+  const font =
+    theme.fontFamily ??
+    '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
   return `
     :root {
       --color-bg: ${theme.background};

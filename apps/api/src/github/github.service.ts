@@ -133,7 +133,6 @@ export class GitHubService {
     return this.request<GitHubUser>(`/users/${username}`, token);
   }
 
-
   /**
    * Fetches repositories.
    * If username is provided, fetches public repositories for that user.

@@ -48,7 +48,7 @@ export function renderTypography(
   options: TypographyOptions,
   defaultFontSize: number,
   defaultFontWeight: string | number,
-  defaultColor: string
+  defaultColor: string,
 ): string {
   const { text: content, maxWidth, color, fontWeight, className, ...rest } = options;
 

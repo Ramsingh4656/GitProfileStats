@@ -30,15 +30,7 @@ export const ICON_PATHS: Record<IconName, string[]> = {
 };
 
 export function icon(options: IconOptions): string {
-  const {
-    name,
-    x,
-    y,
-    size = 16,
-    fill = 'currentColor',
-    className,
-    customAttributes,
-  } = options;
+  const { name, x, y, size = 16, fill = 'currentColor', className, customAttributes } = options;
 
   const paths = ICON_PATHS[name];
 

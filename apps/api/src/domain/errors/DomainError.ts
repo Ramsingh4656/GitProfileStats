@@ -41,4 +41,3 @@ export class GitHubApiError extends DomainError {
     super(message, code);
   }
 }
-

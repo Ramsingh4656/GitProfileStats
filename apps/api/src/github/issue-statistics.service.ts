@@ -92,11 +92,12 @@ export class IssueStatisticsService {
       }
     `;
 
-    const initialData: IInitialIssuesResponse = await this.gitHubService.graphql<IInitialIssuesResponse>(
-      initialQuery,
-      { login: targetUsername },
-      options?.token,
-    );
+    const initialData: IInitialIssuesResponse =
+      await this.gitHubService.graphql<IInitialIssuesResponse>(
+        initialQuery,
+        { login: targetUsername },
+        options?.token,
+      );
 
     if (!initialData.user) {
       throw new Error(`Failed to retrieve issue counts for ${targetUsername}`);
@@ -135,11 +136,12 @@ export class IssueStatisticsService {
         }
       `;
 
-      const pageData: IClosedIssuesResponse = await this.gitHubService.graphql<IClosedIssuesResponse>(
-        pageQuery,
-        { login: targetUsername, cursor },
-        options?.token,
-      );
+      const pageData: IClosedIssuesResponse =
+        await this.gitHubService.graphql<IClosedIssuesResponse>(
+          pageQuery,
+          { login: targetUsername, cursor },
+          options?.token,
+        );
 
       if (!pageData.user || !pageData.user.closedIssuesList) {
         break;
@@ -176,7 +178,9 @@ export class IssueStatisticsService {
     }
 
     const averageCloseTimeHours = parseFloat((averageCloseTimeMs / (1000 * 60 * 60)).toFixed(2));
-    const averageCloseTimeDays = parseFloat((averageCloseTimeMs / (1000 * 60 * 60 * 24)).toFixed(2));
+    const averageCloseTimeDays = parseFloat(
+      (averageCloseTimeMs / (1000 * 60 * 60 * 24)).toFixed(2),
+    );
 
     // Format helper: days and hours
     let averageCloseTimeFormatted = '0d 0h';

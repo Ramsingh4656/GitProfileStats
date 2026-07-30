@@ -5,7 +5,8 @@ import { logger } from '../config/logger.js';
  * Falls back to a 1x1 transparent PNG if the fetch fails or times out.
  */
 export async function fetchBase64Image(url: string): Promise<string> {
-  const fallback = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+  const fallback =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
   if (!url) {
     return fallback;

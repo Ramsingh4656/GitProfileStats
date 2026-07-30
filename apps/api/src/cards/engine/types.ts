@@ -103,14 +103,7 @@ export interface ProgressBarOptions {
 }
 
 export type IconName =
-  | 'star'
-  | 'repo'
-  | 'fork'
-  | 'commit'
-  | 'pullRequest'
-  | 'issue'
-  | 'followers'
-  | 'language';
+  'star' | 'repo' | 'fork' | 'commit' | 'pullRequest' | 'issue' | 'followers' | 'language';
 
 export interface IconOptions {
   name: IconName;
@@ -136,5 +129,3 @@ export interface TypographyOptions {
   className?: string;
   customAttributes?: Record<string, string>;
 }
-
-

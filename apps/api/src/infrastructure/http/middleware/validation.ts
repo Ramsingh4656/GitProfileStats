@@ -12,7 +12,8 @@ const githubQuerySchema = z
     token: z.string().trim().min(1, 'Token cannot be empty').optional(),
   })
   .refine((data) => data.username || data.token, {
-    message: 'Either username or a GitHub token (via query parameter or x-github-token header) must be provided',
+    message:
+      'Either username or a GitHub token (via query parameter or x-github-token header) must be provided',
     path: ['username'],
   });
 
@@ -27,11 +28,7 @@ export interface IGitHubRequest extends Request {
  * Middleware to validate that the request has either a username or a token.
  * Token can be supplied as a query parameter or via the x-github-token header.
  */
-export const validateGitHubRequest = (
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): void => {
+export const validateGitHubRequest = (req: Request, _res: Response, next: NextFunction): void => {
   const queryToken = req.query.token as string | undefined;
   const headerToken = req.headers['x-github-token'] as string | undefined;
   const token = queryToken || headerToken || undefined;

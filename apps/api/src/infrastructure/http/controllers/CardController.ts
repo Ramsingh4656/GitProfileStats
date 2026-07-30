@@ -6,9 +6,10 @@ import {
   CommitStatsService,
   PullRequestService,
   IssueStatisticsService,
+  LanguageCollectorService,
 } from '../../../github/index.js';
 import type { IGitHubRequest } from '../middleware/validation.js';
-import { renderProfileCard, renderStatsCard } from '../../../cards/index.js';
+import { renderProfileCard, renderStatsCard, renderLanguagesCard } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
 
 @injectable()
@@ -24,6 +25,8 @@ export class CardController {
     private readonly pullRequestService: PullRequestService,
     @inject(IssueStatisticsService)
     private readonly issueStatisticsService: IssueStatisticsService,
+    @inject(LanguageCollectorService)
+    private readonly languageCollectorService: LanguageCollectorService,
   ) {}
 
   /**
@@ -110,6 +113,48 @@ export class CardController {
         res.status(200).send(svg);
       } catch (error) {
         logger.error({ error, username }, 'Failed to render stats card');
+        next(error);
+      }
+    })();
+  };
+
+  /**
+   * Generates and returns the user's top languages card as an SVG.
+   */
+  public getLanguagesCard = (req: Request, res: Response, next: NextFunction): void => {
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      throw new Error('GitHub parameters not found');
+    }
+    const { username, token } = githubParams;
+    const theme = req.query.theme as string | undefined;
+    const langsCountStr = req.query.langs_count as string | undefined;
+    const langsCount = langsCountStr ? parseInt(langsCountStr, 10) : undefined;
+
+    logger.info(
+      { username, hasToken: !!token, theme, langsCount },
+      'Received request to render languages card',
+    );
+
+    void (async () => {
+      try {
+        // 1. Fetch language statistics
+        const languages = await this.languageCollectorService.collectLanguages(username, { token });
+
+        logger.debug(
+          { username, languagesCount: languages.length },
+          'Fetched language statistics for card',
+        );
+
+        // 2. Render SVG Languages Card
+        const svg = renderLanguagesCard(languages, theme, { langsCount });
+
+        // 3. Return response with SVG headers and caching
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
+        res.status(200).send(svg);
+      } catch (error) {
+        logger.error({ error, username }, 'Failed to render languages card');
         next(error);
       }
     })();

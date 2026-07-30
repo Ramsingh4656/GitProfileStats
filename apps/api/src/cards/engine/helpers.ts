@@ -13,18 +13,25 @@ import type {
 export function escapeXml(str: string): string {
   return str.replace(/[<>&'"]/g, (c) => {
     switch (c) {
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '&': return '&amp;';
-      case '\'': return '&apos;';
-      case '"': return '&quot;';
-      default: return c;
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '&':
+        return '&amp;';
+      case "'":
+        return '&apos;';
+      case '"':
+        return '&quot;';
+      default:
+        return c;
     }
   });
 }
 
 // Attribute Mapping
 const ATTRIBUTE_MAP: Record<string, string> = {
+  className: 'class',
   strokeWidth: 'stroke-width',
   strokeDasharray: 'stroke-dasharray',
   textAnchor: 'text-anchor',
@@ -38,17 +45,17 @@ const ATTRIBUTE_MAP: Record<string, string> = {
 
 export function getAttributeName(key: string): string {
   if (ATTRIBUTE_MAP[key]) return ATTRIBUTE_MAP[key];
-  
+
   const preserveCamel = ['viewBox', 'preserveAspectRatio'];
   if (preserveCamel.includes(key)) {
     return key;
   }
-  
+
   // If it already has non-alphanumeric chars (like : or -), return as-is
   if (/[:-]/.test(key)) {
     return key;
   }
-  
+
   return key.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
@@ -63,7 +70,7 @@ export function svgDocument(options: SvgDocumentOptions, content: string | strin
   const theme = resolveTheme(options.theme);
   const themeStyles = generateThemeStyles(theme);
   const innerContent = Array.isArray(content) ? content.join('\n  ') : content;
-  
+
   const docAttrs = {
     xmlns: 'http://www.w3.org/2000/svg',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
@@ -72,9 +79,9 @@ export function svgDocument(options: SvgDocumentOptions, content: string | strin
     viewBox: options.viewBox ?? `0 0 ${String(options.width)} ${String(options.height)}`,
     ...options.attributes,
   };
-  
+
   const styleBlock = `<style>\n    ${themeStyles.replace(/\n/g, '\n    ')}\n    ${(options.customStyles ?? '').replace(/\n/g, '\n    ')}\n  </style>`;
-  
+
   return `<svg${formatAttributes(docAttrs)}>\n  ${styleBlock}\n  ${innerContent}\n</svg>`;
 }
 
@@ -137,13 +144,13 @@ export function progressBar(options: ProgressBarOptions): string {
     backgroundColor,
     className,
   } = options;
-  
+
   const numericWidth = typeof width === 'number' ? width : parseFloat(width);
   const percent = Math.min(Math.max(value / max, 0), 1);
   const progressWidth = numericWidth * percent;
-  
+
   const groupAttrs = className ? ` class="${escapeXml(className)}"` : '';
-  
+
   const trackAttrs = formatAttributes({
     x,
     y,
@@ -153,11 +160,11 @@ export function progressBar(options: ProgressBarOptions): string {
     ry,
     fill: backgroundColor ?? 'var(--color-track-bg)',
   });
-  
+
   if (percent <= 0) {
     return `<g${groupAttrs}>\n    <rect${trackAttrs} />\n  </g>`;
   }
-  
+
   const barAttrs = formatAttributes({
     x,
     y,
@@ -167,6 +174,6 @@ export function progressBar(options: ProgressBarOptions): string {
     ry,
     fill: color ?? 'var(--color-primary)',
   });
-  
+
   return `<g${groupAttrs}>\n    <rect${trackAttrs} />\n    <rect${barAttrs} />\n  </g>`;
 }
