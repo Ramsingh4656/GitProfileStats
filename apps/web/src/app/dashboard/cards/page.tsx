@@ -16,7 +16,9 @@ import {
   Settings,
   AlertTriangle,
   Info,
-  Download
+  Download,
+  Code2,
+  Globe
 } from "lucide-react";
 
 // Predefined Themes for Swatch Rendering
@@ -78,6 +80,23 @@ export default function CardPreviewPage() {
   const [borderRadius, setBorderRadius] = useState(10);
   const [hideBorder, setHideBorder] = useState(false);
   const [fontStyle, setFontStyle] = useState("sans");
+
+  // README Generator states
+  const [readmeCards, setReadmeCards] = useState<Record<CardType, boolean>>({
+    profile: true,
+    stats: true,
+    languages: true,
+    streak: true,
+  });
+  const [readmeLayout, setReadmeLayout] = useState<"vertical" | "centered" | "grid">("vertical");
+  const [customApiHost, setCustomApiHost] = useState(() => {
+    if (typeof window !== "undefined") {
+      return process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    }
+    return "";
+  });
+  const [readmeCopied, setReadmeCopied] = useState(false);
+
   const [demoMode, setDemoMode] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("dashboard_demo_mode") === "true";
@@ -321,6 +340,100 @@ export default function CardPreviewPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(blobUrl);
+  };
+
+  // Generate GitHub Profile README Markdown
+  const generateReadmeMarkdown = () => {
+    const host = customApiHost || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    
+    const getCardUrl = (type: CardType) => {
+      const params = new URLSearchParams();
+      params.append("username", username);
+      params.append("theme", selectedTheme);
+      if (type === "languages") {
+        params.append("langs_count", langsCount.toString());
+      }
+      if (customAccent) {
+        params.append("accent", customAccent.replace("#", ""));
+      }
+      if (customBackground) {
+        params.append("background", customBackground.replace("#", ""));
+      }
+      params.append("border_radius", borderRadius.toString());
+      if (hideBorder) {
+        params.append("hide_border", "true");
+      }
+      if (fontStyle && fontStyle !== "sans") {
+        params.append("font_style", fontStyle);
+      }
+      if (demoMode) {
+        params.append("mock", "true");
+      }
+      return `${host}/api/cards/${type}.svg?${params.toString()}`;
+    };
+
+    const activeTypes = (Object.keys(CARD_INFOS) as CardType[]).filter(
+      (type) => readmeCards[type]
+    );
+
+    if (activeTypes.length === 0) {
+      return "<!-- No cards selected. Enable cards in the configuration block to generate markdown. -->";
+    }
+
+    if (readmeLayout === "vertical") {
+      return activeTypes
+        .map((type) => {
+          const title = CARD_INFOS[type].title;
+          return `[![${title}](${getCardUrl(type)})](https://github.com/${username})`;
+        })
+        .join("\n\n");
+    } else if (readmeLayout === "centered") {
+      const imagesHtml = activeTypes
+        .map((type) => {
+          const title = CARD_INFOS[type].title;
+          const height = CARD_INFOS[type].defaultHeight;
+          return `  <a href="https://github.com/${username}">\n    <img src="${getCardUrl(type)}" alt="${title}" height="${height}" />\n  </a>`;
+        })
+        .join("\n  <br />\n\n");
+
+      return `<p align="center">\n${imagesHtml}\n</p>`;
+    } else {
+      // Grid/Dashboard layout
+      let markdown = `<p align="center">\n`;
+      
+      if (readmeCards.profile) {
+        markdown += `  <a href="https://github.com/${username}">\n    <img src="${getCardUrl("profile")}" alt="Profile Card" height="120" />\n  </a>\n  <br />\n`;
+      }
+
+      const gridCards = activeTypes.filter((t) => t !== "profile");
+      if (gridCards.length > 0) {
+        markdown += `  <br />\n`;
+        gridCards.forEach((type, idx) => {
+          const title = CARD_INFOS[type].title;
+          markdown += `  <a href="https://github.com/${username}">\n    <img src="${getCardUrl(type)}" alt="${title}" height="195" />\n  </a>`;
+          if (idx < gridCards.length - 1) {
+            markdown += `\n`;
+          }
+        });
+        markdown += `\n`;
+      }
+
+      markdown += `</p>`;
+      return markdown;
+    }
+  };
+
+  const handleCopyReadme = async () => {
+    const content = generateReadmeMarkdown();
+    try {
+      await navigator.clipboard.writeText(content);
+      setReadmeCopied(true);
+      setTimeout(() => {
+        setReadmeCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error("Copy README markdown failed:", err);
+    }
   };
 
   return (
@@ -978,6 +1091,154 @@ export default function CardPreviewPage() {
               </div>
             );
           })}
+        </div>
+
+        {/* GitHub Profile README Markdown Generator */}
+        <div className="glass-card rounded-3xl p-6 md:p-8 flex flex-col gap-6 relative overflow-hidden mt-6 border border-white/10 shadow-2xl">
+          {/* Neon inner glow */}
+          <div className="w-[300px] h-[300px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.08)_0%,transparent_70%)] absolute -top-10 -right-10 opacity-60 pointer-events-none filter blur-[30px]" />
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-5 z-10">
+            <div>
+              <h3 className="text-lg font-extrabold text-white tracking-tight flex items-center gap-2">
+                <Code2 className="w-5 h-5 text-violet-400" />
+                GitHub README Markdown Generator
+              </h3>
+              <p className="text-xs text-zinc-400 mt-1 max-w-xl">
+                Select your cards, pick a layout, and copy the unified markdown to display this stats suite directly on your GitHub Profile README.
+              </p>
+            </div>
+            {/* Warning if localhost is used */}
+            {customApiHost.includes("localhost") && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl text-[11px] font-semibold animate-pulse-slow self-start md:self-center">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Local Host Warning: SVGs won&apos;t render on GitHub until you use a public domain.</span>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 z-10">
+            {/* Left side: Controls */}
+            <div className="lg:col-span-5 flex flex-col gap-5">
+              {/* Card Toggles */}
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Included Cards
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(Object.keys(CARD_INFOS) as CardType[]).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setReadmeCards(prev => ({ ...prev, [type]: !prev[type] }))}
+                      className={`flex items-center justify-between p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                        readmeCards[type]
+                          ? "bg-violet-600/10 border-violet-500/50 text-white font-bold"
+                          : "bg-white/[0.01] border-white/5 text-zinc-500 hover:border-white/10"
+                      }`}
+                    >
+                      <span className="text-xs">{CARD_INFOS[type].title.replace(" Card", "")}</span>
+                      <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border transition-all ${
+                        readmeCards[type]
+                          ? "bg-violet-500 border-violet-400 text-white"
+                          : "border-white/20"
+                      }`}>
+                        {readmeCards[type] && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Layout Picker */}
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Layout Template
+                </label>
+                <div className="flex flex-col gap-2">
+                  {[
+                    { id: "vertical", name: "Vertical Stack", desc: "Cards stacked using markdown image links" },
+                    { id: "centered", name: "Centered Stack", desc: "HTML centered alignment, neat and readable" },
+                    { id: "grid", name: "Dashboard Grid", desc: "Profile card on top, remaining cards side-by-side" }
+                  ].map((layout) => (
+                    <button
+                      key={layout.id}
+                      type="button"
+                      onClick={() => setReadmeLayout(layout.id as "vertical" | "centered" | "grid")}
+                      className={`p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer flex flex-col gap-0.5 ${
+                        readmeLayout === layout.id
+                          ? "bg-violet-600/10 border-violet-500/50 text-white font-bold"
+                          : "bg-white/[0.01] border-white/5 text-zinc-400 hover:border-white/10"
+                      }`}
+                    >
+                      <span className="text-xs">{layout.name}</span>
+                      <span className="text-[10px] text-zinc-500 font-normal leading-normal">{layout.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* API Base Host Override */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+                  <Globe className="w-3.5 h-3.5 text-violet-400" />
+                  API Host URL
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. https://your-domain.com"
+                  value={customApiHost}
+                  onChange={(e) => setCustomApiHost(e.target.value)}
+                  className="bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 transition-all font-mono"
+                />
+                <span className="text-[9px] text-zinc-500 leading-normal">
+                  Define the host URL where your profile stats service API endpoints are deployed.
+                </span>
+              </div>
+            </div>
+
+            {/* Right side: Code Output & Quick Copy */}
+            <div className="lg:col-span-7 flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Generated Markdown Source
+                </span>
+                
+                <button
+                  type="button"
+                  onClick={handleCopyReadme}
+                  className="px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-bold text-white rounded-xl flex items-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-violet-600/10"
+                >
+                  {readmeCopied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-400" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy README Markdown</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="relative flex-1 min-h-[220px] rounded-2xl bg-black/60 border border-white/5 overflow-hidden flex flex-col">
+                <textarea
+                  readOnly
+                  value={generateReadmeMarkdown()}
+                  className="w-full h-full min-h-[260px] bg-transparent p-4 font-mono text-[10px] text-zinc-300 focus:outline-none resize-none leading-relaxed select-all"
+                />
+              </div>
+
+              <div className="flex items-start gap-2.5 p-3.5 bg-white/[0.01] border border-white/5 rounded-2xl text-[10px] text-zinc-400 leading-normal">
+                <Info className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Tip:</strong> Create a GitHub repository with the name matching your username (e.g. <code>github.com/octocat/octocat</code>), create a <code>README.md</code> file inside it, and paste this markdown code to enable the widgets.
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
