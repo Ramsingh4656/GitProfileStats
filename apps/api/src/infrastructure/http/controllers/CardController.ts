@@ -16,6 +16,7 @@ import {
   renderStatsCard,
   renderLanguagesCard,
   renderStreakCard,
+  type CardOptions,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
 
@@ -117,6 +118,31 @@ export class CardController {
   }
 
   /**
+   * Helper to parse customization options from request query.
+   */
+  private getCardOptions(req: Request): CardOptions {
+    const theme = req.query.theme as string | undefined;
+    const accent = req.query.accent as string | undefined;
+    const background = req.query.background as string | undefined;
+    const borderRadiusStr = req.query.border_radius as string | undefined;
+    const hideBorder = req.query.hide_border === 'true';
+    const fontFamily = req.query.font_family as string | undefined;
+    const fontStyle = req.query.font_style as string | undefined;
+
+    const borderRadius = borderRadiusStr ? parseInt(borderRadiusStr, 10) : undefined;
+
+    return {
+      theme,
+      accent,
+      background,
+      borderRadius,
+      hideBorder,
+      fontFamily,
+      fontStyle,
+    };
+  }
+
+  /**
    * Generates and returns the user's profile card as an SVG.
    */
   public getProfileCard = (req: Request, res: Response, next: NextFunction): void => {
@@ -125,16 +151,16 @@ export class CardController {
       throw new Error('GitHub parameters not found');
     }
     const { username, token } = githubParams;
-    const theme = req.query.theme as string | undefined;
+    const options = this.getCardOptions(req);
 
-    logger.info({ username, hasToken: !!token, theme }, 'Received request to render profile card');
+    logger.info({ username, hasToken: !!token, options }, 'Received request to render profile card');
 
     void (async () => {
       try {
         const forceMock = req.query.mock === 'true';
         if (this.shouldMock(username, token, forceMock)) {
           const mockUser = MOCK_USER(username || 'octocat');
-          const svg = await renderProfileCard(mockUser, theme);
+          const svg = await renderProfileCard(mockUser, options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -149,7 +175,7 @@ export class CardController {
         logger.debug({ username: user.login }, 'Fetched GitHub user profile for card');
 
         // 2. Render SVG Profile Card
-        const svg = await renderProfileCard(user, theme);
+        const svg = await renderProfileCard(user, options);
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
@@ -162,7 +188,7 @@ export class CardController {
         );
         try {
           const mockUser = MOCK_USER(username || 'octocat');
-          const svg = await renderProfileCard(mockUser, theme);
+          const svg = await renderProfileCard(mockUser, options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -182,15 +208,15 @@ export class CardController {
       throw new Error('GitHub parameters not found');
     }
     const { username, token } = githubParams;
-    const theme = req.query.theme as string | undefined;
+    const options = this.getCardOptions(req);
 
-    logger.info({ username, hasToken: !!token, theme }, 'Received request to render stats card');
+    logger.info({ username, hasToken: !!token, options }, 'Received request to render stats card');
 
     void (async () => {
       try {
         const forceMock = req.query.mock === 'true';
         if (this.shouldMock(username, token, forceMock)) {
-          const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), theme);
+          const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -221,7 +247,7 @@ export class CardController {
             issues: issueStats.totalIssuesOpened,
             followers: stats.followers,
           },
-          theme,
+          options,
         );
 
         // Return response with SVG headers and caching
@@ -231,7 +257,7 @@ export class CardController {
       } catch (error) {
         logger.warn({ error, username }, 'Failed to render stats card, falling back to mock data');
         try {
-          const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), theme);
+          const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -251,12 +277,12 @@ export class CardController {
       throw new Error('GitHub parameters not found');
     }
     const { username, token } = githubParams;
-    const theme = req.query.theme as string | undefined;
+    const options = this.getCardOptions(req);
     const langsCountStr = req.query.langs_count as string | undefined;
     const langsCount = langsCountStr ? parseInt(langsCountStr, 10) : undefined;
 
     logger.info(
-      { username, hasToken: !!token, theme, langsCount },
+      { username, hasToken: !!token, options, langsCount },
       'Received request to render languages card',
     );
 
@@ -264,7 +290,7 @@ export class CardController {
       try {
         const forceMock = req.query.mock === 'true';
         if (this.shouldMock(username, token, forceMock)) {
-          const svg = renderLanguagesCard(MOCK_LANGUAGES, theme, { langsCount });
+          const svg = renderLanguagesCard(MOCK_LANGUAGES, { ...options, langsCount });
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -280,7 +306,7 @@ export class CardController {
         );
 
         // 2. Render SVG Languages Card
-        const svg = renderLanguagesCard(languages, theme, { langsCount });
+        const svg = renderLanguagesCard(languages, { ...options, langsCount });
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
@@ -292,7 +318,7 @@ export class CardController {
           'Failed to render languages card, falling back to mock data',
         );
         try {
-          const svg = renderLanguagesCard(MOCK_LANGUAGES, theme, { langsCount });
+          const svg = renderLanguagesCard(MOCK_LANGUAGES, { ...options, langsCount });
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -312,15 +338,15 @@ export class CardController {
       throw new Error('GitHub parameters not found');
     }
     const { username, token } = githubParams;
-    const theme = req.query.theme as string | undefined;
+    const options = this.getCardOptions(req);
 
-    logger.info({ username, hasToken: !!token, theme }, 'Received request to render streak card');
+    logger.info({ username, hasToken: !!token, options }, 'Received request to render streak card');
 
     void (async () => {
       try {
         const forceMock = req.query.mock === 'true';
         if (this.shouldMock(username, token, forceMock)) {
-          const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), theme);
+          const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -333,7 +359,7 @@ export class CardController {
         logger.debug({ username: stats.username }, 'Fetched contribution stats for streak card');
 
         // 2. Render SVG Streak Card
-        const svg = renderStreakCard(stats, theme);
+        const svg = renderStreakCard(stats, options);
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
@@ -342,7 +368,7 @@ export class CardController {
       } catch (error) {
         logger.warn({ error, username }, 'Failed to render streak card, falling back to mock data');
         try {
-          const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), theme);
+          const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);

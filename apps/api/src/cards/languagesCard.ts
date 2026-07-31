@@ -5,12 +5,13 @@ import {
   progressBar,
   estimateTextWidth,
   renderTypography,
-  resolveTheme,
+  resolveThemeWithOptions,
   computeLayout,
   renderLayout,
   type ContainerNode,
   type LayoutNode,
   type ComputedNode,
+  type CardOptions,
 } from './engine/index.js';
 import type { LanguageCollectionResult } from '../github/language-collector.service.js';
 
@@ -126,7 +127,7 @@ function findComputedNodeById(node: ComputedNode, id: string): ComputedNode | un
   return undefined;
 }
 
-export interface RenderLanguagesCardOptions {
+export interface RenderLanguagesCardOptions extends CardOptions {
   langsCount?: number;
   title?: string;
 }
@@ -136,10 +137,9 @@ export interface RenderLanguagesCardOptions {
  */
 export function renderLanguagesCard(
   languages: LanguageCollectionResult,
-  themeName?: string,
   options?: RenderLanguagesCardOptions,
 ): string {
-  const resolvedTheme = resolveTheme(themeName);
+  const resolvedTheme = resolveThemeWithOptions(options);
   const limit = options?.langsCount ?? 5;
   const titleText = options?.title ?? 'Most Used Languages';
 
@@ -366,11 +366,11 @@ export function renderLanguagesCard(
     padding: 20,
     spacing: 16,
     style: {
-      rx: 10,
-      ry: 10,
+      rx: options?.borderRadius !== undefined ? options.borderRadius : 10,
+      ry: options?.borderRadius !== undefined ? options.borderRadius : 10,
       fill: 'url(#card-bg-gradient)',
-      stroke: 'var(--color-border)',
-      strokeWidth: 1,
+      stroke: options?.hideBorder ? 'none' : 'var(--color-border)',
+      strokeWidth: options?.hideBorder ? 0 : 1,
       className: 'languages-card',
     },
     children: rootChildren,

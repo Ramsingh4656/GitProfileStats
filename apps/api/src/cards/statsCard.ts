@@ -3,12 +3,13 @@ import {
   icon,
   estimateTextWidth,
   renderTypography,
-  resolveTheme,
+  resolveThemeWithOptions,
   computeLayout,
   renderLayout,
   type ContainerNode,
   type LayoutNode,
   type IconName,
+  type CardOptions,
 } from './engine/index.js';
 
 export interface IGitHubStatsData {
@@ -124,8 +125,8 @@ function createStatRow(iconName: IconName, label: string, value: number | string
 /**
  * Renders a full GitHub Stats Card as an SVG string.
  */
-export function renderStatsCard(stats: IGitHubStatsData, themeName?: string): string {
-  const resolvedTheme = resolveTheme(themeName);
+export function renderStatsCard(stats: IGitHubStatsData, options?: CardOptions): string {
+  const resolvedTheme = resolveThemeWithOptions(options);
   const titleText = `${stats.name ?? stats.username}'s GitHub Stats`;
 
   // Build layout tree (490x160)
@@ -136,11 +137,11 @@ export function renderStatsCard(stats: IGitHubStatsData, themeName?: string): st
     padding: 20,
     spacing: 16,
     style: {
-      rx: 10,
-      ry: 10,
+      rx: options?.borderRadius !== undefined ? options.borderRadius : 10,
+      ry: options?.borderRadius !== undefined ? options.borderRadius : 10,
       fill: 'url(#card-bg-gradient)',
-      stroke: 'var(--color-border)',
-      strokeWidth: 1,
+      stroke: options?.hideBorder ? 'none' : 'var(--color-border)',
+      strokeWidth: options?.hideBorder ? 0 : 1,
       className: 'stats-card',
     },
     children: [

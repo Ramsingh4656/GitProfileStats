@@ -1,4 +1,4 @@
-import type { Theme } from './types.js';
+import type { Theme, CardOptions } from './types.js';
 
 export const THEMES: Record<string, Theme> = {
   light: {
@@ -85,6 +85,49 @@ export function resolveTheme(themeInput?: string | Theme): Theme {
     return THEMES[themeInput] ?? defaultTheme;
   }
   return themeInput;
+}
+
+function normalizeColor(color: string): string {
+  if (/^[0-9A-F]{3,8}$/i.test(color)) {
+    return `#${color}`;
+  }
+  return color;
+}
+
+export function resolveThemeWithOptions(options?: CardOptions): Theme {
+  const baseTheme = resolveTheme(options?.theme);
+  // Clone to prevent mutating original global theme maps
+  const theme = {
+    ...baseTheme,
+    progressColors: {
+      ...baseTheme.progressColors,
+    },
+  };
+
+  if (options?.accent) {
+    const accentColor = normalizeColor(options.accent);
+    theme.accent = accentColor;
+    theme.progressColors.fill = accentColor;
+  }
+
+  if (options?.background) {
+    const bgColor = normalizeColor(options.background);
+    theme.background = bgColor;
+  }
+
+  if (options?.fontFamily) {
+    theme.fontFamily = options.fontFamily;
+  } else if (options?.fontStyle) {
+    const fontStyleMap: Record<string, string> = {
+      sans: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+      serif: 'Georgia, Cambria, "Times New Roman", Times, serif',
+      mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+      rounded: '"Quicksand", "Outfit", "Nunito", system-ui, sans-serif',
+    };
+    theme.fontFamily = fontStyleMap[options.fontStyle] ?? theme.fontFamily;
+  }
+
+  return theme;
 }
 
 export function generateThemeStyles(theme: Theme): string {

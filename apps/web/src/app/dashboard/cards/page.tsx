@@ -73,6 +73,11 @@ export default function CardPreviewPage() {
   const [username, setUsername] = useState("octocat");
   const [selectedTheme, setSelectedTheme] = useState("dark");
   const [langsCount, setLangsCount] = useState(5);
+  const [customAccent, setCustomAccent] = useState("");
+  const [customBackground, setCustomBackground] = useState("");
+  const [borderRadius, setBorderRadius] = useState(10);
+  const [hideBorder, setHideBorder] = useState(false);
+  const [fontStyle, setFontStyle] = useState("sans");
   const [demoMode, setDemoMode] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("dashboard_demo_mode") === "true";
@@ -159,6 +164,20 @@ export default function CardPreviewPage() {
           params.append("token", patToken);
         }
 
+        if (customAccent) {
+          params.append("accent", customAccent.replace("#", ""));
+        }
+        if (customBackground) {
+          params.append("background", customBackground.replace("#", ""));
+        }
+        params.append("border_radius", borderRadius.toString());
+        if (hideBorder) {
+          params.append("hide_border", "true");
+        }
+        if (fontStyle && fontStyle !== "sans") {
+          params.append("font_style", fontStyle);
+        }
+
         const url = `${apiBase}/api/cards/${type}.svg?${params.toString()}`;
         const response = await fetch(url);
 
@@ -188,7 +207,18 @@ export default function CardPreviewPage() {
         }));
       }
     });
-  }, [username, selectedTheme, langsCount, demoMode, patToken]);
+  }, [
+    username,
+    selectedTheme,
+    langsCount,
+    demoMode,
+    patToken,
+    customAccent,
+    customBackground,
+    borderRadius,
+    hideBorder,
+    fontStyle
+  ]);
 
   // Apply global zoom value when updated
   const handleGlobalZoomChange = (val: number) => {
@@ -233,6 +263,19 @@ export default function CardPreviewPage() {
     params.append("theme", selectedTheme);
     if (type === "languages") {
       params.append("langs_count", langsCount.toString());
+    }
+    if (customAccent) {
+      params.append("accent", customAccent.replace("#", ""));
+    }
+    if (customBackground) {
+      params.append("background", customBackground.replace("#", ""));
+    }
+    params.append("border_radius", borderRadius.toString());
+    if (hideBorder) {
+      params.append("hide_border", "true");
+    }
+    if (fontStyle && fontStyle !== "sans") {
+      params.append("font_style", fontStyle);
     }
     const endpoint = `${apiBase}/api/cards/${type}.svg?${params.toString()}`;
 
@@ -352,6 +395,187 @@ export default function CardPreviewPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Card Style Customizer */}
+        <div className="glass-card rounded-3xl p-6 flex flex-col gap-5">
+          <h4 className="font-extrabold text-xs text-zinc-400 tracking-wider uppercase flex items-center gap-2 border-b border-white/5 pb-3">
+            <Sliders className="w-4 h-4 text-violet-400" />
+            Style Customizer
+          </h4>
+
+          {/* Accent Color Customizer */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wide">
+              Accent Color
+            </label>
+            <div className="flex flex-wrap gap-2 items-center">
+              {[
+                { hex: "", name: "Default" },
+                { hex: "58a6ff", name: "Blue" },
+                { hex: "10b981", name: "Emerald" },
+                { hex: "ef4444", name: "Ruby" },
+                { hex: "f59e0b", name: "Amber" },
+                { hex: "a855f7", name: "Purple" },
+              ].map((color) => (
+                <button
+                  key={color.name}
+                  type="button"
+                  onClick={() => setCustomAccent(color.hex ? `#${color.hex}` : "")}
+                  className={`w-6 h-6 rounded-full border transition-all relative flex items-center justify-center cursor-pointer ${
+                    (color.hex === "" && customAccent === "") ||
+                    (color.hex !== "" && customAccent === `#${color.hex}`)
+                      ? "border-violet-500 ring-2 ring-violet-500/20 scale-110"
+                      : "border-white/10 hover:scale-105"
+                  }`}
+                  style={{
+                    background: color.hex
+                      ? `#${color.hex}`
+                      : "linear-gradient(135deg, #58a6ff, #2ea44f)",
+                  }}
+                  title={color.name}
+                >
+                  {((color.hex === "" && customAccent === "") ||
+                    (color.hex !== "" && customAccent === `#${color.hex}`)) && (
+                    <span className="w-1.5 h-1.5 bg-white rounded-full" />
+                  )}
+                </button>
+              ))}
+              
+              {/* Custom Color Input */}
+              <div className="relative w-8 h-8 rounded-xl bg-black/40 border border-white/5 flex items-center justify-center group overflow-hidden">
+                <input
+                  type="color"
+                  value={customAccent || "#58a6ff"}
+                  onChange={(e) => setCustomAccent(e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  title="Custom Accent Color"
+                />
+                <div
+                  className="w-5 h-5 rounded-lg border border-white/10"
+                  style={{ backgroundColor: customAccent || "#58a6ff" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Background Color Customizer */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wide">
+              Background Color
+            </label>
+            <div className="flex flex-wrap gap-2 items-center">
+              {[
+                { hex: "", name: "Default" },
+                { hex: "0d1117", name: "GitHub" },
+                { hex: "090d16", name: "Slate" },
+                { hex: "121212", name: "Charcoal" },
+                { hex: "ffffff", name: "Light" },
+              ].map((color) => (
+                <button
+                  key={color.name}
+                  type="button"
+                  onClick={() => setCustomBackground(color.hex ? `#${color.hex}` : "")}
+                  className={`w-6 h-6 rounded-full border transition-all relative flex items-center justify-center cursor-pointer ${
+                    (color.hex === "" && customBackground === "") ||
+                    (color.hex !== "" && customBackground === `#${color.hex}`)
+                      ? "border-violet-500 ring-2 ring-violet-500/20 scale-110"
+                      : "border-white/10 hover:scale-105"
+                  }`}
+                  style={{
+                    backgroundColor: color.hex ? `#${color.hex}` : "#161b22",
+                  }}
+                  title={color.name}
+                >
+                  {((color.hex === "" && customBackground === "") ||
+                    (color.hex !== "" && customBackground === `#${color.hex}`)) && (
+                    <span className="w-1.5 h-1.5 bg-violet-400 rounded-full" />
+                  )}
+                </button>
+              ))}
+
+              {/* Custom Color Input */}
+              <div className="relative w-8 h-8 rounded-xl bg-black/40 border border-white/5 flex items-center justify-center group overflow-hidden">
+                <input
+                  type="color"
+                  value={customBackground || "#0d1117"}
+                  onChange={(e) => setCustomBackground(e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  title="Custom Background Color"
+                />
+                <div
+                  className="w-5 h-5 rounded-lg border border-white/10"
+                  style={{ backgroundColor: customBackground || "#0d1117" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Border Radius Customizer */}
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-zinc-300 font-medium">Border Radius</span>
+              <span className="font-bold text-violet-400 font-mono">{borderRadius}px</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="24"
+              value={borderRadius}
+              onChange={(e) => setBorderRadius(parseInt(e.target.value))}
+              className="w-full accent-violet-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+            />
+          </div>
+
+          {/* Hide Border Toggle */}
+          <div className="flex items-center justify-between border-t border-white/5 pt-3">
+            <span className="text-xs text-zinc-300 font-medium">Hide Card Border</span>
+            <button
+              onClick={() => setHideBorder(!hideBorder)}
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
+                hideBorder ? "bg-violet-600" : "bg-zinc-800"
+              }`}
+            >
+              <div
+                className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                  hideBorder ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Font Style Dropdown */}
+          <div className="flex flex-col gap-1.5 border-t border-white/5 pt-3">
+            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wide">
+              Font Style
+            </label>
+            <select
+              value={fontStyle}
+              onChange={(e) => setFontStyle(e.target.value)}
+              className="bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500/80 transition-all font-semibold"
+            >
+              <option value="sans">Sans-Serif (Default)</option>
+              <option value="serif">Elegant Serif</option>
+              <option value="mono">Developer Mono</option>
+              <option value="rounded">Modern Rounded</option>
+            </select>
+          </div>
+
+          {/* Reset Style Settings */}
+          {(customAccent !== "" || customBackground !== "" || borderRadius !== 10 || hideBorder || fontStyle !== "sans") && (
+            <button
+              onClick={() => {
+                setCustomAccent("");
+                setCustomBackground("");
+                setBorderRadius(10);
+                setHideBorder(false);
+                setFontStyle("sans");
+              }}
+              className="w-full mt-1.5 py-1.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] text-zinc-300 font-bold tracking-wide uppercase transition-all cursor-pointer"
+            >
+              Reset Custom Styles
+            </button>
+          )}
         </div>
 
         {/* Advanced Options panel */}

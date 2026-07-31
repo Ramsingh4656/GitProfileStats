@@ -3,12 +3,13 @@ import {
   icon,
   estimateTextWidth,
   renderTypography,
-  resolveTheme,
+  resolveThemeWithOptions,
   computeLayout,
   renderLayout,
   type ContainerNode,
   type LayoutNode,
   type IconName,
+  type CardOptions,
 } from './engine/index.js';
 import type { IContributionStats } from '../github/contribution.service.js';
 
@@ -133,8 +134,8 @@ function createStreakStatBlock(
 /**
  * Renders the Streak Card SVG.
  */
-export function renderStreakCard(stats: IContributionStats, themeName?: string): string {
-  const resolvedTheme = resolveTheme(themeName);
+export function renderStreakCard(stats: IContributionStats, options?: CardOptions): string {
+  const resolvedTheme = resolveThemeWithOptions(options);
   const titleText = `${stats.username}'s GitHub Streaks`;
 
   const rootNode: ContainerNode = {
@@ -144,11 +145,11 @@ export function renderStreakCard(stats: IContributionStats, themeName?: string):
     padding: 16,
     spacing: 14,
     style: {
-      rx: 12,
-      ry: 12,
+      rx: options?.borderRadius !== undefined ? options.borderRadius : 12,
+      ry: options?.borderRadius !== undefined ? options.borderRadius : 12,
       fill: 'url(#card-bg-gradient)',
-      stroke: 'var(--color-border)',
-      strokeWidth: 1,
+      stroke: options?.hideBorder ? 'none' : 'var(--color-border)',
+      strokeWidth: options?.hideBorder ? 0 : 1,
       className: 'streak-card',
     },
     children: [

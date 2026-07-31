@@ -6,11 +6,12 @@ import {
   caption,
   estimateTextWidth,
   renderTypography,
-  resolveTheme,
+  resolveThemeWithOptions,
   computeLayout,
   renderLayout,
   type ContainerNode,
   type LayoutNode,
+  type CardOptions,
 } from './engine/index.js';
 import type { GitHubUser } from '../github/github.service.js';
 import { fetchBase64Image } from '../utils/image.js';
@@ -92,8 +93,8 @@ function createStatNode(iconName: 'repo' | 'followers', count: number, label: st
 /**
  * Renders a full Profile Card as an SVG string.
  */
-export async function renderProfileCard(user: GitHubUser, themeName?: string): Promise<string> {
-  const resolvedTheme = resolveTheme(themeName);
+export async function renderProfileCard(user: GitHubUser, options?: CardOptions): Promise<string> {
+  const resolvedTheme = resolveThemeWithOptions(options);
 
   // 1. Fetch avatar and convert to base64
   const avatarBase64 = await fetchBase64Image(user.avatar_url);
@@ -160,11 +161,11 @@ export async function renderProfileCard(user: GitHubUser, themeName?: string): P
     spacing: 24,
     alignItems: 'center',
     style: {
-      rx: 10,
-      ry: 10,
+      rx: options?.borderRadius !== undefined ? options.borderRadius : 10,
+      ry: options?.borderRadius !== undefined ? options.borderRadius : 10,
       fill: 'var(--color-bg)',
-      stroke: 'var(--color-border)',
-      strokeWidth: 1,
+      stroke: options?.hideBorder ? 'none' : 'var(--color-border)',
+      strokeWidth: options?.hideBorder ? 0 : 1,
       className: 'profile-card',
     },
     children: [

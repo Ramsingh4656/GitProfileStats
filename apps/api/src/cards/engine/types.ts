@@ -13,6 +13,16 @@ export interface Theme {
   fontFamily?: string;
 }
 
+export interface CardOptions {
+  theme?: string;
+  accent?: string;
+  background?: string;
+  borderRadius?: number;
+  hideBorder?: boolean;
+  fontFamily?: string;
+  fontStyle?: string;
+}
+
 export interface SvgDocumentOptions {
   width: number | string;
   height: number | string;
