@@ -14,7 +14,8 @@ import {
   X,
   Bell,
   Search,
-  ChevronDown
+  ChevronDown,
+  CreditCard
 } from "lucide-react";
 
 export default function DashboardLayout({
@@ -78,6 +79,7 @@ export default function DashboardLayout({
 
   const navLinks = [
     { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Card Preview", href: "/dashboard/cards", icon: CreditCard },
     { name: "Repositories", href: "/dashboard/repositories", icon: Code2 },
     { name: "Activity", href: "/dashboard/activity", icon: Activity },
     { name: "Settings", href: "/dashboard/settings", icon: Settings },

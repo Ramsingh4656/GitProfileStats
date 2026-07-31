@@ -1,0 +1,761 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  CreditCard,
+  Sparkles,
+  RefreshCw,
+  Sliders,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Copy,
+  Check,
+  Terminal,
+  Settings,
+  AlertTriangle,
+  Info,
+  Download
+} from "lucide-react";
+
+// Predefined Themes for Swatch Rendering
+const THEME_SWATCHES = [
+  { id: "dark", name: "Dark Default", bg: "#0d1117", border: "#30363d", text: "#c9d1d9", accent: "#58a6ff" },
+  { id: "light", name: "Light Mode", bg: "#ffffff", border: "#d0d7de", text: "#24292f", accent: "#0969da" },
+  { id: "github", name: "GitHub Green", bg: "#0d1117", border: "#30363d", text: "#c9d1d9", accent: "#2ea44f" },
+  { id: "dracula", name: "Dracula Classic", bg: "#282a36", border: "#44475a", text: "#f8f8f2", accent: "#50fa7b" },
+  { id: "nord", name: "Nord Arctic", bg: "#2e3440", border: "#3b4252", text: "#d8dee9", accent: "#88c0d0" }
+];
+
+interface CardState {
+  svg: string;
+  loading: boolean;
+  error: string | null;
+  copied: string | null; // "url" | "markdown" | "html" | "svg" | null
+  tab: "preview" | "embed" | "source";
+  zoom: number;
+}
+
+type CardType = "profile" | "stats" | "languages" | "streak";
+
+const CARD_INFOS: Record<CardType, { title: string; desc: string; defaultHeight: number; defaultWidth: number }> = {
+  profile: {
+    title: "Profile Card",
+    desc: "Compact summary of your public developer profile identity",
+    defaultWidth: 400,
+    defaultHeight: 120
+  },
+  stats: {
+    title: "Stats Card",
+    desc: "Overall repository count, stars, forks, commits, and issues tracker",
+    defaultWidth: 495,
+    defaultHeight: 195
+  },
+  languages: {
+    title: "Languages Card",
+    desc: "Visual representation of your most frequent coding languages and bytes written",
+    defaultWidth: 495,
+    defaultHeight: 195
+  },
+  streak: {
+    title: "Streak Card",
+    desc: "Contributions count, current coding streak, and your longest streak",
+    defaultWidth: 495,
+    defaultHeight: 195
+  }
+};
+
+export default function CardPreviewPage() {
+  const router = useRouter();
+
+  // Settings states
+  const [username, setUsername] = useState("octocat");
+  const [selectedTheme, setSelectedTheme] = useState("dark");
+  const [langsCount, setLangsCount] = useState(5);
+  const [demoMode, setDemoMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("dashboard_demo_mode") === "true";
+    }
+    return false;
+  });
+
+  // Read-only values from localStorage
+  const patToken = typeof window !== "undefined" ? (localStorage.getItem("github_pat") || "") : "";
+  const isPatVerified = !!patToken;
+
+  // Global UI controls
+  const [globalZoom, setGlobalZoom] = useState(1);
+  const [usernameInput, setUsernameInput] = useState("octocat");
+
+  // Individual card state values
+  const [cards, setCards] = useState<Record<CardType, CardState>>({
+    profile: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
+    stats: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
+    languages: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
+    streak: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 }
+  });
+
+  // Verify auth session on load
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    // Prefill username with logged-in user profile
+    const fetchProfile = async () => {
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const response = await fetch(`${apiBase}/api/v1/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.username) {
+            setUsername(data.data.username);
+            setUsernameInput(data.data.username);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load user profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [router]);
+
+  // Main effect to fetch SVGs when parameters change
+  useEffect(() => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const types: CardType[] = ["profile", "stats", "languages", "streak"];
+
+    types.forEach(async (type) => {
+      setCards((prev) => ({
+        ...prev,
+        [type]: { ...prev[type], loading: true, error: null }
+      }));
+
+      try {
+        // Construct query parameters
+        const params = new URLSearchParams();
+        params.append("username", username);
+        params.append("theme", selectedTheme);
+
+        if (demoMode) {
+          params.append("mock", "true");
+        }
+
+        if (type === "languages") {
+          params.append("langs_count", langsCount.toString());
+        }
+
+        // Include PAT in query if demoMode is false and PAT is configured
+        if (!demoMode && patToken) {
+          params.append("token", patToken);
+        }
+
+        const url = `${apiBase}/api/cards/${type}.svg?${params.toString()}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`Failed to load card (${response.status} ${response.statusText})`);
+        }
+
+        const svgContent = await response.text();
+        if (!svgContent.startsWith("<svg")) {
+          throw new Error("Invalid response content: Expected SVG XML structure.");
+        }
+
+        setCards((prev) => ({
+          ...prev,
+          [type]: { ...prev[type], svg: svgContent, loading: false, error: null }
+        }));
+      } catch (err: unknown) {
+        console.error(`Error loading SVG for ${type}:`, err);
+        const errorMsg = err instanceof Error ? err.message : "Failed to load dynamic card from backend server.";
+        setCards((prev) => ({
+          ...prev,
+          [type]: {
+            ...prev[type],
+            loading: false,
+            error: errorMsg
+          }
+        }));
+      }
+    });
+  }, [username, selectedTheme, langsCount, demoMode, patToken]);
+
+  // Apply global zoom value when updated
+  const handleGlobalZoomChange = (val: number) => {
+    setGlobalZoom(val);
+    setCards((prev) => ({
+      profile: { ...prev.profile, zoom: val },
+      stats: { ...prev.stats, zoom: val },
+      languages: { ...prev.languages, zoom: val },
+      streak: { ...prev.streak, zoom: val }
+    }));
+  };
+
+  // Adjust card-level zoom levels
+  const setCardZoom = (type: CardType, zoomVal: number) => {
+    setCards((prev) => ({
+      ...prev,
+      [type]: { ...prev[type], zoom: Math.max(0.4, Math.min(2.5, zoomVal)) }
+    }));
+  };
+
+  // Switch tabs in a card preview container
+  const setCardTab = (type: CardType, tab: "preview" | "embed" | "source") => {
+    setCards((prev) => ({
+      ...prev,
+      [type]: { ...prev[type], tab }
+    }));
+  };
+
+  // Trigger Apply for Username updates
+  const handleApplyUsername = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (usernameInput.trim()) {
+      setUsername(usernameInput.trim());
+    }
+  };
+
+  // Build the embed code strings
+  const getEmbedCode = (type: CardType, format: "url" | "markdown" | "html") => {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const params = new URLSearchParams();
+    params.append("username", username);
+    params.append("theme", selectedTheme);
+    if (type === "languages") {
+      params.append("langs_count", langsCount.toString());
+    }
+    const endpoint = `${apiBase}/api/cards/${type}.svg?${params.toString()}`;
+
+    if (format === "url") return endpoint;
+    if (format === "markdown") return `![GitHub Profile Stats Card](${endpoint})`;
+    return `<img src="${endpoint}" alt="GitHub Profile Stats Card" />`;
+  };
+
+  // Copy code blocks to clipboard helper
+  const handleCopy = async (type: CardType, format: "url" | "markdown" | "html" | "svg") => {
+    let content = "";
+    if (format === "svg") {
+      content = cards[type].svg;
+    } else {
+      content = getEmbedCode(type, format);
+    }
+
+    try {
+      await navigator.clipboard.writeText(content);
+      setCards((prev) => ({
+        ...prev,
+        [type]: { ...prev[type], copied: format }
+      }));
+      setTimeout(() => {
+        setCards((prev) => ({
+          ...prev,
+          [type]: { ...prev[type], copied: null }
+        }));
+      }, 2000);
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  };
+
+  // Download raw SVG helper
+  const handleDownloadSVG = (type: CardType) => {
+    const svgBlob = new Blob([cards[type].svg], { type: "image/svg+xml;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(svgBlob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `${username}-${type}-card.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(blobUrl);
+  };
+
+  return (
+    <div className="flex flex-col xl:flex-row gap-8 items-start w-full relative">
+      {/* Background neon dots */}
+      <div className="w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] absolute top-[10%] left-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />
+      <div className="w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.08)_0%,transparent_70%)] absolute bottom-[15%] right-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />
+
+      {/* LEFT COLUMN: Controls & customizer sidebar */}
+      <aside className="w-full xl:w-80 shrink-0 flex flex-col gap-6 z-10">
+        {/* Username Setup Form */}
+        <div className="glass-card rounded-3xl p-6 flex flex-col gap-4">
+          <h4 className="font-extrabold text-xs text-zinc-400 tracking-wider uppercase flex items-center gap-2 border-b border-white/5 pb-3">
+            <Terminal className="w-4 h-4 text-violet-400" />
+            GitHub Target User
+          </h4>
+          <form onSubmit={handleApplyUsername} className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+                Target Username
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="e.g. octocat"
+                  value={usernameInput}
+                  onChange={(e) => setUsernameInput(e.target.value)}
+                  className="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 transition-all font-mono"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-bold text-white rounded-xl flex items-center justify-center transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-violet-600/10"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </form>
+          <div className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] border border-white/5 rounded-xl text-[11px] text-zinc-400">
+            <Info className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+            <span>Currently previewing cards for <strong className="text-white font-semibold">@{username}</strong></span>
+          </div>
+        </div>
+
+        {/* Theme Settings Selector */}
+        <div className="glass-card rounded-3xl p-6 flex flex-col gap-4">
+          <h4 className="font-extrabold text-xs text-zinc-400 tracking-wider uppercase flex items-center gap-2 border-b border-white/5 pb-3">
+            <Sliders className="w-4 h-4 text-violet-400" />
+            Card Theme Select
+          </h4>
+          <div className="flex flex-col gap-2">
+            {THEME_SWATCHES.map((swatch) => (
+              <button
+                key={swatch.id}
+                onClick={() => setSelectedTheme(swatch.id)}
+                className={`flex items-center justify-between p-3 rounded-xl border transition-all text-left cursor-pointer group ${
+                  selectedTheme === swatch.id
+                    ? "bg-white/5 border-violet-500/50 shadow-inner"
+                    : "border-white/5 hover:border-white/10 hover:bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-bold text-white">{swatch.name}</span>
+                  <span className="text-[10px] text-zinc-500 font-mono">{swatch.id}</span>
+                </div>
+                {/* Theme Palette Swatch preview dots */}
+                <div className="flex items-center gap-1.5 bg-black/40 px-2 py-1.5 rounded-lg border border-white/5">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: swatch.bg }} title="Background" />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: swatch.text }} title="Text color" />
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: swatch.accent }} title="Accent color" />
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Advanced Options panel */}
+        <div className="glass-card rounded-3xl p-6 flex flex-col gap-4">
+          <h4 className="font-extrabold text-xs text-zinc-400 tracking-wider uppercase flex items-center gap-2 border-b border-white/5 pb-3">
+            <Settings className="w-4 h-4 text-violet-400" />
+            Fine Tune Settings
+          </h4>
+
+          {/* Languages Limit Count */}
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-zinc-300 font-medium">Languages Count</span>
+              <span className="font-bold text-violet-400 font-mono">{langsCount} languages</span>
+            </div>
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={langsCount}
+              onChange={(e) => setLangsCount(parseInt(e.target.value))}
+              className="w-full accent-violet-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+            />
+            <span className="text-[9px] text-zinc-500 leading-tight">
+              Adjusts the number of top languages rendering on the language breakdown card.
+            </span>
+          </div>
+
+          {/* Demo Mock Switch */}
+          <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-1">
+            <div className="flex flex-col gap-0.5 max-w-[70%]">
+              <span className="text-xs text-zinc-300 font-medium">Force Mock Data</span>
+              <span className="text-[9px] text-zinc-500">Render standard mock stats without hitting real GitHub API</span>
+            </div>
+            <button
+              onClick={() => setDemoMode(!demoMode)}
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
+                demoMode ? "bg-violet-600" : "bg-zinc-800"
+              }`}
+            >
+              <div
+                className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
+                  demoMode ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Token usage indicator */}
+          <div className="border-t border-white/5 pt-4 mt-1 flex flex-col gap-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-zinc-300 font-medium">GitHub PAT Status</span>
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                isPatVerified 
+                  ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400" 
+                  : "bg-zinc-800 border border-white/5 text-zinc-400"
+              }`}>
+                {isPatVerified ? "Active" : "None"}
+              </span>
+            </div>
+            <p className="text-[9px] text-zinc-500 leading-relaxed">
+              If configured in settings, your local GitHub PAT is attached securely to fetch private repository metrics.
+            </p>
+          </div>
+        </div>
+
+        {/* Global Zoom tool */}
+        <div className="glass-card rounded-3xl p-6 flex flex-col gap-4">
+          <h4 className="font-extrabold text-xs text-zinc-400 tracking-wider uppercase flex items-center gap-2 border-b border-white/5 pb-3">
+            <Maximize2 className="w-4 h-4 text-violet-400" />
+            Global Canvas Zoom
+          </h4>
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-center text-xs font-semibold">
+              <span className="text-zinc-300">Scale All Previews</span>
+              <span className="font-mono text-violet-400">{Math.round(globalZoom * 100)}%</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleGlobalZoomChange(Math.max(0.5, globalZoom - 0.1))}
+                className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 text-xs font-bold transition-all cursor-pointer"
+              >
+                -
+              </button>
+              <input
+                type="range"
+                min="0.5"
+                max="2.0"
+                step="0.05"
+                value={globalZoom}
+                onChange={(e) => handleGlobalZoomChange(parseFloat(e.target.value))}
+                className="flex-1 accent-violet-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+              />
+              <button
+                onClick={() => handleGlobalZoomChange(Math.min(2.0, globalZoom + 0.1))}
+                className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 text-xs font-bold transition-all cursor-pointer"
+              >
+                +
+              </button>
+            </div>
+            <button
+              onClick={() => handleGlobalZoomChange(1.0)}
+              disabled={globalZoom === 1.0}
+              className="w-full mt-1.5 py-1.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] text-zinc-300 font-bold tracking-wide uppercase transition-all cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Reset All to 100%
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* RIGHT COLUMN: The preview grid containing the card preview modules */}
+      <section className="flex-1 w-full flex flex-col gap-6 z-10">
+        {/* Main Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/[0.01] border border-white/5 rounded-3xl p-6 backdrop-blur-xl">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
+              <CreditCard className="w-6 h-6 text-violet-500" />
+              Card Preview Studio
+            </h1>
+            <p className="text-sm text-zinc-400 mt-1 max-w-xl">
+              Live design playground. Customize theme palettes, preview mock layouts, and copy visual widget embed scripts to configure on your GitHub Profile README.
+            </p>
+          </div>
+          {/* Status indicators */}
+          <div className="flex gap-2 self-start sm:self-center">
+            {demoMode ? (
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-violet-600/10 border border-violet-500/20 text-violet-400 flex items-center gap-1.5 animate-pulse-slow">
+                <Sparkles className="w-3.5 h-3.5" /> Demo Mode active
+              </span>
+            ) : (
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-1.5">
+                <RefreshCw className="w-3.5 h-3.5" /> Live synchronization
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* The Card Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {(Object.keys(CARD_INFOS) as CardType[]).map((type) => {
+            const card = cards[type];
+            const info = CARD_INFOS[type];
+
+            return (
+              <div
+                key={type}
+                className="glass-card rounded-3xl p-6 flex flex-col gap-4 relative group"
+              >
+                {/* Individual Card Container Header */}
+                <div className="flex items-center justify-between border-b border-white/5 pb-4">
+                  <div className="min-w-0">
+                    <h3 className="font-extrabold text-base text-white tracking-tight flex items-center gap-1.5">
+                      {info.title}
+                    </h3>
+                    <p className="text-zinc-500 text-xs truncate max-w-[200px] sm:max-w-[300px]">
+                      {info.desc}
+                    </p>
+                  </div>
+
+                  {/* Header control buttons */}
+                  <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+                    {/* Zoom actions */}
+                    <button
+                      onClick={() => setCardZoom(type, card.zoom - 0.1)}
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                      title="Zoom Out"
+                    >
+                      <ZoomOut className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[10px] text-zinc-500 font-mono px-1 font-bold min-w-[32px] text-center">
+                      {Math.round(card.zoom * 100)}%
+                    </span>
+                    <button
+                      onClick={() => setCardZoom(type, card.zoom + 0.1)}
+                      className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-all cursor-pointer"
+                      title="Zoom In"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setCardZoom(type, 1.0)}
+                      disabled={card.zoom === 1.0}
+                      className="p-1 text-[9px] font-bold text-zinc-500 hover:text-violet-400 rounded transition-all cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                      title="Reset Zoom"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sub-Navigation tabs for Preview, Embed Snippet, SVG source */}
+                <div className="flex items-center gap-1.5">
+                  {(["preview", "embed", "source"] as const).map((tabName) => (
+                    <button
+                      key={tabName}
+                      onClick={() => setCardTab(type, tabName)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
+                        card.tab === tabName
+                          ? "bg-violet-600/10 text-violet-400 border border-violet-500/20"
+                          : "text-zinc-500 hover:text-zinc-300 border border-transparent"
+                      }`}
+                    >
+                      {tabName}
+                    </button>
+                  ))}
+                  
+                  {/* Download Action on side */}
+                  <button
+                    onClick={() => handleDownloadSVG(type)}
+                    disabled={card.loading || !!card.error}
+                    className="ml-auto p-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
+                    title="Download SVG File"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Content Viewport Frame */}
+                <div className="relative rounded-2xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center p-6 min-h-[260px] max-h-[360px]">
+                  
+                  {/* 1. PREVIEW TAB */}
+                  {card.tab === "preview" && (
+                    <>
+                      {card.loading && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                          <svg className="animate-spin h-7 w-7 text-violet-500" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          <span className="text-[11px] text-zinc-500 font-medium">Fetching card SVG...</span>
+                        </div>
+                      )}
+
+                      {card.error && (
+                        <div className="p-4 text-center flex flex-col items-center gap-2 max-w-[280px]">
+                          <AlertTriangle className="w-8 h-8 text-rose-500" />
+                          <h5 className="font-bold text-xs text-white">Error Rendering Card</h5>
+                          <p className="text-[10px] text-zinc-500 leading-normal">{card.error}</p>
+                          <button
+                            onClick={() => {
+                              // Trigger state re-fetch by updating state loader
+                              setCards((prev) => ({
+                                ...prev,
+                                [type]: { ...prev[type], loading: true, error: null }
+                              }));
+                            }}
+                            className="mt-2 px-3 py-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg text-[10px] font-semibold transition-all cursor-pointer"
+                          >
+                            Retry Request
+                          </button>
+                        </div>
+                      )}
+
+                      {!card.loading && !card.error && card.svg && (
+                        <div
+                          className="overflow-auto max-w-full max-h-full flex items-center justify-center p-3 select-none"
+                          style={{
+                            width: "100%",
+                            height: "100%"
+                          }}
+                        >
+                          <div
+                            style={{
+                              transform: `scale(${card.zoom})`,
+                              transformOrigin: "center center",
+                              transition: "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
+                              width: `${info.defaultWidth}px`,
+                              height: `${info.defaultHeight}px`,
+                              maxWidth: "none",
+                              maxHeight: "none"
+                            }}
+                            className="flex items-center justify-center shrink-0"
+                            dangerouslySetInnerHTML={{ __html: card.svg }}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* 2. EMBED INSTRUCTIONS TAB */}
+                  {card.tab === "embed" && (
+                    <div className="w-full h-full flex flex-col gap-4 text-left p-2 overflow-y-auto">
+                      <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Markdown Embed</span>
+                          <button
+                            onClick={() => handleCopy(type, "markdown")}
+                            className="text-[10px] text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            {card.copied === "markdown" ? (
+                              <>
+                                <Check className="w-3 h-3 text-emerald-400" />
+                                <span className="text-emerald-400">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3" />
+                                <span>Copy Code</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="bg-black/60 rounded-xl border border-white/5 p-3 font-mono text-[10px] text-zinc-300 break-all select-all leading-normal">
+                          {getEmbedCode(type, "markdown")}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 border-t border-white/5 pt-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">HTML Embed</span>
+                          <button
+                            onClick={() => handleCopy(type, "html")}
+                            className="text-[10px] text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            {card.copied === "html" ? (
+                              <>
+                                <Check className="w-3 h-3 text-emerald-400" />
+                                <span className="text-emerald-400">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3" />
+                                <span>Copy Code</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="bg-black/60 rounded-xl border border-white/5 p-3 font-mono text-[10px] text-zinc-300 break-all select-all leading-normal">
+                          {getEmbedCode(type, "html")}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 border-t border-white/5 pt-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Direct API URL</span>
+                          <button
+                            onClick={() => handleCopy(type, "url")}
+                            className="text-[10px] text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            {card.copied === "url" ? (
+                              <>
+                                <Check className="w-3 h-3 text-emerald-400" />
+                                <span className="text-emerald-400">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3" />
+                                <span>Copy URL</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="bg-black/60 rounded-xl border border-white/5 p-3 font-mono text-[10px] text-zinc-300 break-all select-all leading-normal">
+                          {getEmbedCode(type, "url")}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. SVG SOURCE TAB */}
+                  {card.tab === "source" && (
+                    <div className="w-full h-full flex flex-col gap-2 p-1 text-left relative">
+                      <div className="flex justify-between items-center pb-1">
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase font-mono">
+                          {card.svg ? `${Math.round(card.svg.length / 1024 * 10) / 10} KB` : "0 KB"}
+                        </span>
+                        <button
+                          onClick={() => handleCopy(type, "svg")}
+                          disabled={!card.svg}
+                          className="text-[10px] text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                        >
+                          {card.copied === "svg" ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-400" />
+                              <span className="text-emerald-400">Copied SVG!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>Copy Source</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <textarea
+                        readOnly
+                        value={card.svg || "No SVG data loaded."}
+                        className="w-full h-[220px] bg-black/60 border border-white/5 rounded-xl p-3 font-mono text-[9px] text-zinc-400 focus:outline-none resize-none leading-relaxed select-all"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer specs details block */}
+                <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono bg-white/[0.01] px-4 py-2 border border-white/5 rounded-xl">
+                  <span>Aspect: {info.defaultWidth} × {info.defaultHeight} px</span>
+                  <span>Format: XML Vector SVG</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
