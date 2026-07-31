@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { 
   Terminal, 
   Sparkles, 
-  LayoutDashboard, 
   LogIn, 
   BarChart3, 
   Palette, 
@@ -16,16 +16,12 @@ import {
   Code, 
   Settings, 
   Zap, 
-  GitMerge, 
   Flame, 
   FolderGit2, 
   Star, 
   GitFork,
   Menu,
   X,
-  Share2,
-  Lock,
-  Layers,
   Activity,
   ChevronRight
 } from "lucide-react";
@@ -292,16 +288,19 @@ export default function Home() {
               <div className="flex items-center gap-2">
                 <Settings className="w-3.5 h-3.5 text-zinc-400" />
                 <span className="text-zinc-300 font-medium">Theme:</span>
-                <div className="flex gap-1.5">
+                <div className="flex gap-1.5" role="radiogroup" aria-label="Select hero card theme">
                   {Object.keys(THEMES).map((themeKey) => (
                     <button
                       key={themeKey}
                       onClick={() => setHeroTheme(themeKey)}
                       className={`w-5 h-5 rounded-full border transition-all ${
                         heroTheme === themeKey ? "border-white scale-110" : "border-transparent opacity-60 hover:opacity-100"
-                      } ${THEMES[themeKey].dotColor}`}
+                      } ${THEMES[themeKey].dotColor} focus-visible:ring-2 focus-visible:ring-violet-500 focus:outline-none`}
                       title={THEMES[themeKey].name}
                       id={`theme-btn-${themeKey}`}
+                      role="radio"
+                      aria-checked={heroTheme === themeKey}
+                      aria-label={`Select ${THEMES[themeKey].name} theme`}
                     />
                   ))}
                 </div>
@@ -311,10 +310,13 @@ export default function Home() {
                 <span className="text-zinc-400">Show Rank:</span>
                 <button
                   onClick={() => setShowRank(!showRank)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     showRank ? "bg-violet-600" : "bg-zinc-800"
                   }`}
                   id="rank-toggle-btn"
+                  role="switch"
+                  aria-checked={showRank}
+                  aria-label="Show rank in stats card"
                 >
                   <span
                     className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
@@ -335,9 +337,11 @@ export default function Home() {
               <div className="flex items-center justify-between pb-5 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center relative">
-                    <img 
+                    <Image 
                       src={`https://github.com/identicons/${animatedUsername || "octocat"}.png`} 
-                      alt="avatar" 
+                      alt={`GitHub avatar of ${animatedUsername || "octocat"}`}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-lg opacity-85"
                     />
                     <div className={`absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full ${currentHeroTheme.dotColor} border-2 border-[#090620]`} />
@@ -514,15 +518,18 @@ export default function Home() {
                 {/* 1. Card Type Selectors */}
                 <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col gap-3">
                   <h4 className="font-bold text-sm text-zinc-300 tracking-wide uppercase font-mono">1. Select Widget Type</h4>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-2" role="tablist" aria-label="Widget preview type">
                     <button
                       onClick={() => { setActiveTab("stats"); setSelectedWidgetType("stats"); }}
-                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all ${
+                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                         activeTab === "stats"
                           ? "bg-violet-600/10 border-violet-500 text-white font-semibold"
                           : "bg-white/[0.01] border-white/5 text-zinc-400 hover:bg-white/[0.03] hover:text-white"
                       }`}
                       id="tab-btn-stats"
+                      role="tab"
+                      aria-selected={activeTab === "stats"}
+                      aria-controls="widget-preview-panel"
                     >
                       <span className="flex items-center gap-2.5">
                         <BarChart3 className="w-4.5 h-4.5" />
@@ -532,12 +539,15 @@ export default function Home() {
                     </button>
                     <button
                       onClick={() => { setActiveTab("languages"); setSelectedWidgetType("languages"); }}
-                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all ${
+                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                         activeTab === "languages"
                           ? "bg-violet-600/10 border-violet-500 text-white font-semibold"
                           : "bg-white/[0.01] border-white/5 text-zinc-400 hover:bg-white/[0.03] hover:text-white"
                       }`}
                       id="tab-btn-languages"
+                      role="tab"
+                      aria-selected={activeTab === "languages"}
+                      aria-controls="widget-preview-panel"
                     >
                       <span className="flex items-center gap-2.5">
                         <Palette className="w-4.5 h-4.5" />
@@ -547,12 +557,15 @@ export default function Home() {
                     </button>
                     <button
                       onClick={() => { setActiveTab("streak"); setSelectedWidgetType("streak"); }}
-                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all ${
+                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                         activeTab === "streak"
                           ? "bg-violet-600/10 border-violet-500 text-white font-semibold"
                           : "bg-white/[0.01] border-white/5 text-zinc-400 hover:bg-white/[0.03] hover:text-white"
                       }`}
                       id="tab-btn-streak"
+                      role="tab"
+                      aria-selected={activeTab === "streak"}
+                      aria-controls="widget-preview-panel"
                     >
                       <span className="flex items-center gap-2.5">
                         <Flame className="w-4.5 h-4.5" />
@@ -562,12 +575,15 @@ export default function Home() {
                     </button>
                     <button
                       onClick={() => { setActiveTab("repos"); setSelectedWidgetType("repos"); }}
-                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all ${
+                      className={`flex items-center justify-between p-3.5 rounded-xl border text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                         activeTab === "repos"
                           ? "bg-violet-600/10 border-violet-500 text-white font-semibold"
                           : "bg-white/[0.01] border-white/5 text-zinc-400 hover:bg-white/[0.03] hover:text-white"
                       }`}
                       id="tab-btn-repos"
+                      role="tab"
+                      aria-selected={activeTab === "repos"}
+                      aria-controls="widget-preview-panel"
                     >
                       <span className="flex items-center gap-2.5">
                         <FolderGit2 className="w-4.5 h-4.5" />
@@ -581,17 +597,20 @@ export default function Home() {
                 {/* 2. Theme Selection */}
                 <div className="glass-panel rounded-2xl p-5 border border-white/5 flex flex-col gap-3">
                   <h4 className="font-bold text-sm text-zinc-300 tracking-wide uppercase font-mono">2. Choose Card Theme</h4>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Select widget preview theme">
                     {Object.keys(THEMES).map((themeKey) => (
                       <button
                         key={themeKey}
                         onClick={() => setExampleTheme(themeKey)}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all text-xs text-left ${
+                        className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all text-xs text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                           exampleTheme === themeKey
                             ? "border-violet-500/60 bg-violet-500/5 text-white font-semibold"
                             : "border-white/5 bg-white/[0.01] text-zinc-400 hover:bg-white/[0.03] hover:text-white"
                         }`}
                         id={`example-theme-btn-${themeKey}`}
+                        role="radio"
+                        aria-checked={exampleTheme === themeKey}
+                        aria-label={`Select ${THEMES[themeKey].name} preview theme`}
                       >
                         <span className={`w-3.5 h-3.5 rounded-full ${THEMES[themeKey].dotColor} shrink-0`} />
                         <span className="truncate">{THEMES[themeKey].name}</span>
@@ -606,7 +625,7 @@ export default function Home() {
               <div className="lg:col-span-8 flex flex-col gap-6 w-full items-center lg:items-stretch">
                 
                 {/* Visualizer Frame */}
-                <div className="w-full glass-panel border border-white/5 rounded-3xl p-6.5 relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
+                <div id="widget-preview-panel" role="tabpanel" aria-label="Widget preview visualizer" className="w-full glass-panel border border-white/5 rounded-3xl p-6.5 relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
                   
                   {/* Glowing background layer matching selection */}
                   <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full ${currentExampleTheme.glowClass} blur-3xl transition-all duration-500 pointer-events-none`} />

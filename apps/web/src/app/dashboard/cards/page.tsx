@@ -676,12 +676,15 @@ export default function CardPreviewPage() {
 
           {/* Hide Border Toggle */}
           <div className="flex items-center justify-between border-t border-white/5 pt-3">
-            <span className="text-xs text-zinc-300 font-medium">Hide Card Border</span>
+            <span id="hide-border-label" className="text-xs text-zinc-300 font-medium">Hide Card Border</span>
             <button
               onClick={() => setHideBorder(!hideBorder)}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                 hideBorder ? "bg-violet-600" : "bg-zinc-800"
               }`}
+              role="switch"
+              aria-checked={hideBorder}
+              aria-labelledby="hide-border-label"
             >
               <div
                 className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
@@ -754,14 +757,17 @@ export default function CardPreviewPage() {
           {/* Demo Mock Switch */}
           <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-1">
             <div className="flex flex-col gap-0.5 max-w-[70%]">
-              <span className="text-xs text-zinc-300 font-medium">Force Mock Data</span>
+              <span id="force-mock-label" className="text-xs text-zinc-300 font-medium">Force Mock Data</span>
               <span className="text-[9px] text-zinc-500">Render standard mock stats without hitting real GitHub API</span>
             </div>
             <button
               onClick={() => setDemoMode(!demoMode)}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                 demoMode ? "bg-violet-600" : "bg-zinc-800"
               }`}
+              role="switch"
+              aria-checked={demoMode}
+              aria-labelledby="force-mock-label"
             >
               <div
                 className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
@@ -915,16 +921,20 @@ export default function CardPreviewPage() {
                 </div>
 
                 {/* Sub-Navigation tabs for Preview, Embed Snippet, SVG source */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5" role="tablist" aria-label={`${CARD_INFOS[type].title} options`}>
                   {(["preview", "embed", "source"] as const).map((tabName) => (
                     <button
                       key={tabName}
+                      id={`tab-${type}-${tabName}`}
                       onClick={() => setCardTab(type, tabName)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                         card.tab === tabName
                           ? "bg-violet-600/10 text-violet-400 border border-violet-500/20"
                           : "text-zinc-500 hover:text-zinc-300 border border-transparent"
                       }`}
+                      role="tab"
+                      aria-selected={card.tab === tabName}
+                      aria-controls={`tabpanel-${type}-${tabName}`}
                     >
                       {tabName}
                     </button>
@@ -934,15 +944,21 @@ export default function CardPreviewPage() {
                   <button
                     onClick={() => handleDownloadSVG(type)}
                     disabled={card.loading || !!card.error}
-                    className="ml-auto p-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer disabled:opacity-40 disabled:pointer-events-none"
+                    className="ml-auto p-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer disabled:opacity-40 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                     title="Download SVG File"
+                    aria-label={`Download ${CARD_INFOS[type].title} SVG file`}
                   >
                     <Download className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 {/* Content Viewport Frame */}
-                <div className="relative rounded-2xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center p-6 min-h-[260px] max-h-[360px]">
+                <div 
+                  id={`tabpanel-${type}-${card.tab}`}
+                  role="tabpanel"
+                  aria-labelledby={`tab-${type}-${card.tab}`}
+                  className="relative rounded-2xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center p-6 min-h-[260px] max-h-[360px]"
+                >
                   
                   {/* 1. PREVIEW TAB */}
                   {card.tab === "preview" && (

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { 
   Terminal, 
   LayoutDashboard, 
@@ -146,9 +147,11 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3 px-2 py-1.5">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px] overflow-hidden shrink-0">
               {user?.avatarUrl ? (
-                <img 
+                <Image 
                   src={user.avatarUrl} 
-                  alt={user.username} 
+                  alt={`${user.username}'s GitHub avatar`} 
+                  width={40}
+                  height={40}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
@@ -195,7 +198,8 @@ export default function DashboardLayout({
               </div>
               <button 
                 onClick={() => setMobileSidebarOpen(false)}
-                className="p-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white"
+                className="p-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+                aria-label="Close sidebar menu"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -229,9 +233,11 @@ export default function DashboardLayout({
               <div className="flex items-center gap-3 px-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px] overflow-hidden shrink-0">
                   {user?.avatarUrl ? (
-                    <img 
+                    <Image 
                       src={user.avatarUrl} 
-                      alt={user.username} 
+                      alt={`${user.username}'s GitHub avatar`} 
+                      width={40}
+                      height={40}
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
@@ -266,7 +272,8 @@ export default function DashboardLayout({
             {/* Hamburger Toggle Button for mobile */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden p-2 rounded-lg border border-white/5 bg-white/[0.02] text-zinc-400 hover:text-white"
+              className="md:hidden p-2 rounded-lg border border-white/5 bg-white/[0.02] text-zinc-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+              aria-label="Open sidebar menu"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -296,22 +303,28 @@ export default function DashboardLayout({
                 type="text" 
                 placeholder="Search resources..." 
                 className="bg-transparent border-none text-xs text-white focus:outline-none w-40 md:w-48 placeholder-zinc-500"
+                aria-label="Search resources"
               />
             </div>
 
             {/* Notification Widget */}
-            <button className="p-2 rounded-lg border border-white/5 bg-white/[0.02] text-zinc-400 hover:text-white hover:bg-white/[0.05] relative transition-all">
+            <button 
+              className="p-2 rounded-lg border border-white/5 bg-white/[0.02] text-zinc-400 hover:text-white hover:bg-white/[0.05] relative transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+              aria-label="Notifications"
+            >
               <Bell className="w-4 h-4" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-violet-500" />
             </button>
 
             {/* Quick Profile Dropdown Menu */}
-            <div className="flex items-center gap-2 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] px-3 py-1.5 rounded-xl text-zinc-300 hover:text-white cursor-pointer transition-all">
+            <button className="flex items-center gap-2 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] px-3 py-1.5 rounded-xl text-zinc-300 hover:text-white cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
               <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
                 {user?.avatarUrl ? (
-                  <img 
+                  <Image 
                     src={user.avatarUrl} 
-                    alt={user.username} 
+                    alt={`${user.username}'s GitHub avatar`} 
+                    width={24}
+                    height={24}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -322,7 +335,7 @@ export default function DashboardLayout({
               </div>
               <span className="hidden sm:inline text-xs font-semibold">@{user?.username}</span>
               <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
-            </div>
+            </button>
           </div>
         </header>
 

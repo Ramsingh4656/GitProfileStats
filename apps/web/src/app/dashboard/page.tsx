@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { 
   MapPin, 
   Link as LinkIcon, 
   Mail, 
-  Calendar, 
   GitCommit, 
   GitPullRequest, 
   Star, 
@@ -28,7 +28,6 @@ import {
   Flame,
   Info,
   Sparkles,
-  ArrowRight,
   Settings,
   KeyRound,
   X
@@ -317,62 +316,26 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [stats, setStats] = useState<CombinedStats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("dashboard_demo_mode") === "true";
+    }
+    return false;
+  });
   const [syncing, setSyncing] = useState(false);
-  const [patToken, setPatToken] = useState("");
+  const [patToken, setPatToken] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("github_pat") || "";
+    }
+    return "";
+  });
   const [showPatInput, setShowPatInput] = useState(false);
 
-  useEffect(() => {
-    // Check local storage for initial states
-    const pat = localStorage.getItem("github_pat") || "";
-    setPatToken(pat);
-    const demo = localStorage.getItem("dashboard_demo_mode") === "true";
-    setDemoMode(demo);
-
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    const fetchProfile = async () => {
-      try {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-        const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Unauthorized");
-        }
-
-        const data = await response.json();
-        if (data.success && data.data) {
-          setUser(data.data);
-          // Trigger data loading with verified profile username
-          loadStats(data.data.username, pat, demo);
-        } else {
-          throw new Error("Invalid response format");
-        }
-      } catch (err) {
-        console.error("Session verification failed:", err);
-        localStorage.removeItem("auth_token");
-        router.push("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [router]);
-
-  const loadStats = async (username: string, patOverride?: string, forceDemo?: boolean) => {
+  const loadStats = useCallback(async (username: string, patOverride?: string, forceDemo?: boolean) => {
     setLoadingStats(true);
     setStatsError(null);
 
-    const activeDemo = forceDemo !== undefined ? forceDemo : demoMode;
+    const activeDemo = forceDemo !== undefined ? forceDemo : (typeof window !== "undefined" ? localStorage.getItem("dashboard_demo_mode") === "true" : false);
     if (activeDemo) {
       // Simulate API lag
       setTimeout(() => {
@@ -405,13 +368,56 @@ export default function DashboardPage() {
       } else {
         throw new Error("Invalid statistics response format");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Stats fetch failure:", err);
-      setStatsError(err.message || "Failed to establish secure connection to GitHub APIs.");
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setStatsError(errMsg || "Failed to establish secure connection to GitHub APIs.");
     } finally {
       setLoadingStats(false);
     }
-  };
+  }, [patToken]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const fetchProfile = async () => {
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const response = await fetch(`${apiBase}/api/v1/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Unauthorized");
+        }
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          setUser(data.data);
+          // Trigger data loading with verified profile username
+          const localPat = localStorage.getItem("github_pat") || "";
+          const localDemo = localStorage.getItem("dashboard_demo_mode") === "true";
+          loadStats(data.data.username, localPat, localDemo);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (err) {
+        console.error("Session verification failed:", err);
+        localStorage.removeItem("auth_token");
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [router, loadStats]);
 
   const handleToggleDemo = (checked: boolean) => {
     setDemoMode(checked);
@@ -521,9 +527,11 @@ export default function DashboardPage() {
             {/* Overlapping Avatar */}
             <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[2px] -mt-12 overflow-hidden shadow-2xl relative">
               {user?.avatarUrl ? (
-                <img 
+                <Image 
                   src={user.avatarUrl} 
-                  alt={user.username} 
+                  alt={`${user.username}'s GitHub avatar`} 
+                  width={96}
+                  height={96}
                   className="w-full h-full rounded-full object-cover bg-[#090620]"
                 />
               ) : (
@@ -595,12 +603,15 @@ export default function DashboardPage() {
 
           {/* Demo Mode Toggle */}
           <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-300 font-medium">Demo/Mock Data Mode</span>
+            <span id="demo-mode-label" className="text-xs text-zinc-300 font-medium">Demo/Mock Data Mode</span>
             <button
               onClick={() => handleToggleDemo(!demoMode)}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
+              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                 demoMode ? "bg-violet-600" : "bg-zinc-800"
               }`}
+              role="switch"
+              aria-checked={demoMode}
+              aria-labelledby="demo-mode-label"
             >
               <div
                 className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
@@ -612,11 +623,12 @@ export default function DashboardPage() {
 
           {/* GitHub Token PAT Management */}
           <div className="flex flex-col gap-2 mt-1">
-            <span className="text-xs text-zinc-300 font-medium">GitHub Access Token</span>
+            <label htmlFor="github-token-input" className="text-xs text-zinc-300 font-medium">GitHub Access Token</label>
             
             {showPatInput ? (
               <div className="flex flex-col gap-2 mt-1">
                 <input
+                  id="github-token-input"
                   type="password"
                   placeholder="ghp_xxxxxxxxxxxx"
                   value={patToken}

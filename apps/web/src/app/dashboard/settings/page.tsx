@@ -11,7 +11,6 @@ import {
   RefreshCw,
   Check,
   AlertTriangle,
-  LayoutGrid,
 } from "lucide-react";
 
 // Predefined Themes with color preview swatches
@@ -226,18 +225,21 @@ export default function SettingsPage() {
             <Palette className="w-5 h-5 text-violet-400" />
             Preferred Card Theme
           </h3>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3" role="radiogroup" aria-label="Preferred card theme">
             {THEME_OPTIONS.map((theme) => {
               const isSelected = settings.preferredTheme === theme.id;
               return (
                 <button
                   key={theme.id}
                   onClick={() => setSettings((prev) => ({ ...prev, preferredTheme: theme.id }))}
-                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left cursor-pointer ${
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     isSelected
                       ? "bg-white/5 border-violet-500/50 shadow-inner"
                       : "border-white/5 hover:border-white/10 hover:bg-white/[0.01]"
                   }`}
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={`Theme ${theme.name}`}
                 >
                   <div className="flex flex-col gap-0.5 max-w-[70%]">
                     <span className="text-xs font-bold text-white flex items-center gap-2">
@@ -264,18 +266,21 @@ export default function SettingsPage() {
             <Sliders className="w-5 h-5 text-violet-400" />
             Default Card Style
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" role="radiogroup" aria-label="Default card style">
             {STYLE_OPTIONS.map((style) => {
               const isSelected = settings.defaultCardStyle === style.id;
               return (
                 <button
                   key={style.id}
                   onClick={() => setSettings((prev) => ({ ...prev, defaultCardStyle: style.id }))}
-                  className={`flex flex-col gap-2 p-5 rounded-2xl border transition-all text-left cursor-pointer ${
+                  className={`flex flex-col gap-2 p-5 rounded-2xl border transition-all text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     isSelected
                       ? "bg-white/5 border-violet-500/50 shadow-inner"
                       : "border-white/5 hover:border-white/10 hover:bg-white/[0.01]"
                   }`}
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={`Card style ${style.name}`}
                 >
                   <span className="text-xs font-bold text-white flex items-center justify-between w-full">
                     {style.name}
@@ -298,18 +303,21 @@ export default function SettingsPage() {
             <SortAsc className="w-5 h-5 text-violet-400" />
             Language Card Sorting
           </h3>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3" role="radiogroup" aria-label="Language card sorting">
             {SORTING_OPTIONS.map((opt) => {
               const isSelected = settings.languageSorting === opt.id;
               return (
                 <button
                   key={opt.id}
                   onClick={() => setSettings((prev) => ({ ...prev, languageSorting: opt.id }))}
-                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left cursor-pointer ${
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     isSelected
                       ? "bg-white/5 border-violet-500/50 shadow-inner"
                       : "border-white/5 hover:border-white/10 hover:bg-white/[0.01]"
                   }`}
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-label={`Sort languages ${opt.name}`}
                 >
                   <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-bold text-white">{opt.name}</span>
@@ -348,12 +356,15 @@ export default function SettingsPage() {
                   className="flex flex-col gap-3 p-4 rounded-2xl border border-white/5 bg-white/[0.01]"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-white">{card.label}</span>
+                    <span id={`label-${card.key}`} className="text-xs font-bold text-white">{card.label}</span>
                     <button
                       onClick={() => updateVisibility(card.key as keyof SettingsState["defaultCardVisibility"])}
-                      className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
+                      className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                         isVisible ? "bg-violet-600" : "bg-zinc-800"
                       }`}
+                      role="switch"
+                      aria-checked={isVisible}
+                      aria-labelledby={`label-${card.key}`}
                     >
                       <div
                         className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
