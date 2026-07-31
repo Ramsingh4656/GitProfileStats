@@ -14,5 +14,6 @@ router.get('/contributions', validateGitHubRequest, gitHubController.getContribu
 router.get('/commits', validateGitHubRequest, gitHubController.getCommits);
 router.get('/pull-requests', validateGitHubRequest, gitHubController.getPullRequests);
 router.get('/issues', validateGitHubRequest, gitHubController.getIssues);
+router.get('/statistics', validateGitHubRequest, gitHubController.getCombinedStatistics);
 
 export const githubRoutes = router;

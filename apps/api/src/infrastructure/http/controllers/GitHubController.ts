@@ -9,6 +9,7 @@ import {
   CommitStatsService,
   PullRequestService,
   IssueStatisticsService,
+  GitHubStatisticsService,
 } from '../../../github/index.js';
 import type { IGitHubRequest } from '../middleware/validation.js';
 
@@ -31,6 +32,8 @@ export class GitHubController {
     private readonly pullRequestService: PullRequestService,
     @inject(IssueStatisticsService)
     private readonly issueStatisticsService: IssueStatisticsService,
+    @inject(GitHubStatisticsService)
+    private readonly githubStatisticsService: GitHubStatisticsService,
   ) {}
 
   public getStats = (req: Request, res: Response, next: NextFunction): void => {
@@ -105,6 +108,16 @@ export class GitHubController {
     const { username, token } = (req as IGitHubRequest).githubParams!;
     this.issueStatisticsService
       .getIssueStats(username, { token })
+      .then((data) => {
+        res.status(200).json({ success: true, data });
+      })
+      .catch(next);
+  };
+
+  public getCombinedStatistics = (req: Request, res: Response, next: NextFunction): void => {
+    const { username, token } = (req as IGitHubRequest).githubParams!;
+    this.githubStatisticsService
+      .getCombinedStatistics(username, { token })
       .then((data) => {
         res.status(200).json({ success: true, data });
       })
