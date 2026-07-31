@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Terminal, 
   LayoutDashboard, 
@@ -16,13 +16,67 @@ import {
   Layers, 
   Info,
   Calendar,
-  Eye
+  Eye,
+  Loader2
 } from "lucide-react";
 
 type CardType = "stats" | "languages";
 type Theme = "violet" | "emerald" | "rose" | "amber";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<{
+    id: string;
+    username: string;
+    email: string | null;
+    avatarUrl: string;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const fetchProfile = async () => {
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const response = await fetch(`${apiBase}/api/v1/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Unauthorized");
+        }
+
+        const data = await response.json();
+        if (data.success && data.data) {
+          setUser(data.data);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (err) {
+        console.error("Session verification failed:", err);
+        localStorage.removeItem("auth_token");
+        router.push("/login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [router]);
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    localStorage.removeItem("auth_token");
+    router.push("/");
+  };
+
   // Theme and config states
   const [cardType, setCardType] = useState<CardType>("stats");
   const [theme, setTheme] = useState<Theme>("violet");
@@ -80,7 +134,16 @@ export default function DashboardPage() {
 
   // Mock Markdown generator for output
   const getEmbedCode = () => {
-    return `[![GitHub Stats](https://git-profile-stats.vercel.app/api/card?user=octocat&type=${cardType}&theme=${theme}&stars=${showStars}&prs=${showPRs}&commits=${showCommits})](https://github.com/octocat)`;
+    const username = user?.username || "octocat";
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const themeParam = theme === "violet" ? "amethyst" : theme;
+    
+    let path = "stats.svg";
+    if (cardType === "languages") {
+      path = "languages.svg";
+    }
+    
+    return `[![GitHub Stats](${apiBase}/api/cards/${path}?username=${username}&theme=${themeParam})](https://github.com/${username})`;
   };
 
   const handleCopy = () => {
@@ -88,6 +151,19 @@ export default function DashboardPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#030014] text-zinc-100 flex flex-col justify-center items-center select-none relative">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+        <div className="glow-spot top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 pointer-events-none" />
+        <div className="flex flex-col items-center gap-4 z-10">
+          <Loader2 className="w-10 h-10 text-violet-500 animate-spin" />
+          <p className="text-sm text-zinc-400 font-medium">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-[#030014] text-zinc-100 flex flex-col md:flex-row selection:bg-violet-500/30 selection:text-violet-200">
@@ -109,14 +185,22 @@ export default function DashboardPage() {
 
         {/* User profile brief */}
         <div className="p-6 border-b border-white/5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px]">
-            <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center overflow-hidden font-bold text-sm">
-              OCT
-            </div>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px] overflow-hidden">
+            {user?.avatarUrl ? (
+              <img 
+                src={user.avatarUrl} 
+                alt={user.username} 
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-bold text-sm text-white">
+                {user?.username?.substring(0, 3).toUpperCase() || "USR"}
+              </div>
+            )}
           </div>
           <div>
-            <h5 className="font-semibold text-sm text-white">The Octocat</h5>
-            <p className="text-zinc-500 text-xs font-mono">octocat@github.com</p>
+            <h5 className="font-semibold text-sm text-white">@{user?.username || "user"}</h5>
+            <p className="text-zinc-500 text-xs font-mono">{user?.email || "No email public"}</p>
           </div>
         </div>
 
@@ -138,10 +222,13 @@ export default function DashboardPage() {
 
         {/* Footer Log Out */}
         <div className="p-4 border-t border-white/5">
-          <Link href="/" className="flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:text-rose-400 text-sm font-medium transition-colors group">
+          <button 
+            onClick={handleLogout} 
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:text-rose-400 text-sm font-medium transition-colors group text-left cursor-pointer"
+          >
             <LogOut className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             <span>Log Out</span>
-          </Link>
+          </button>
         </div>
       </aside>
 
@@ -308,17 +395,25 @@ export default function DashboardPage() {
                 {/* Profile Header inside card */}
                 <div className="flex items-center justify-between pb-6 border-b border-white/5">
                   <div className="flex items-center gap-3">
-                    <div className={`w-11 h-11 rounded-lg bg-gradient-to-tr ${currentTheme.accentGradient} p-[1px]`}>
-                      <div className="w-full h-full rounded-lg bg-[#090620] flex items-center justify-center font-bold text-sm text-white">
-                        OCT
-                      </div>
+                    <div className={`w-11 h-11 rounded-lg bg-gradient-to-tr ${currentTheme.accentGradient} p-[1px] overflow-hidden`}>
+                      {user?.avatarUrl ? (
+                        <img 
+                          src={user.avatarUrl} 
+                          alt={user.username} 
+                          className="w-full h-full rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full rounded-lg bg-[#090620] flex items-center justify-center font-bold text-sm text-white">
+                          {user?.username?.substring(0, 3).toUpperCase() || "USR"}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <h4 className="font-bold text-sm text-white flex items-center gap-1.5">
-                        The Octocat
+                        @{user?.username || "username"}
                         <span className={`w-1.5 h-1.5 rounded-full ${theme === "violet" ? "bg-violet-400" : theme === "emerald" ? "bg-emerald-400" : theme === "rose" ? "bg-rose-400" : "bg-amber-400"}`} />
                       </h4>
-                      <p className="text-zinc-500 text-xs">github.com/octocat</p>
+                      <p className="text-zinc-500 text-xs">github.com/{user?.username || "username"}</p>
                     </div>
                   </div>
                   <span className="text-zinc-500 text-xs font-mono">GitProfileStats</span>

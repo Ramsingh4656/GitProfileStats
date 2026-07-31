@@ -38,19 +38,19 @@ export default function LoginPage() {
           Connect your GitHub account to personalize your profile cards and access real-time analytics.
         </p>
 
-        {/* Mock Sign-In Button */}
-        <Link 
-          href="/dashboard" 
+        {/* Sign-In Button */}
+        <a 
+          href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/api/v1/auth/github`} 
           className="w-full py-3.5 rounded-xl font-bold bg-white text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 group mb-4"
         >
           <Github className="w-5 h-5 text-zinc-950" />
           <span>Continue with GitHub</span>
-        </Link>
+        </a>
 
         {/* Secondary helper info */}
         <div className="flex items-center gap-2 justify-center px-4 py-2.5 rounded-lg border border-white/5 bg-white/3 text-zinc-500 text-xs w-full mb-6">
           <KeyRound className="w-3.5 h-3.5 text-zinc-400" />
-          <span>Demo Mode: No GitHub auth required to test</span>
+          <span>OAuth Mode: Connect securely via GitHub</span>
         </div>
 
         <div className="w-full flex items-center justify-between text-xs text-zinc-500 border-t border-white/5 pt-6">
