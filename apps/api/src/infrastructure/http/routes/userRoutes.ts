@@ -7,5 +7,6 @@ const router = Router();
 const userController = container.resolve(UserController);
 
 router.get('/me', authGuard, userController.getUserProfile);
+router.put('/settings', authGuard, userController.updateUserSettings);
 
 export const userRoutes = router;

@@ -143,6 +143,40 @@ export default function CardPreviewPage() {
           if (data.success && data.data?.username) {
             setUsername(data.data.username);
             setUsernameInput(data.data.username);
+
+            // Prefill with backend user settings if available
+            if (data.data.settings) {
+              const { preferredTheme, defaultCardStyle, defaultCardVisibility } = data.data.settings;
+              if (preferredTheme) {
+                setSelectedTheme(preferredTheme);
+              }
+              if (defaultCardStyle) {
+                if (defaultCardStyle === "glassmorphism") {
+                  setCustomBackground("#090d16");
+                  setBorderRadius(16);
+                  setHideBorder(false);
+                } else if (defaultCardStyle === "modern") {
+                  setCustomBackground("#121212");
+                  setBorderRadius(12);
+                  setHideBorder(false);
+                } else if (defaultCardStyle === "minimal") {
+                  setBorderRadius(0);
+                  setHideBorder(true);
+                } else {
+                  setCustomBackground("");
+                  setBorderRadius(10);
+                  setHideBorder(false);
+                }
+              }
+              if (defaultCardVisibility) {
+                setReadmeCards({
+                  profile: defaultCardVisibility.profile ?? true,
+                  stats: defaultCardVisibility.stats ?? true,
+                  languages: defaultCardVisibility.languages ?? true,
+                  streak: defaultCardVisibility.streak ?? true,
+                });
+              }
+            }
           }
         }
       } catch (err) {

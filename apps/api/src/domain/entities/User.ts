@@ -1,3 +1,15 @@
+export interface IUserSettings {
+  preferredTheme: string;
+  defaultCardStyle: string;
+  languageSorting: string;
+  defaultCardVisibility: {
+    profile: boolean;
+    stats: boolean;
+    languages: boolean;
+    streak: boolean;
+  };
+}
+
 export interface IUserProps {
   id: string;
   githubId: string;
@@ -7,6 +19,7 @@ export interface IUserProps {
   tier: 'FREE' | 'PRO';
   createdAt: Date;
   updatedAt: Date;
+  settings?: IUserSettings;
 }
 
 export class User {
@@ -15,6 +28,18 @@ export class User {
   public static create(props: IUserProps): User {
     return new User(props);
   }
+
+  private readonly defaultSettings: IUserSettings = {
+    preferredTheme: 'dark',
+    defaultCardStyle: 'classic',
+    languageSorting: 'size',
+    defaultCardVisibility: {
+      profile: true,
+      stats: true,
+      languages: true,
+      streak: true,
+    },
+  };
 
   public get id(): string {
     return this.props.id;
@@ -40,6 +65,23 @@ export class User {
   public get updatedAt(): Date {
     return this.props.updatedAt;
   }
+  public get settings(): IUserSettings {
+    return this.props.settings ?? { ...this.defaultSettings };
+  }
+
+  public updateSettings(settings: Partial<IUserSettings>): void {
+    const currentSettings = this.props.settings ?? { ...this.defaultSettings };
+    
+    this.props.settings = {
+      ...currentSettings,
+      ...settings,
+      defaultCardVisibility: {
+        ...currentSettings.defaultCardVisibility,
+        ...(settings.defaultCardVisibility ?? {}),
+      },
+    };
+    this.props.updatedAt = new Date();
+  }
 
   public upgradeToPro(): void {
     this.props.tier = 'PRO';
@@ -52,6 +94,9 @@ export class User {
   }
 
   public toJSON(): IUserProps {
-    return { ...this.props };
+    return {
+      ...this.props,
+      settings: this.settings,
+    };
   }
 }

@@ -1,3 +1,5 @@
+import type { IUserSettings } from '../../domain/entities/User.js';
+
 export interface IUserProfileResponse {
   id: string;
   username: string;
@@ -5,4 +7,5 @@ export interface IUserProfileResponse {
   avatarUrl: string;
   tier: 'FREE' | 'PRO';
   createdAt: string;
+  settings: IUserSettings;
 }

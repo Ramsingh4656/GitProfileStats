@@ -273,7 +273,17 @@ export default function DashboardLayout({
             
             {/* Page title based on route */}
             <h2 className="text-lg font-bold text-white tracking-tight">
-              {pathname === "/dashboard" ? "Dashboard Overview" : "GitProfileStats"}
+              {pathname === "/dashboard"
+                ? "Dashboard Overview"
+                : pathname === "/dashboard/cards"
+                ? "Card Preview & Customizer"
+                : pathname === "/dashboard/repositories"
+                ? "GitHub Repositories"
+                : pathname === "/dashboard/activity"
+                ? "Recent Activity"
+                : pathname === "/dashboard/settings"
+                ? "User Settings"
+                : "GitProfileStats"}
             </h2>
           </div>
 
