@@ -39,7 +39,7 @@ interface CardState {
   zoom: number;
 }
 
-type CardType = "profile" | "stats" | "languages" | "streak";
+type CardType = "profile" | "stats" | "languages" | "streak" | "repository";
 
 const CARD_INFOS: Record<CardType, { title: string; desc: string; defaultHeight: number; defaultWidth: number }> = {
   profile: {
@@ -65,6 +65,12 @@ const CARD_INFOS: Record<CardType, { title: string; desc: string; defaultHeight:
     desc: "Contributions count, current coding streak, and your longest streak",
     defaultWidth: 495,
     defaultHeight: 195
+  },
+  repository: {
+    title: "Repository Card",
+    desc: "Repository status, stars, forks, and licenses info",
+    defaultWidth: 495,
+    defaultHeight: 150
   }
 };
 
@@ -81,12 +87,16 @@ export default function CardPreviewPage() {
   const [hideBorder, setHideBorder] = useState(false);
   const [fontStyle, setFontStyle] = useState("sans");
 
+  const [repoName, setRepoName] = useState("GitProfileStats");
+  const [repoNameInput, setRepoNameInput] = useState("GitProfileStats");
+
   // README Generator states
   const [readmeCards, setReadmeCards] = useState<Record<CardType, boolean>>({
     profile: true,
     stats: true,
     languages: true,
     streak: true,
+    repository: true,
   });
   const [readmeLayout, setReadmeLayout] = useState<"vertical" | "centered" | "grid">("vertical");
   const [customApiHost, setCustomApiHost] = useState(() => {
@@ -117,7 +127,8 @@ export default function CardPreviewPage() {
     profile: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
     stats: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
     languages: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
-    streak: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 }
+    streak: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 },
+    repository: { svg: "", loading: true, error: null, copied: null, tab: "preview", zoom: 1 }
   });
 
   // Verify auth session on load
@@ -174,6 +185,7 @@ export default function CardPreviewPage() {
                   stats: defaultCardVisibility.stats ?? true,
                   languages: defaultCardVisibility.languages ?? true,
                   streak: defaultCardVisibility.streak ?? true,
+                  repository: defaultCardVisibility.repository ?? true,
                 });
               }
             }
@@ -190,7 +202,7 @@ export default function CardPreviewPage() {
   // Main effect to fetch SVGs when parameters change
   useEffect(() => {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-    const types: CardType[] = ["profile", "stats", "languages", "streak"];
+    const types: CardType[] = ["profile", "stats", "languages", "streak", "repository"];
 
     types.forEach(async (type) => {
       setCards((prev) => ({
@@ -201,7 +213,12 @@ export default function CardPreviewPage() {
       try {
         // Construct query parameters
         const params = new URLSearchParams();
-        params.append("username", username);
+        if (type === "repository") {
+          params.append("owner", username);
+          params.append("repo", repoName);
+        } else {
+          params.append("username", username);
+        }
         params.append("theme", selectedTheme);
 
         if (demoMode) {
@@ -262,6 +279,7 @@ export default function CardPreviewPage() {
     });
   }, [
     username,
+    repoName,
     selectedTheme,
     langsCount,
     demoMode,
@@ -280,7 +298,8 @@ export default function CardPreviewPage() {
       profile: { ...prev.profile, zoom: val },
       stats: { ...prev.stats, zoom: val },
       languages: { ...prev.languages, zoom: val },
-      streak: { ...prev.streak, zoom: val }
+      streak: { ...prev.streak, zoom: val },
+      repository: { ...prev.repository, zoom: val }
     }));
   };
 
@@ -306,13 +325,21 @@ export default function CardPreviewPage() {
     if (usernameInput.trim()) {
       setUsername(usernameInput.trim());
     }
+    if (repoNameInput.trim()) {
+      setRepoName(repoNameInput.trim());
+    }
   };
 
   // Build the embed code strings
   const getEmbedCode = (type: CardType, format: "url" | "markdown" | "html") => {
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
     const params = new URLSearchParams();
-    params.append("username", username);
+    if (type === "repository") {
+      params.append("owner", username);
+      params.append("repo", repoName);
+    } else {
+      params.append("username", username);
+    }
     params.append("theme", selectedTheme);
     if (type === "languages") {
       params.append("langs_count", langsCount.toString());
@@ -382,7 +409,12 @@ export default function CardPreviewPage() {
     
     const getCardUrl = (type: CardType) => {
       const params = new URLSearchParams();
-      params.append("username", username);
+      if (type === "repository") {
+        params.append("owner", username);
+        params.append("repo", repoName);
+      } else {
+        params.append("username", username);
+      }
       params.append("theme", selectedTheme);
       if (type === "languages") {
         params.append("langs_count", langsCount.toString());
@@ -418,7 +450,8 @@ export default function CardPreviewPage() {
       return activeTypes
         .map((type) => {
           const title = CARD_INFOS[type].title;
-          return `[![${title}](${getCardUrl(type)})](https://github.com/${username})`;
+          const href = type === "repository" ? `https://github.com/${username}/${repoName}` : `https://github.com/${username}`;
+          return `[![${title}](${getCardUrl(type)})](${href})`;
         })
         .join("\n\n");
     } else if (readmeLayout === "centered") {
@@ -426,7 +459,8 @@ export default function CardPreviewPage() {
         .map((type) => {
           const title = CARD_INFOS[type].title;
           const height = CARD_INFOS[type].defaultHeight;
-          return `  <a href="https://github.com/${username}">\n    <img src="${getCardUrl(type)}" alt="${title}" height="${height}" />\n  </a>`;
+          const href = type === "repository" ? `https://github.com/${username}/${repoName}` : `https://github.com/${username}`;
+          return `  <a href="${href}">\n    <img src="${getCardUrl(type)}" alt="${title}" height="${height}" />\n  </a>`;
         })
         .join("\n  <br />\n\n");
 
@@ -444,7 +478,9 @@ export default function CardPreviewPage() {
         markdown += `  <br />\n`;
         gridCards.forEach((type, idx) => {
           const title = CARD_INFOS[type].title;
-          markdown += `  <a href="https://github.com/${username}">\n    <img src="${getCardUrl(type)}" alt="${title}" height="195" />\n  </a>`;
+          const height = CARD_INFOS[type].defaultHeight;
+          const href = type === "repository" ? `https://github.com/${username}/${repoName}` : `https://github.com/${username}`;
+          markdown += `  <a href="${href}">\n    <img src="${getCardUrl(type)}" alt="${title}" height="${height}" />\n  </a>`;
           if (idx < gridCards.length - 1) {
             markdown += `\n`;
           }
@@ -482,33 +518,49 @@ export default function CardPreviewPage() {
         <div className="glass-card rounded-3xl p-6 flex flex-col gap-4">
           <h4 className="font-extrabold text-xs text-zinc-400 tracking-wider uppercase flex items-center gap-2 border-b border-white/5 pb-3">
             <Terminal className="w-4 h-4 text-violet-400" />
-            GitHub Target User
+            GitHub Target Config
           </h4>
           <form onSubmit={handleApplyUsername} className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
                 Target Username
               </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="e.g. octocat"
-                  value={usernameInput}
-                  onChange={(e) => setUsernameInput(e.target.value)}
-                  className="flex-1 bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 transition-all font-mono"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-bold text-white rounded-xl flex items-center justify-center transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-violet-600/10"
-                >
-                  Apply
-                </button>
-              </div>
+              <input
+                type="text"
+                placeholder="e.g. octocat"
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 transition-all font-mono"
+              />
             </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
+                Target Repository
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. GitProfileStats"
+                value={repoNameInput}
+                onChange={(e) => setRepoNameInput(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500/80 transition-all font-mono"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-2.5 mt-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-bold text-white rounded-xl flex items-center justify-center transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-violet-600/10"
+            >
+              Apply Targets
+            </button>
           </form>
-          <div className="flex items-center gap-2 px-3 py-2 bg-white/[0.02] border border-white/5 rounded-xl text-[11px] text-zinc-400">
-            <Info className="w-3.5 h-3.5 text-violet-400 shrink-0" />
-            <span>Currently previewing cards for <strong className="text-white font-semibold">@{username}</strong></span>
+          <div className="flex flex-col gap-1.5 px-3 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-[11px] text-zinc-400 leading-normal">
+            <div className="flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+              <span>Username: <strong className="text-white font-semibold">@{username}</strong></span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Code2 className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+              <span>Repository: <strong className="text-white font-semibold">{repoName}</strong></span>
+            </div>
           </div>
         </div>
 
