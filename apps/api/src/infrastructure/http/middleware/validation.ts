@@ -45,3 +45,44 @@ export const validateGitHubRequest = (req: Request, _res: Response, next: NextFu
   (req as IGitHubRequest).githubParams = result.data;
   next();
 };
+
+const repositoryQuerySchema = z.object({
+  owner: z
+    .string()
+    .trim()
+    .min(1, 'Owner name cannot be empty')
+    .max(100, 'Owner name is too long'),
+  repo: z
+    .string()
+    .trim()
+    .min(1, 'Repository name cannot be empty')
+    .max(100, 'Repository name is too long'),
+  token: z.string().trim().min(1, 'Token cannot be empty').optional(),
+});
+
+export interface IRepositoryRequest extends Request {
+  repoParams?: {
+    owner: string;
+    repo: string;
+    token?: string;
+  };
+}
+
+export const validateRepositoryRequest = (req: Request, _res: Response, next: NextFunction): void => {
+  const queryToken = req.query.token as string | undefined;
+  const headerToken = req.headers['x-github-token'] as string | undefined;
+  const token = queryToken || headerToken || undefined;
+  const owner = (req.query.owner || req.query.username) as string | undefined;
+  const repo = req.query.repo as string | undefined;
+
+  const result = repositoryQuerySchema.safeParse({ owner, repo, token });
+
+  if (!result.success) {
+    next(result.error);
+    return;
+  }
+
+  // Attach sanitized data to request
+  (req as IRepositoryRequest).repoParams = result.data;
+  next();
+};

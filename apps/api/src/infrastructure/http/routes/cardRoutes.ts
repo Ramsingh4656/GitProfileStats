@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { container } from '../../../config/container.js';
 import { CardController } from '../controllers/CardController.js';
-import { validateGitHubRequest } from '../middleware/validation.js';
+import { validateGitHubRequest, validateRepositoryRequest } from '../middleware/validation.js';
 
 const router = Router();
 const cardController = container.resolve(CardController);
@@ -17,5 +17,8 @@ router.get('/cards/languages.svg', validateGitHubRequest, cardController.getLang
 
 // Register streak card route under /cards/streak.svg
 router.get('/cards/streak.svg', validateGitHubRequest, cardController.getStreakCard);
+
+// Register repository card route under /cards/repository.svg
+router.get('/cards/repository.svg', validateRepositoryRequest, cardController.getRepositoryCard);
 
 export const cardRoutes = router;

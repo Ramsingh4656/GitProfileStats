@@ -10,12 +10,13 @@ import {
   LanguageCollectorService,
   ContributionService,
 } from '../../../github/index.js';
-import type { IGitHubRequest } from '../middleware/validation.js';
+import type { IGitHubRequest, IRepositoryRequest } from '../middleware/validation.js';
 import {
   renderProfileCard,
   renderStatsCard,
   renderLanguagesCard,
   renderStreakCard,
+  renderRepositoryCard,
   type CardOptions,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
@@ -83,6 +84,22 @@ const MOCK_STREAK = (username: string) => ({
     totalContributions: 1842,
     weeks: [],
   },
+});
+
+const MOCK_REPOSITORY = (owner: string, repo: string): any => ({
+  name: repo || 'GitProfileStats',
+  owner: {
+    login: owner || 'Ramsingh4656',
+  },
+  description: 'A beautiful dashboard and profile card generator for your GitHub stats. Support custom themes, language cards, streak tracking, and more.',
+  language: 'TypeScript',
+  stargazers_count: 142,
+  forks_count: 28,
+  license: {
+    name: 'MIT License',
+    spdx_id: 'MIT',
+  },
+  updated_at: '2026-08-01T08:00:00Z',
 });
 
 @injectable()
@@ -369,6 +386,61 @@ export class CardController {
         logger.warn({ error, username }, 'Failed to render streak card, falling back to mock data');
         try {
           const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), options);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
+      }
+    })();
+  };
+
+  /**
+   * Generates and returns the repository card as an SVG.
+   */
+  public getRepositoryCard = (req: Request, res: Response, next: NextFunction): void => {
+    const repoParams = (req as IRepositoryRequest).repoParams;
+    if (!repoParams) {
+      throw new Error('Repository parameters not found');
+    }
+    const { owner, repo, token } = repoParams;
+    const options = this.getCardOptions(req);
+
+    logger.info({ owner, repo, hasToken: !!token, options }, 'Received request to render repository card');
+
+    void (async () => {
+      try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(owner, token, forceMock)) {
+          const mockRepo = MOCK_REPOSITORY(owner || 'Ramsingh4656', repo || 'GitProfileStats');
+          const svg = renderRepositoryCard(mockRepo, options);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.status(200).send(svg);
+          return;
+        }
+
+        // Fetch repository details
+        const repoData = await this.gitHubService.getRepository(owner, repo, token);
+
+        logger.debug({ owner, repo: repoData.name }, 'Fetched repository details for card');
+
+        // Render SVG Repository Card
+        const svg = renderRepositoryCard(repoData, options);
+
+        // Return response with SVG headers and caching
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.status(200).send(svg);
+      } catch (error) {
+        logger.warn(
+          { error, owner, repo },
+          'Failed to render repository card, falling back to mock data',
+        );
+        try {
+          const mockRepo = MOCK_REPOSITORY(owner || 'Ramsingh4656', repo || 'GitProfileStats');
+          const svg = renderRepositoryCard(mockRepo, options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);

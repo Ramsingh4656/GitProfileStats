@@ -122,7 +122,8 @@ export type IconName =
   | 'followers'
   | 'language'
   | 'fire'
-  | 'calendar';
+  | 'calendar'
+  | 'law';
 
 export interface IconOptions {
   name: IconName;
