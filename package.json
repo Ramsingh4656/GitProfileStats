@@ -1,6 +1,6 @@
 {
   "name": "git-profile-stats",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "GitProfileStats — Advanced GitHub Analytics & Dynamic Profile Card Platform",
   "author": "GitProfileStats Team",
@@ -13,6 +13,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "test": "turbo run test",
     "build:api": "turbo run build --filter=@gitprofilestats/api",
     "build:web": "turbo run build --filter=@gitprofilestats/web",
     "start:api": "pnpm --filter=@gitprofilestats/api start",
