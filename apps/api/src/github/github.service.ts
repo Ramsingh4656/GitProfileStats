@@ -73,49 +73,100 @@ export interface GitHubRepository {
 @injectable()
 export class GitHubService {
   private readonly defaultToken: string;
+  private readonly apiCache = new Map<string, { data: any; expiresAt: number }>();
+  private readonly inFlightRequests = new Map<string, Promise<any>>();
+  private readonly ttlMs = 60000; // 60 seconds
 
   constructor() {
     this.defaultToken = env.GITHUB_TOKEN;
   }
 
   /**
+   * Clears the API cache. Useful for test suites.
+   */
+  public clearCache(): void {
+    this.apiCache.clear();
+    this.inFlightRequests.clear();
+  }
+
+  /**
+   * Internal helper to cache and coalesce concurrent identical promises.
+   */
+  private async requestWithCache<T>(
+    key: string,
+    fetchFn: () => Promise<T>,
+    ttlMs: number = this.ttlMs,
+  ): Promise<T> {
+    const now = Date.now();
+    const cached = this.apiCache.get(key);
+    if (cached && cached.expiresAt > now) {
+      logger.debug({ key }, 'Serving GitHub API response from cache');
+      return cached.data as T;
+    }
+
+    let inFlight = this.inFlightRequests.get(key);
+    if (!inFlight) {
+      inFlight = fetchFn().then(
+        (data) => {
+          this.inFlightRequests.delete(key);
+          this.apiCache.set(key, { data, expiresAt: Date.now() + ttlMs });
+          return data;
+        },
+        (error) => {
+          this.inFlightRequests.delete(key);
+          throw error;
+        },
+      );
+      this.inFlightRequests.set(key, inFlight);
+    } else {
+      logger.debug({ key }, 'Coalescing concurrent GitHub API request');
+    }
+
+    return inFlight as Promise<T>;
+  }
+
+  /**
    * Helper to perform request to GitHub API.
    */
   private async request<T>(endpoint: string, token?: string): Promise<T> {
-    const url = `https://api.github.com${endpoint}`;
-    const headers: Record<string, string> = {
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'GitProfileStats-API',
-    };
-
     const activeToken = token || this.defaultToken;
-    if (activeToken) {
-      headers['Authorization'] = `Bearer ${activeToken}`;
-    }
+    const cacheKey = `REST:${endpoint}:${activeToken || ''}`;
 
-    try {
-      logger.debug({ url, hasToken: !!activeToken }, 'Sending request to GitHub API');
-      const response = await fetch(url, { headers });
+    return this.requestWithCache<T>(cacheKey, async () => {
+      const url = `https://api.github.com${endpoint}`;
+      const headers: Record<string, string> = {
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'User-Agent': 'GitProfileStats-API',
+      };
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'No response body');
-        logger.error(
-          { url, status: response.status, statusText: response.statusText, errorText },
-          'GitHub API request failed',
-        );
-        throw new GitHubApiError(
-          `GitHub API error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
-          response.status,
-          'GITHUB_API_ERROR',
-        );
+      if (activeToken) {
+        headers['Authorization'] = `Bearer ${activeToken}`;
       }
 
-      return (await response.json()) as T;
-    } catch (error) {
-      logger.error({ url, error }, 'Error calling GitHub API');
-      throw error;
-    }
+      try {
+        logger.debug({ url, hasToken: !!activeToken }, 'Sending request to GitHub API');
+        const response = await fetch(url, { headers });
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'No response body');
+          logger.error(
+            { url, status: response.status, statusText: response.statusText, errorText },
+            'GitHub API request failed',
+          );
+          throw new GitHubApiError(
+            `GitHub API error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+            response.status,
+            'GITHUB_API_ERROR',
+          );
+        }
+
+        return (await response.json()) as T;
+      } catch (error) {
+        logger.error({ url, error }, 'Error calling GitHub API');
+        throw error;
+      }
+    });
   }
 
   /**
@@ -230,57 +281,61 @@ export class GitHubService {
     variables?: Record<string, any>,
     token?: string,
   ): Promise<T> {
-    const url = 'https://api.github.com/graphql';
-    const headers: Record<string, string> = {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      'User-Agent': 'GitProfileStats-API',
-    };
-
     const activeToken = token || this.defaultToken;
-    if (activeToken) {
-      headers['Authorization'] = `Bearer ${activeToken}`;
-    }
+    const cacheKey = `GRAPHQL:${query}:${JSON.stringify(variables || {})}:${activeToken || ''}`;
 
-    try {
-      logger.debug({ hasToken: !!activeToken }, 'Sending request to GitHub GraphQL API');
-      const response = await fetch(url, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ query, variables }),
-      });
+    return this.requestWithCache<T>(cacheKey, async () => {
+      const url = 'https://api.github.com/graphql';
+      const headers: Record<string, string> = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'GitProfileStats-API',
+      };
 
-      if (!response.ok) {
-        const errorText = await response.text().catch(() => 'No response body');
-        logger.error(
-          { status: response.status, statusText: response.statusText, errorText },
-          'GitHub GraphQL API request failed',
-        );
-        throw new GitHubApiError(
-          `GitHub GraphQL error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
-          response.status,
-          'GITHUB_GRAPHQL_ERROR',
-        );
+      if (activeToken) {
+        headers['Authorization'] = `Bearer ${activeToken}`;
       }
 
-      const result = (await response.json()) as { data?: T; errors?: any[] };
-      if (result.errors && result.errors.length > 0) {
-        logger.error({ errors: result.errors }, 'GitHub GraphQL returned errors');
-        throw new GitHubApiError(
-          `GitHub GraphQL errors: ${JSON.stringify(result.errors)}`,
-          400,
-          'GITHUB_GRAPHQL_ERROR',
-        );
-      }
+      try {
+        logger.debug({ hasToken: !!activeToken }, 'Sending request to GitHub GraphQL API');
+        const response = await fetch(url, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ query, variables }),
+        });
 
-      if (!result.data) {
-        throw new GitHubApiError('GitHub GraphQL returned no data', 500, 'GITHUB_GRAPHQL_ERROR');
-      }
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'No response body');
+          logger.error(
+            { status: response.status, statusText: response.statusText, errorText },
+            'GitHub GraphQL API request failed',
+          );
+          throw new GitHubApiError(
+            `GitHub GraphQL error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+            response.status,
+            'GITHUB_GRAPHQL_ERROR',
+          );
+        }
 
-      return result.data;
-    } catch (error) {
-      logger.error({ error }, 'Error calling GitHub GraphQL API');
-      throw error;
-    }
+        const result = (await response.json()) as { data?: T; errors?: any[] };
+        if (result.errors && result.errors.length > 0) {
+          logger.error({ errors: result.errors }, 'GitHub GraphQL returned errors');
+          throw new GitHubApiError(
+            `GitHub GraphQL errors: ${JSON.stringify(result.errors)}`,
+            400,
+            'GITHUB_GRAPHQL_ERROR',
+          );
+        }
+
+        if (!result.data) {
+          throw new GitHubApiError('GitHub GraphQL returned no data', 500, 'GITHUB_GRAPHQL_ERROR');
+        }
+
+        return result.data;
+      } catch (error) {
+        logger.error({ error }, 'Error calling GitHub GraphQL API');
+        throw error;
+      }
+    });
   }
 }

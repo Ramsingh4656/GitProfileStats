@@ -43,20 +43,35 @@ const ATTRIBUTE_MAP: Record<string, string> = {
   preserveAspectRatio: 'preserveAspectRatio',
 };
 
+const attributeNameCache = new Map<string, string>();
+
+/**
+ * Clears the attribute name cache. Useful for test suites.
+ */
+export function clearAttributeNameCache(): void {
+  attributeNameCache.clear();
+}
+
 export function getAttributeName(key: string): string {
-  if (ATTRIBUTE_MAP[key]) return ATTRIBUTE_MAP[key];
+  const cached = attributeNameCache.get(key);
+  if (cached !== undefined) return cached;
 
-  const preserveCamel = ['viewBox', 'preserveAspectRatio'];
-  if (preserveCamel.includes(key)) {
-    return key;
+  let resolved: string;
+  if (ATTRIBUTE_MAP[key]) {
+    resolved = ATTRIBUTE_MAP[key];
+  } else {
+    const preserveCamel = ['viewBox', 'preserveAspectRatio'];
+    if (preserveCamel.includes(key)) {
+      resolved = key;
+    } else if (/[:-]/.test(key)) {
+      resolved = key;
+    } else {
+      resolved = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+    }
   }
 
-  // If it already has non-alphanumeric chars (like : or -), return as-is
-  if (/[:-]/.test(key)) {
-    return key;
-  }
-
-  return key.replace(/([A-Z])/g, '-$1').toLowerCase();
+  attributeNameCache.set(key, resolved);
+  return resolved;
 }
 
 export function formatAttributes(attrs: Record<string, string | number | undefined>): string {

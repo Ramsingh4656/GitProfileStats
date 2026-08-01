@@ -34,9 +34,140 @@ export class LanguageCollectorService implements ILanguageCollectorService {
   ): Promise<LanguageCollectionResult> {
     logger.info({ username, hasToken: !!options?.token }, 'Collecting language stats');
 
+    try {
+      return await this.collectLanguagesGraphQL(username, options);
+    } catch (err: unknown) {
+      logger.warn(
+        { err: err instanceof Error ? err.message : err },
+        'Failed to collect languages using GraphQL, falling back to REST',
+      );
+      return await this.collectLanguagesREST(username, options);
+    }
+  }
+
+  /**
+   * Optimized method using GraphQL to collect languages in 1 (or paginated) request instead of N REST requests.
+   */
+  private async collectLanguagesGraphQL(
+    username?: string,
+    options?: { token?: string },
+  ): Promise<LanguageCollectionResult> {
+    const combinedBytes: Record<string, number> = {};
+    const combinedRepoCount: Record<string, number> = {};
+    let totalBytes = 0;
+    let hasNextPage = true;
+    let cursor: string | null = null;
+    const token = options?.token;
+
+    while (hasNextPage) {
+      let query: string;
+      let variables: Record<string, any>;
+
+      if (username) {
+        query = `
+          query($login: String!, $cursor: String) {
+            user(login: $login) {
+              repositories(first: 100, after: $cursor, ownerAffiliations: OWNER) {
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+                nodes {
+                  languages(first: 20, orderBy: {field: SIZE, direction: DESC}) {
+                    edges {
+                      size
+                      node {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `;
+        variables = { login: username, cursor };
+      } else {
+        query = `
+          query($cursor: String) {
+            viewer {
+              repositories(first: 100, after: $cursor, ownerAffiliations: OWNER) {
+                pageInfo {
+                  hasNextPage
+                  endCursor
+                }
+                nodes {
+                  languages(first: 20, orderBy: {field: SIZE, direction: DESC}) {
+                    edges {
+                      size
+                      node {
+                        name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `;
+        variables = { cursor };
+      }
+
+      const response = await this.gitHubService.graphql<any>(query, variables, token);
+      const data = username ? response?.user : response?.viewer;
+      if (!data || !data.repositories) {
+        break;
+      }
+
+      const repos = data.repositories.nodes || [];
+      for (const repo of repos) {
+        if (repo?.languages?.edges) {
+          for (const edge of repo.languages.edges) {
+            const lang = edge?.node?.name;
+            const bytes = edge?.size;
+            if (lang && bytes > 0) {
+              combinedBytes[lang] = (combinedBytes[lang] ?? 0) + bytes;
+              combinedRepoCount[lang] = (combinedRepoCount[lang] ?? 0) + 1;
+              totalBytes += bytes;
+            }
+          }
+        }
+      }
+
+      hasNextPage = data.repositories.pageInfo.hasNextPage;
+      cursor = data.repositories.pageInfo.endCursor;
+    }
+
+    const result: LanguageCollectionResult = [];
+    for (const [lang, bytes] of Object.entries(combinedBytes)) {
+      const percentage = totalBytes > 0 ? Number(((bytes / totalBytes) * 100).toFixed(2)) : 0;
+      result.push({
+        language: lang,
+        bytes,
+        percentage,
+        repositoryCount: combinedRepoCount[lang] ?? 0,
+      });
+    }
+
+    result.sort((a, b) => b.bytes - a.bytes);
+
+    logger.info(
+      { totalBytes, languagesCount: result.length },
+      'Language stats GraphQL aggregation completed',
+    );
+    return result;
+  }
+
+  /**
+   * Fallback REST method.
+   */
+  private async collectLanguagesREST(
+    username?: string,
+    options?: { token?: string },
+  ): Promise<LanguageCollectionResult> {
     // 1. Fetch all repositories
     const repos = await this.gitHubService.getAllRepositories(username, options);
-    logger.debug({ count: repos.length }, 'Fetched repositories list');
+    logger.debug({ count: repos.length }, 'Fetched repositories list via REST');
 
     // 2. Fetch language data for every repository in parallel
     const token = options?.token;
@@ -46,7 +177,7 @@ export class LanguageCollectorService implements ILanguageCollectorService {
         .catch((err: unknown) => {
           logger.warn(
             { repo: repo.full_name, err: err instanceof Error ? err.message : err },
-            'Failed to fetch languages for repository',
+            'Failed to fetch languages for repository via REST',
           );
           return {};
         }),
@@ -86,7 +217,7 @@ export class LanguageCollectorService implements ILanguageCollectorService {
 
     logger.info(
       { totalBytes, languagesCount: result.length },
-      'Language stats aggregation completed',
+      'Language stats REST aggregation completed',
     );
     return result;
   }

@@ -112,37 +112,34 @@ export function computeLayout(
 
   if (node.type === 'leaf') {
     let leafWidth = 0;
+    let leafHeight = 0;
+
+    const hasMeasure = !!node.measure;
+    const measured = hasMeasure
+      ? node.measure!({
+          maxWidth: Math.max(0, constraintWidth - p.left - p.right),
+          maxHeight: Math.max(0, constraintHeight - p.top - p.bottom),
+        })
+      : null;
+
     if (typeof node.width === 'number') {
       leafWidth = node.width;
     } else if (node.width === 'fill') {
       leafWidth = constraintWidth;
+    } else if (measured) {
+      leafWidth = measured.width + p.left + p.right;
     } else {
-      // auto or undefined
-      if (node.measure) {
-        const innerW = Math.max(0, constraintWidth - p.left - p.right);
-        const innerH = Math.max(0, constraintHeight - p.top - p.bottom);
-        const measured = node.measure({ maxWidth: innerW, maxHeight: innerH });
-        leafWidth = measured.width + p.left + p.right;
-      } else {
-        leafWidth = 0;
-      }
+      leafWidth = 0;
     }
 
-    let leafHeight = 0;
     if (typeof node.height === 'number') {
       leafHeight = node.height;
     } else if (node.height === 'fill') {
       leafHeight = constraintHeight;
+    } else if (measured) {
+      leafHeight = measured.height + p.top + p.bottom;
     } else {
-      // auto or undefined
-      if (node.measure) {
-        const innerW = Math.max(0, constraintWidth - p.left - p.right);
-        const innerH = Math.max(0, constraintHeight - p.top - p.bottom);
-        const measured = node.measure({ maxWidth: innerW, maxHeight: innerH });
-        leafHeight = measured.height + p.top + p.bottom;
-      } else {
-        leafHeight = 0;
-      }
+      leafHeight = 0;
     }
 
     return {

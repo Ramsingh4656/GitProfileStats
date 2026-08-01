@@ -1,6 +1,16 @@
 import { text as svgText } from './helpers.js';
 import type { TextOptions, TypographyOptions } from './types.js';
 
+const textWidthCache = new Map<string, number>();
+const MAX_TEXT_WIDTH_CACHE_SIZE = 2000;
+
+/**
+ * Clears the text width cache. Useful for test suites.
+ */
+export function clearTextWidthCache(): void {
+  textWidthCache.clear();
+}
+
 /**
  * Estimates the rendered width of a text string based on a character-width heuristic.
  * This is useful for server-side SVG generation where DOM measurement methods
@@ -11,6 +21,12 @@ import type { TextOptions, TypographyOptions } from './types.js';
  * @returns The estimated width in pixels.
  */
 export function estimateTextWidth(text: string, fontSize: number): number {
+  const cacheKey = `${text}:${fontSize.toString()}`;
+  const cached = textWidthCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
   let width = 0;
   const puncts = ".,;:!'";
   const specials = '&@#$^*()_-+=[]{}|\\/<>?';
@@ -37,7 +53,18 @@ export function estimateTextWidth(text: string, fontSize: number): number {
       }
     }
   }
-  return width * fontSize;
+
+  const estimated = width * fontSize;
+  
+  if (textWidthCache.size >= MAX_TEXT_WIDTH_CACHE_SIZE) {
+    const firstKey = textWidthCache.keys().next().value;
+    if (firstKey !== undefined) {
+      textWidthCache.delete(firstKey);
+    }
+  }
+  textWidthCache.set(cacheKey, estimated);
+
+  return estimated;
 }
 
 /**
