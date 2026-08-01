@@ -13,6 +13,10 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:api": "turbo run build --filter=@gitprofilestats/api",
+    "build:web": "turbo run build --filter=@gitprofilestats/web",
+    "start:api": "pnpm --filter=@gitprofilestats/api start",
+    "start:web": "pnpm --filter=@gitprofilestats/web start",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
