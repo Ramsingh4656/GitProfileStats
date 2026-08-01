@@ -382,7 +382,7 @@ export default function ThemeGalleryPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full relative pb-16">
+    <div className="flex flex-col gap-8 w-full relative pb-16 overflow-x-hidden">
       {/* Background radial glow */}
       <div className="w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.08)_0%,transparent_70%)] absolute top-[-5%] left-[-5%] opacity-60 pointer-events-none filter blur-[35px] z-0" />
       <div className="w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)] absolute bottom-[10%] right-[-5%] opacity-60 pointer-events-none filter blur-[35px] z-0" />

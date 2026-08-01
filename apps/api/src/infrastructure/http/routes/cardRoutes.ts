@@ -10,40 +10,40 @@ const cardController = container.resolve(CardController);
 // Register profile card route under /cards/profile.svg
 router.get(
   '/cards/profile.svg',
-  cacheMiddleware(300),
   validateGitHubRequest,
+  cacheMiddleware(300),
   cardController.getProfileCard,
 );
 
 // Register stats card route under /cards/stats.svg
 router.get(
   '/cards/stats.svg',
-  cacheMiddleware(300),
   validateGitHubRequest,
+  cacheMiddleware(300),
   cardController.getStatsCard,
 );
 
 // Register languages card route under /cards/languages.svg
 router.get(
   '/cards/languages.svg',
-  cacheMiddleware(300),
   validateGitHubRequest,
+  cacheMiddleware(300),
   cardController.getLanguagesCard,
 );
 
 // Register streak card route under /cards/streak.svg
 router.get(
   '/cards/streak.svg',
-  cacheMiddleware(300),
   validateGitHubRequest,
+  cacheMiddleware(300),
   cardController.getStreakCard,
 );
 
 // Register repository card route under /cards/repository.svg
 router.get(
   '/cards/repository.svg',
-  cacheMiddleware(300),
   validateRepositoryRequest,
+  cacheMiddleware(300),
   cardController.getRepositoryCard,
 );
 

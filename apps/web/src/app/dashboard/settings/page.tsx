@@ -176,7 +176,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-5xl relative pb-16">
+    <div className="flex flex-col gap-8 w-full max-w-5xl relative pb-16 overflow-x-hidden">
       {/* Background glow spots */}
       <div className="w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.08)_0%,transparent_70%)] absolute top-[-5%] left-[-10%] opacity-50 pointer-events-none filter blur-[30px]" />
       <div className="w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.06)_0%,transparent_70%)] absolute bottom-[10%] right-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />

@@ -344,7 +344,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page Content viewport */}
-        <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-6 md:p-10 max-w-7xl mx-auto w-full overflow-x-hidden">
           {children}
         </main>
       </div>

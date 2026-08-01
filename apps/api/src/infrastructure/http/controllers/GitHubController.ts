@@ -13,6 +13,14 @@ import {
 } from '../../../github/index.js';
 import type { IGitHubRequest } from '../middleware/validation.js';
 
+function getParams(req: Request): { username?: string; token?: string } {
+  const params = (req as IGitHubRequest).githubParams;
+  if (params) return params;
+  const username = req.query.username as string | undefined;
+  const token = (req.query.token || req.headers['x-github-token']) as string | undefined;
+  return { username, token };
+}
+
 @injectable()
 export class GitHubController {
   constructor(
@@ -37,7 +45,11 @@ export class GitHubController {
   ) {}
 
   public getStats = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.statsService
       .getStats(username, { token })
       .then((data) => {
@@ -47,7 +59,11 @@ export class GitHubController {
   };
 
   public getRepositories = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     Promise.all([
       this.repositoryStatsService.getRepositoryStats(username, { token }),
       this.repositoryRankingService.getRepositoryRankings(username, { token }),
@@ -65,7 +81,11 @@ export class GitHubController {
   };
 
   public getLanguages = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.languageCollectorService
       .collectLanguages(username, { token })
       .then((data) => {
@@ -75,7 +95,11 @@ export class GitHubController {
   };
 
   public getContributions = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.contributionService
       .getContributionStats(username, { token })
       .then((data) => {
@@ -85,7 +109,11 @@ export class GitHubController {
   };
 
   public getCommits = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.commitStatsService
       .getCommitStats(username, { token })
       .then((data) => {
@@ -95,7 +123,11 @@ export class GitHubController {
   };
 
   public getPullRequests = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.pullRequestService
       .getPullRequestStats(username, { token })
       .then((data) => {
@@ -105,7 +137,11 @@ export class GitHubController {
   };
 
   public getIssues = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.issueStatisticsService
       .getIssueStats(username, { token })
       .then((data) => {
@@ -115,7 +151,11 @@ export class GitHubController {
   };
 
   public getCombinedStatistics = (req: Request, res: Response, next: NextFunction): void => {
-    const { username, token } = (req as IGitHubRequest).githubParams!;
+    const { username, token } = getParams(req);
+    if (!username) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
     this.githubStatisticsService
       .getCombinedStatistics(username, { token })
       .then((data) => {

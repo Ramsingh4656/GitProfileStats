@@ -143,8 +143,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  const widgetEndpoint = selectedWidgetType === "repos" ? "repository.svg" : `${selectedWidgetType}.svg`;
+  const widgetQuery = selectedWidgetType === "repos" 
+    ? `owner=${previewUsername || "octocat"}&repo=hello-world&theme=${exampleTheme}` 
+    : `username=${previewUsername || "octocat"}&theme=${exampleTheme}`;
+
   const handleCopyCode = () => {
-    const code = `[![GitProfileStats](https://gitprofilestats.com/api/${selectedWidgetType}?username=${previewUsername || "octocat"}&theme=${exampleTheme})](https://github.com/${previewUsername || "octocat"})`;
+    const code = `[![GitProfileStats](https://gitprofilestats.com/api/cards/${widgetEndpoint}?${widgetQuery})](https://github.com/${previewUsername || "octocat"})`;
     navigator.clipboard.writeText(code);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
@@ -670,7 +675,7 @@ export default function Home() {
                         </div>
                         <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
                           <span>Theme: {currentExampleTheme.name}</span>
-                          <span>api/stats</span>
+                          <span>api/cards/stats.svg</span>
                         </div>
                       </div>
                     )}
@@ -718,7 +723,7 @@ export default function Home() {
 
                         <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
                           <span>3 main languages parsed</span>
-                          <span>api/languages</span>
+                          <span>api/cards/languages.svg</span>
                         </div>
                       </div>
                     )}
@@ -754,7 +759,7 @@ export default function Home() {
 
                         <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
                           <span>Updated minutes ago</span>
-                          <span>api/streak</span>
+                          <span>api/cards/streak.svg</span>
                         </div>
                       </div>
                     )}
@@ -782,7 +787,7 @@ export default function Home() {
                             <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 fill-amber-500/20 text-amber-500" /> 182</span>
                             <span className="flex items-center gap-1"><GitFork className="w-3.5 h-3.5 text-zinc-500" /> 45</span>
                           </div>
-                          <span>api/repos</span>
+                          <span>api/cards/repository.svg</span>
                         </div>
                       </div>
                     )}
@@ -792,15 +797,13 @@ export default function Home() {
 
                 {/* Displaying API markdown code snippet for copying */}
                 <div className="w-full glass-panel rounded-2xl p-4 border border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs font-mono">
-                  <div className="flex-1 overflow-x-auto whitespace-nowrap scrollbar-none py-1 pr-4 text-zinc-400 bg-black/25 p-3 rounded-lg border border-white/5">
+                  <div className="flex-1 overflow-x-auto whitespace-nowrap scrollbar-none py-3 px-4 text-zinc-400 bg-black/25 rounded-lg border border-white/5">
                     <span className="text-zinc-600 select-none">!</span>
                     <span className="text-violet-400">[GitProfileStats]</span>
-                    <span className="text-zinc-500">(https://gitprofilestats.com/api/</span>
-                    <span className="text-emerald-400">{selectedWidgetType}</span>
-                    <span className="text-zinc-500">?username=</span>
-                    <span className="text-amber-400">{previewUsername || "octocat"}</span>
-                    <span className="text-zinc-500">&theme=</span>
-                    <span className="text-cyan-400">{exampleTheme}</span>
+                    <span className="text-zinc-500">(https://gitprofilestats.com/api/cards/</span>
+                    <span className="text-emerald-400">{widgetEndpoint}</span>
+                    <span className="text-zinc-500">?</span>
+                    <span className="text-amber-400">{widgetQuery}</span>
                     <span className="text-zinc-500">)</span>
                   </div>
                   

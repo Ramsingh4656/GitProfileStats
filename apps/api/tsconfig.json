@@ -11,6 +11,13 @@
     "declarationMap": false,
     "baseUrl": "."
   },
-  "include": ["src/**/*.ts", "vitest.config.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "vitest.config.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/test/**/*"
+  ]
 }

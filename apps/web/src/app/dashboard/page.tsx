@@ -359,7 +359,8 @@ export default function DashboardPage() {
 
       if (!response.ok) {
         const errJson = await response.json().catch(() => ({}));
-        throw new Error(errJson.error || `Failed to fetch stats (Status: ${response.status})`);
+        const errText = errJson.error?.message || (typeof errJson.error === 'string' ? errJson.error : null) || errJson.message;
+        throw new Error(errText || `Failed to fetch stats (Status: ${response.status})`);
       }
 
       const data = await response.json();

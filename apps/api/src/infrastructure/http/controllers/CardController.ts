@@ -165,7 +165,8 @@ export class CardController {
   public getProfileCard = (req: Request, res: Response, next: NextFunction): void => {
     const githubParams = (req as IGitHubRequest).githubParams;
     if (!githubParams) {
-      throw new Error('GitHub parameters not found');
+      next(new Error('GitHub parameters not found'));
+      return;
     }
     const { username, token } = githubParams;
     const options = this.getCardOptions(req);
@@ -222,7 +223,8 @@ export class CardController {
   public getStatsCard = (req: Request, res: Response, next: NextFunction): void => {
     const githubParams = (req as IGitHubRequest).githubParams;
     if (!githubParams) {
-      throw new Error('GitHub parameters not found');
+      next(new Error('GitHub parameters not found'));
+      return;
     }
     const { username, token } = githubParams;
     const options = this.getCardOptions(req);
@@ -291,7 +293,8 @@ export class CardController {
   public getLanguagesCard = (req: Request, res: Response, next: NextFunction): void => {
     const githubParams = (req as IGitHubRequest).githubParams;
     if (!githubParams) {
-      throw new Error('GitHub parameters not found');
+      next(new Error('GitHub parameters not found'));
+      return;
     }
     const { username, token } = githubParams;
     const options = this.getCardOptions(req);
@@ -352,7 +355,8 @@ export class CardController {
   public getStreakCard = (req: Request, res: Response, next: NextFunction): void => {
     const githubParams = (req as IGitHubRequest).githubParams;
     if (!githubParams) {
-      throw new Error('GitHub parameters not found');
+      next(new Error('GitHub parameters not found'));
+      return;
     }
     const { username, token } = githubParams;
     const options = this.getCardOptions(req);
@@ -402,7 +406,8 @@ export class CardController {
   public getRepositoryCard = (req: Request, res: Response, next: NextFunction): void => {
     const repoParams = (req as IRepositoryRequest).repoParams;
     if (!repoParams) {
-      throw new Error('Repository parameters not found');
+      next(new Error('Repository parameters not found'));
+      return;
     }
     const { owner, repo, token } = repoParams;
     const options = this.getCardOptions(req);

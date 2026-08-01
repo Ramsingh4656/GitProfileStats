@@ -507,7 +507,7 @@ export default function CardPreviewPage() {
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-8 items-start w-full relative">
+    <div className="flex flex-col xl:flex-row gap-8 items-start w-full relative overflow-x-hidden">
       {/* Background neon dots */}
       <div className="w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] absolute top-[10%] left-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />
       <div className="w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.08)_0%,transparent_70%)] absolute bottom-[15%] right-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />
