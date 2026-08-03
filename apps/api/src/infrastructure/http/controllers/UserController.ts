@@ -4,11 +4,7 @@ import { GetUserProfileUseCase } from '../../../application/use-cases/user/GetUs
 import { UpdateUserSettingsUseCase } from '../../../application/use-cases/user/UpdateUserSettingsUseCase.js';
 import type { IUserSettings } from '../../../domain/entities/User.js';
 
-interface IAuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-  };
-}
+import type { IAuthenticatedRequest } from '../middleware/authGuard.js';
 
 @injectable()
 export class UserController {

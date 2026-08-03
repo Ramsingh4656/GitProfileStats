@@ -131,10 +131,19 @@ describe('API Endpoints', () => {
         ],
       };
     }
+    if (urlString.includes('/oauth/access_token')) {
+      return {
+        ok: true,
+        json: async () => ({
+          access_token: 'mock-access-token',
+        }),
+      };
+    }
     if (urlString.includes('/users/demo') || urlString.includes('/user')) {
       return {
         ok: true,
         json: async () => ({
+          id: 5832347,
           login: 'demo',
           name: 'Demo User',
           followers: 10,
@@ -326,6 +335,35 @@ describe('API Endpoints', () => {
       
       expect(response.status).toBe(404);
       expect(response.body.error.message).toContain('not found');
+    });
+
+    it('should redirect to GitHub authorize URL for login', async () => {
+      const response = await request(app).get('/api/v1/auth/github');
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toContain('github.com/login/oauth/authorize');
+    });
+
+    it('should redirect with missing_code error when callback is missing code', async () => {
+      const response = await request(app).get('/api/v1/auth/github/callback');
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toContain('error=missing_code');
+    });
+
+    it('should handle oauth callback with code and redirect to frontend callback with token', async () => {
+      const response = await request(app)
+        .get('/api/v1/auth/github/callback')
+        .query({ code: 'some-oauth-code' });
+      
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toContain('token=5832347');
+
+      // Now query /users/me with the token and expect it to succeed
+      const profileResponse = await request(app)
+        .get('/api/v1/users/me')
+        .set('Authorization', 'Bearer 5832347');
+      expect(profileResponse.status).toBe(200);
+      expect(profileResponse.body.success).toBe(true);
+      expect(profileResponse.body.data.username).toBe('demo');
     });
   });
 });

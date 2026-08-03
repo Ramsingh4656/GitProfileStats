@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { AuthenticationError } from '../../../domain/errors/DomainError.js';
 
-interface IAuthenticatedRequest extends Request {
+export interface IAuthenticatedRequest extends Request {
   user?: {
     id: string;
   };
