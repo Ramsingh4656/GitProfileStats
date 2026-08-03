@@ -92,14 +92,20 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="min-h-screen bg-[#030014] text-zinc-100 flex flex-col justify-center items-center select-none relative">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
-        <div className="w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.15)_0%,transparent_70%)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 pointer-events-none filter blur-[40px]" />
-        <div className="flex flex-col items-center gap-4 z-10">
-          <svg className="animate-spin h-8 w-8 text-violet-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <p className="text-sm text-zinc-400 font-medium">Verifying session...</p>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
+        <div className="w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.12)_0%,transparent_70%)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-60 pointer-events-none filter blur-[50px]" />
+        <div className="flex flex-col items-center gap-6 z-10 animate-in fade-in duration-500">
+          <div className="relative w-16 h-16 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 animate-pulse blur-sm opacity-50" />
+            <div className="w-12 h-12 rounded-xl bg-zinc-950 border border-white/10 flex items-center justify-center relative shadow-2xl">
+              <Terminal className="w-5 h-5 text-violet-400 animate-pulse" />
+            </div>
+            <div className="absolute -inset-1 rounded-2xl border border-violet-500/20 animate-ping [animation-duration:3s]" />
+          </div>
+          <div className="flex flex-col items-center gap-1 text-center">
+            <p className="text-xs font-bold tracking-widest text-white uppercase font-mono">Verifying Session</p>
+            <p className="text-[10px] text-zinc-500 font-medium">Establishing secure handshake context...</p>
+          </div>
         </div>
       </div>
     );
@@ -132,13 +138,16 @@ export default function DashboardLayout({
               <Link
                 key={link.name}
                 href={link.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 relative group ${
                   isActive
-                    ? "bg-white/5 text-white shadow-inner border border-white/5"
+                    ? "bg-white/5 text-white border border-white/5 shadow-inner"
                     : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"
                 }`}
               >
-                <Icon className={`w-4.5 h-4.5 ${isActive ? "text-violet-400" : "text-zinc-400"}`} />
+                {isActive && (
+                  <div className="absolute left-0 top-3.5 bottom-3.5 w-1 rounded-r-md bg-gradient-to-b from-violet-500 to-fuchsia-500" />
+                )}
+                <Icon className={`w-4 h-4 transition-colors duration-200 ${isActive ? "text-violet-400" : "text-zinc-400 group-hover:text-white"}`} />
                 <span>{link.name}</span>
               </Link>
             );
@@ -218,13 +227,16 @@ export default function DashboardLayout({
                     key={link.name}
                     href={link.href}
                     onClick={() => setMobileSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 relative group ${
                       isActive
                         ? "bg-white/5 text-white border border-white/5"
                         : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"
                     }`}
                   >
-                    <Icon className={`w-4.5 h-4.5 ${isActive ? "text-violet-400" : "text-zinc-400"}`} />
+                    {isActive && (
+                      <div className="absolute left-0 top-3.5 bottom-3.5 w-1 rounded-r-md bg-gradient-to-b from-violet-500 to-fuchsia-500" />
+                    )}
+                    <Icon className={`w-4 h-4 transition-colors duration-200 ${isActive ? "text-violet-400" : "text-zinc-400 group-hover:text-white"}`} />
                     <span>{link.name}</span>
                   </Link>
                 );

@@ -51,9 +51,9 @@ function CallbackHandler() {
 
       {status === "loading" && (
         <div className="flex flex-col items-center text-center py-6">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 rounded-full bg-violet-500/20 blur-md animate-pulse" />
-            <Loader2 className="w-12 h-12 text-violet-500 animate-spin relative z-10" />
+          <div className="relative w-16 h-16 mb-6 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-4 border-violet-500/10 border-t-violet-500 animate-spin" />
+            <div className="absolute inset-2 rounded-full border-4 border-fuchsia-500/10 border-b-fuchsia-500 animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Authenticating</h2>
           <p className="text-zinc-400 text-sm max-w-xs">

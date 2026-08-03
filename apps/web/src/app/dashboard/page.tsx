@@ -739,7 +739,7 @@ export default function DashboardPage() {
         {loadingStats && (
           <div className="flex flex-col gap-6 w-full">
             {/* Ribbon Metrics Grid Skeleton */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="glass-card rounded-3xl p-5 relative overflow-hidden flex flex-col gap-2">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-shimmer" />
@@ -751,7 +751,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Heatmap Graph Skeleton */}
-            <div className="glass-card rounded-3xl p-6.5 relative overflow-hidden flex flex-col gap-4">
+            <div className="glass-card rounded-3xl p-6 relative overflow-hidden flex flex-col gap-4">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-shimmer" />
               <div className="h-4 bg-zinc-800/40 rounded w-1/4 animate-pulse" />
               <div className="h-3 bg-zinc-800/40 rounded w-1/3 animate-pulse" />
@@ -760,12 +760,12 @@ export default function DashboardPage() {
 
             {/* Two Column Layout Skeleton */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="glass-card rounded-3xl p-6.5 relative overflow-hidden flex flex-col gap-4">
+              <div className="glass-card rounded-3xl p-6 relative overflow-hidden flex flex-col gap-4">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-shimmer" />
                 <div className="h-4 bg-zinc-800/40 rounded w-1/3 animate-pulse" />
                 <div className="h-24 bg-zinc-800/20 rounded-xl animate-pulse" />
               </div>
-              <div className="glass-card rounded-3xl p-6.5 relative overflow-hidden flex flex-col gap-4">
+              <div className="glass-card rounded-3xl p-6 relative overflow-hidden flex flex-col gap-4">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-shimmer" />
                 <div className="h-4 bg-zinc-800/40 rounded w-1/3 animate-pulse" />
                 <div className="h-24 bg-zinc-800/20 rounded-xl animate-pulse" />
@@ -795,7 +795,7 @@ export default function DashboardPage() {
             )}
 
             {/* METRICS GRID: Stars, Commits, Contributions, Followers */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* Stars Card */}
               <div className="glass-card rounded-3xl p-5 flex flex-col gap-3 group relative overflow-hidden">
@@ -856,7 +856,7 @@ export default function DashboardPage() {
             </div>
 
             {/* SECTION: CONTRIBUTION HEATMAP */}
-            <div className="glass-card rounded-3xl p-6.5">
+            <div className="glass-card rounded-3xl p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/5 mb-5">
                 <div>
                   <h3 className="font-bold text-base text-white flex items-center gap-2">
@@ -940,7 +940,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
               {/* Language Breakdown Card (5 columns) */}
-              <div className="glass-card rounded-3xl p-6.5 lg:col-span-5 flex flex-col justify-between">
+              <div className="glass-card rounded-3xl p-6 lg:col-span-5 flex flex-col justify-between">
                 <div>
                   <h3 className="font-bold text-base text-white flex items-center gap-2 pb-4 border-b border-white/5">
                     <FileCode2 className="w-5 h-5 text-violet-400" />
@@ -998,7 +998,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Repositories Metrics & Breakdown (7 columns) */}
-              <div className="glass-card rounded-3xl p-6.5 lg:col-span-7 flex flex-col justify-between">
+              <div className="glass-card rounded-3xl p-6 lg:col-span-7 flex flex-col justify-between">
                 <div>
                   <h3 className="font-bold text-base text-white flex items-center gap-2 pb-4 border-b border-white/5">
                     <Folder className="w-5 h-5 text-violet-400" />
@@ -1091,7 +1091,7 @@ export default function DashboardPage() {
             </div>
 
             {/* SECTION: RANKINGS HIGHLIGHTS */}
-            <div className="glass-card rounded-3xl p-6.5">
+            <div className="glass-card rounded-3xl p-6">
               <h3 className="font-bold text-base text-white flex items-center gap-2 pb-4 border-b border-white/5 mb-5">
                 <Award className="w-5 h-5 text-violet-400" />
                 Repository Rankings Highlights

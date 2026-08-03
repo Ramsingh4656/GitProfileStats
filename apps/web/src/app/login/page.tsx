@@ -42,9 +42,9 @@ export default function LoginPage() {
         {/* Sign-In Button */}
         <a 
           href={`${env.NEXT_PUBLIC_API_URL}/api/v1/auth/github`} 
-          className="w-full py-3.5 rounded-xl font-bold bg-white text-zinc-950 hover:bg-zinc-200 transition-all shadow-xl shadow-white/5 flex items-center justify-center gap-3 group mb-4"
+          className="w-full py-3.5 rounded-xl font-bold bg-white text-zinc-950 hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl shadow-white/5 flex items-center justify-center gap-3 group mb-4 cursor-pointer"
         >
-          <Github className="w-5 h-5 text-zinc-950" />
+          <Github className="w-5 h-5 text-zinc-950 group-hover:rotate-12 transition-transform duration-300" />
           <span>Continue with GitHub</span>
         </a>
 

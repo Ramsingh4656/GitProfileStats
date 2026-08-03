@@ -1048,23 +1048,18 @@ export default function CardPreviewPage() {
 
                       {!card.loading && !card.error && card.svg && (
                         <div
-                          className="overflow-auto max-w-full max-h-full flex items-center justify-center p-3 select-none"
-                          style={{
-                            width: "100%",
-                            height: "100%"
-                          }}
+                          className="overflow-hidden max-w-full flex items-center justify-center p-3 select-none w-full"
                         >
                           <div
                             style={{
                               transform: `scale(${card.zoom})`,
                               transformOrigin: "center center",
                               transition: "transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)",
-                              width: `${info.defaultWidth}px`,
-                              height: `${info.defaultHeight}px`,
-                              maxWidth: "none",
-                              maxHeight: "none"
+                              width: "100%",
+                              maxWidth: `${info.defaultWidth}px`,
+                              aspectRatio: `${info.defaultWidth} / ${info.defaultHeight}`
                             }}
-                            className="flex items-center justify-center shrink-0"
+                            className="flex items-center justify-center shrink-0 [&>svg]:w-full [&>svg]:h-full"
                             dangerouslySetInnerHTML={{ __html: card.svg }}
                           />
                         </div>

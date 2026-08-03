@@ -174,7 +174,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group" id="nav-logo">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-indigo-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-all duration-300">
-              <Terminal className="w-4.5 h-4.5 text-white" />
+              <Terminal className="w-4 h-4 text-white" />
             </div>
             <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent">
               GitProfile<span className="text-violet-500 font-semibold">Stats</span>
@@ -187,17 +187,17 @@ export default function Home() {
             <a href="#example-cards" className="hover:text-white transition-colors duration-200">Example Cards</a>
             <a href="#how-it-works" className="hover:text-white transition-colors duration-200">How It Works</a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-200 flex items-center gap-1.5">
-              GitHub <Github className="w-3.5 h-3.5" />
+              GitHub <Github className="w-4 h-4" />
             </a>
           </nav>
 
           {/* Header Action Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login" className="text-sm font-semibold hover:text-white transition-all px-4.5 py-2 rounded-full border border-white/10 bg-white/[0.02] flex items-center gap-2 hover:bg-white/[0.06]" id="btn-signin">
+            <Link href="/login" className="text-sm font-semibold hover:text-white hover:border-white/20 px-4 py-2 rounded-full border border-white/10 bg-white/[0.02] flex items-center gap-2 hover:bg-white/[0.06] transition-all duration-200" id="btn-signin">
               <LogIn className="w-4 h-4 text-zinc-400" />
               <span>Sign In</span>
             </Link>
-            <Link href="/dashboard" className="text-sm font-semibold text-white px-5 py-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 transition-all duration-300 flex items-center gap-1.5 shadow-lg shadow-violet-500/15 hover:shadow-violet-500/25" id="btn-getstarted">
+            <Link href="/dashboard" className="text-sm font-semibold text-white px-5 py-2 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 transition-all duration-300 flex items-center gap-1.5 shadow-lg shadow-violet-500/15 hover:shadow-violet-500/25 hover:scale-[1.02] active:scale-[0.98]" id="btn-getstarted">
               <span>Get Started</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -225,13 +225,13 @@ export default function Home() {
             </a>
             <hr className="border-white/5 my-1" />
             <div className="flex flex-col gap-3">
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center font-semibold text-white py-3 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center gap-2 hover:bg-white/10">
-                <LogIn className="w-4.5 h-4.5 text-zinc-400" />
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="w-full text-center font-semibold text-white py-3 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center gap-2 hover:bg-white/10 hover-lift">
+                <LogIn className="w-4 h-4 text-zinc-400" />
                 <span>Sign In</span>
               </Link>
-              <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full text-center font-semibold text-white py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-center gap-2">
+              <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full text-center font-semibold text-white py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 flex items-center justify-center gap-2 hover-lift">
                 <span>Get Started</span>
-                <ArrowRight className="w-4.5 h-4.5" />
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -298,8 +298,8 @@ export default function Home() {
                     <button
                       key={themeKey}
                       onClick={() => setHeroTheme(themeKey)}
-                      className={`w-5 h-5 rounded-full border transition-all ${
-                        heroTheme === themeKey ? "border-white scale-110" : "border-transparent opacity-60 hover:opacity-100"
+                      className={`w-5 h-5 rounded-full border transition-all duration-200 ${
+                        heroTheme === themeKey ? "border-white scale-120 ring-2 ring-violet-500/30" : "border-transparent opacity-60 hover:opacity-100 hover:scale-110"
                       } ${THEMES[themeKey].dotColor} focus-visible:ring-2 focus-visible:ring-violet-500 focus:outline-none`}
                       title={THEMES[themeKey].name}
                       id={`theme-btn-${themeKey}`}
@@ -333,7 +333,7 @@ export default function Home() {
             </div>
 
             {/* The Live Rendered Card */}
-            <div className={`w-full max-w-lg glass-card rounded-2xl p-6.5 relative overflow-hidden group border ${currentHeroTheme.borderClass} animate-float`}>
+            <div className={`w-full max-w-lg glass-card rounded-2xl p-6 relative overflow-hidden group border ${currentHeroTheme.borderClass} animate-float`}>
               
               {/* Glossy highlight shimmer */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_2.2s_infinite] pointer-events-none" />
@@ -394,7 +394,7 @@ export default function Home() {
                 </div>
                 
                 {/* Horizontal bar languages chart representation */}
-                <div className="h-6.5 flex rounded-lg overflow-hidden bg-white/5 p-1 border border-white/5">
+                <div className="h-6 flex rounded-lg overflow-hidden bg-white/5 p-1 border border-white/5">
                   <div className="bg-gradient-to-r from-violet-500 to-indigo-500 h-full rounded-l-md transition-all duration-500" style={{ width: '55%' }} title="TypeScript (55%)" />
                   <div className="bg-emerald-500 h-full transition-all duration-500" style={{ width: '25%' }} title="Rust (25%)" />
                   <div className="bg-amber-500 h-full transition-all duration-500" style={{ width: '12%' }} title="Go (12%)" />
@@ -630,7 +630,7 @@ export default function Home() {
               <div className="lg:col-span-8 flex flex-col gap-6 w-full items-center lg:items-stretch">
                 
                 {/* Visualizer Frame */}
-                <div id="widget-preview-panel" role="tabpanel" aria-label="Widget preview visualizer" className="w-full glass-panel border border-white/5 rounded-3xl p-6.5 relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
+                <div id="widget-preview-panel" role="tabpanel" aria-label="Widget preview visualizer" className="w-full glass-panel border border-white/5 rounded-3xl p-6 relative overflow-hidden flex flex-col items-center justify-center min-h-[350px]">
                   
                   {/* Glowing background layer matching selection */}
                   <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full ${currentExampleTheme.glowClass} blur-3xl transition-all duration-500 pointer-events-none`} />
@@ -640,7 +640,7 @@ export default function Home() {
                     
                     {/* STATS CARD PREVIEW */}
                     {activeTab === "stats" && (
-                      <div className={`glass-card p-6.5 rounded-2xl border ${currentExampleTheme.borderClass}`}>
+                      <div className={`glass-card p-6 rounded-2xl border ${currentExampleTheme.borderClass}`}>
                         <div className="flex items-center justify-between pb-5 border-b border-white/5">
                           <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-lg bg-zinc-900 border border-white/10 flex items-center justify-center font-bold ${currentExampleTheme.accentText}`}>
@@ -682,7 +682,7 @@ export default function Home() {
 
                     {/* LANGUAGES CARD PREVIEW */}
                     {activeTab === "languages" && (
-                      <div className={`glass-card p-6.5 rounded-2xl border ${currentExampleTheme.borderClass}`}>
+                      <div className={`glass-card p-6 rounded-2xl border ${currentExampleTheme.borderClass}`}>
                         <div className="pb-5 border-b border-white/5">
                           <h5 className="font-extrabold text-sm text-white">Language Breakdown</h5>
                           <p className="text-zinc-500 text-xs">Actual volume in bytes based on 84 repos</p>
@@ -730,7 +730,7 @@ export default function Home() {
 
                     {/* STREAK CARD PREVIEW */}
                     {activeTab === "streak" && (
-                      <div className={`glass-card p-6.5 rounded-2xl border ${currentExampleTheme.borderClass}`}>
+                      <div className={`glass-card p-6 rounded-2xl border ${currentExampleTheme.borderClass}`}>
                         <div className="pb-5 border-b border-white/5 flex items-center justify-between">
                           <div>
                             <h5 className="font-extrabold text-sm text-white">Commit Streak</h5>
@@ -852,7 +852,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               
               {/* Step 1 */}
-              <div className="glass-card rounded-2xl p-6.5 border border-white/5 relative flex flex-col gap-4">
+              <div className="glass-card rounded-2xl p-6 border border-white/5 relative flex flex-col gap-4">
                 <span className="absolute top-4 right-4 text-3xl font-black text-white/5 font-mono select-none">01</span>
                 <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
                   <Github className="w-5 h-5" />
@@ -870,7 +870,7 @@ export default function Home() {
                       value={previewUsername}
                       onChange={(e) => setPreviewUsername(e.target.value)}
                       placeholder="e.g. torvalds"
-                      className="w-full px-3 py-2 text-xs rounded-lg border border-white/10 bg-black/20 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                      className="w-full px-3 py-2 text-xs rounded-lg border border-white/10 bg-black/40 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/25 transition-all"
                       id="input-preview-username"
                     />
                     <span className="absolute right-2.5 top-2.5 text-[10px] text-zinc-500 font-mono">handle</span>
@@ -879,7 +879,7 @@ export default function Home() {
               </div>
 
               {/* Step 2 */}
-              <div className="glass-card rounded-2xl p-6.5 border border-white/5 relative flex flex-col gap-4">
+              <div className="glass-card rounded-2xl p-6 border border-white/5 relative flex flex-col gap-4">
                 <span className="absolute top-4 right-4 text-3xl font-black text-white/5 font-mono select-none">02</span>
                 <div className="w-10 h-10 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
                   <Settings className="w-5 h-5" />
@@ -897,7 +897,7 @@ export default function Home() {
               </div>
 
               {/* Step 3 */}
-              <div className="glass-card rounded-2xl p-6.5 border border-white/5 relative flex flex-col gap-4">
+              <div className="glass-card rounded-2xl p-6 border border-white/5 relative flex flex-col gap-4">
                 <span className="absolute top-4 right-4 text-3xl font-black text-white/5 font-mono select-none">03</span>
                 <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                   <Code className="w-5 h-5" />
@@ -925,7 +925,7 @@ export default function Home() {
               </div>
 
               {/* Step 4 */}
-              <div className="glass-card rounded-2xl p-6.5 border border-white/5 relative flex flex-col gap-4">
+              <div className="glass-card rounded-2xl p-6 border border-white/5 relative flex flex-col gap-4">
                 <span className="absolute top-4 right-4 text-3xl font-black text-white/5 font-mono select-none">04</span>
                 <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                   <Sparkles className="w-5 h-5" />
