@@ -45,17 +45,9 @@ A lightweight, open‑source service that provides real‑time GitHub statistics
 
 ## Screenshots
 
-| Caption | Image |
-|---|---|
-| Landing Page | ![Landing Page](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/landing.png) |
-| Dashboard | ![Dashboard](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/dashboard.png) |
-| Stats Card | ![Stats Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/stats-card.png) |
-| Profile Card | ![Profile Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/profile-card.png) |
-| Language Card | ![Language Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/language-card.png) |
-| Repository Card | ![Repository Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/repository-card.png) |
-| Theme Gallery | ![Theme Gallery](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/theme-gallery.png) |
+> [!NOTE]
+> Screenshots are currently unavailable in this documentation.
 
----
 
 ## Live Demo
 
