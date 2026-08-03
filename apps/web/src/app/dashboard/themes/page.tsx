@@ -118,6 +118,18 @@ interface PreviewState {
   copied: "url" | "markdown" | "html" | "svg" | null;
 }
 
+interface UserSettings {
+  preferredTheme?: string;
+  defaultCardStyle?: string;
+  languageSorting?: string;
+  defaultCardVisibility?: {
+    profile: boolean;
+    stats: boolean;
+    languages: boolean;
+    streak: boolean;
+  };
+}
+
 export default function ThemeGalleryPage() {
   const router = useRouter();
 
@@ -131,7 +143,7 @@ export default function ThemeGalleryPage() {
   const [selectedCard, setSelectedCard] = useState<CardType>("profile");
   const [demoMode, setDemoMode] = useState(false);
   const [preferredTheme, setPreferredTheme] = useState<string>("dark");
-  const [userSettings, setUserSettings] = useState<any>(null);
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
 
   // Status triggers
   const [applyingTheme, setApplyingTheme] = useState<string | null>(null);
@@ -237,14 +249,15 @@ export default function ThemeGalleryPage() {
             error: null,
           },
         }));
-      } catch (err: any) {
-        console.error(`Theme gallery error fetching ${selectedCard} for theme ${theme.id}:`, err);
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error(`Theme gallery error fetching ${selectedCard} for theme ${theme.id}:`, error);
         setPreviews((prev) => ({
           ...prev,
           [theme.id]: {
             ...prev[theme.id],
             loading: false,
-            error: err.message || "Failed to load card.",
+            error: error.message || "Failed to load card.",
           },
         }));
       }
@@ -374,9 +387,10 @@ export default function ThemeGalleryPage() {
       } else {
         throw new Error(data.error || "Theme apply failed.");
       }
-    } catch (err: any) {
-      console.error("Theme gallery error applying theme settings:", err);
-      setErrorMsg(err.message || "Failed to update preferred theme settings.");
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error("Theme gallery error applying theme settings:", error);
+      setErrorMsg(error.message || "Failed to update preferred theme settings.");
     } finally {
       setApplyingTheme(null);
     }
