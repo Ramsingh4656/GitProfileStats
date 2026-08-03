@@ -16,23 +16,22 @@ Both parts need to be hosted online so they can talk to each other.
 The app is split into the following services, each hosted on a different platform:
 
 ```mermaid
-flowchart TD
-    User[👤 User]
+flowchart LR
+    User([👤 User])
 
-    User --> Frontend[Frontend<br/>Next.js (Vercel)]
+    Frontend["Frontend (Next.js)<br>Vercel"]
+    Backend["Backend (Node.js)<br>Render"]
+    DB[("Neon PostgreSQL")]
+    Cache[("Upstash Redis")]
+    GitHub["GitHub OAuth & APIs"]
 
-    Frontend -->|API Requests| Backend[Backend<br/>Node.js (Render)]
-
-    Backend -->|Read / Write Data| Neon[(Neon PostgreSQL)]
-
-    Backend -->|Cache Data| Redis[(Upstash Redis)]
-
-    Frontend -->|Login with GitHub| GitHub[GitHub OAuth]
-
-    GitHub -->|OAuth Callback| Backend
-
-    Backend -->|GitHub REST & GraphQL APIs| GitHub
+    User --> Frontend
+    Frontend --> Backend
+    Backend --> DB
+    Backend --> Cache
+    Backend <--> GitHub
 ```
+
 - **Frontend → Vercel** – Vercel builds and serves the React website.
 - **Backend → Render** – Render runs the Node.js API.
 - **Database → Neon** – Managed PostgreSQL database.
