@@ -83,11 +83,11 @@ export const cacheMiddleware = (ttlSeconds = 300) => {
         const headers: Record<string, string | string[] | undefined> = {};
         const contentType = res.getHeader('content-type');
         if (contentType !== undefined) {
-          headers['content-type'] = contentType;
+          headers['content-type'] = contentType as string | string[];
         }
         const cacheControl = res.getHeader('cache-control');
         if (cacheControl !== undefined) {
-          headers['cache-control'] = cacheControl;
+          headers['cache-control'] = cacheControl as string | string[];
         }
 
         cache.set(cacheKey, {

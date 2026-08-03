@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { env } from "@/config/env";
 import { useRouter } from "next/navigation";
 import {
   Palette,
@@ -79,7 +80,7 @@ export default function SettingsPage() {
 
     const fetchSettings = async () => {
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -121,7 +122,7 @@ export default function SettingsPage() {
     setSaveSuccess(false);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const apiBase = env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiBase}/api/v1/users/settings`, {
         method: "PUT",
         headers: {

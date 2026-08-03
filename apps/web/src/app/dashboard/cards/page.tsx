@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { env } from "@/config/env";
 import { useRouter } from "next/navigation";
 import {
   CreditCard,
@@ -101,7 +102,7 @@ export default function CardPreviewPage() {
   const [readmeLayout, setReadmeLayout] = useState<"vertical" | "centered" | "grid">("vertical");
   const [customApiHost, setCustomApiHost] = useState(() => {
     if (typeof window !== "undefined") {
-      return process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      return env.NEXT_PUBLIC_API_URL;
     }
     return "";
   });
@@ -142,7 +143,7 @@ export default function CardPreviewPage() {
     // Prefill username with logged-in user profile
     const fetchProfile = async () => {
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -201,7 +202,7 @@ export default function CardPreviewPage() {
 
   // Main effect to fetch SVGs when parameters change
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const apiBase = env.NEXT_PUBLIC_API_URL;
     const types: CardType[] = ["profile", "stats", "languages", "streak", "repository"];
 
     types.forEach(async (type) => {
@@ -332,7 +333,7 @@ export default function CardPreviewPage() {
 
   // Build the embed code strings
   const getEmbedCode = (type: CardType, format: "url" | "markdown" | "html") => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const apiBase = env.NEXT_PUBLIC_API_URL;
     const params = new URLSearchParams();
     if (type === "repository") {
       params.append("owner", username);
@@ -405,7 +406,7 @@ export default function CardPreviewPage() {
 
   // Generate GitHub Profile README Markdown
   const generateReadmeMarkdown = () => {
-    const host = customApiHost || process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const host = customApiHost || env.NEXT_PUBLIC_API_URL;
     
     const getCardUrl = (type: CardType) => {
       const params = new URLSearchParams();

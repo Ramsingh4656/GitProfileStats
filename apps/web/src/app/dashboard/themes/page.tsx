@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { env } from "@/config/env";
 import { useRouter } from "next/navigation";
 import {
   Palette,
@@ -156,7 +157,7 @@ export default function ThemeGalleryPage() {
 
     const fetchUserSettings = async () => {
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -188,7 +189,7 @@ export default function ThemeGalleryPage() {
 
   // Load preview SVGs when username, repo, selected card, or demoMode change
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const apiBase = env.NEXT_PUBLIC_API_URL;
     const patToken = typeof window !== "undefined" ? (localStorage.getItem("github_pat") || "") : "";
 
     THEMES_INFO.forEach(async (theme) => {
@@ -263,7 +264,7 @@ export default function ThemeGalleryPage() {
 
   // Helper to construct embed code strings
   const getEmbedCode = (themeId: string, format: "url" | "markdown" | "html") => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const apiBase = env.NEXT_PUBLIC_API_URL;
     const params = new URLSearchParams();
     params.append("theme", themeId);
     if (demoMode) {
@@ -336,7 +337,7 @@ export default function ThemeGalleryPage() {
     setApplySuccess(null);
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const apiBase = env.NEXT_PUBLIC_API_URL;
       
       // Merge setting preferences safely
       const updatedSettings = {

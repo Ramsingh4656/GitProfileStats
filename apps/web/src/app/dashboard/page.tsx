@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { env } from "@/config/env";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { 
@@ -346,7 +347,7 @@ export default function DashboardPage() {
     }
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const apiBase = env.NEXT_PUBLIC_API_URL;
       const token = patOverride !== undefined ? patOverride : patToken;
       const headers: Record<string, string> = {};
       if (token) {
@@ -387,7 +388,7 @@ export default function DashboardPage() {
 
     const fetchProfile = async () => {
       try {
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,

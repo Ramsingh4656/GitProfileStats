@@ -20,6 +20,7 @@ import {
   type CardOptions,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
+import { env } from '../../../config/env.js';
 
 // Mock datasets for offline preview / fallback
 const MOCK_USER = (username: string): any => ({
@@ -127,7 +128,7 @@ export class CardController {
   private shouldMock(username?: string, token?: string, forceMock?: boolean): boolean {
     if (forceMock) return true;
     if (username === 'demo' || username === 'mock') return true;
-    const defaultToken = process.env.GITHUB_TOKEN || '';
+    const defaultToken = env.GITHUB_TOKEN;
     if (!token && (defaultToken === 'dummy_token' || !defaultToken)) {
       return true;
     }
