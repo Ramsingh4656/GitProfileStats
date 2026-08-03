@@ -19,8 +19,10 @@ import {
   Info,
   Download,
   Code2,
-  Globe
+  Globe,
+  WifiOff
 } from "lucide-react";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
 
 // Predefined Themes for Swatch Rendering
 const THEME_SWATCHES = [
@@ -77,6 +79,7 @@ const CARD_INFOS: Record<CardType, { title: string; desc: string; defaultHeight:
 
 export default function CardPreviewPage() {
   const router = useRouter();
+  const isOnline = useOnlineStatus();
 
   // Settings states
   const [username, setUsername] = useState("octocat");
@@ -508,7 +511,28 @@ export default function CardPreviewPage() {
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-8 items-start w-full relative overflow-x-hidden">
+    <div className="flex flex-col gap-6 w-full relative">
+      {!isOnline && (
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between px-6 py-4 rounded-3xl border border-amber-500/20 bg-amber-500/5 text-xs text-amber-400 backdrop-blur-md shadow-lg shadow-amber-950/20 animate-in fade-in duration-300 gap-4 z-20">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <WifiOff className="w-5 h-5" />
+            </div>
+            <div>
+              <strong className="text-white font-bold block text-sm">Offline Mode Active</strong>
+              <span className="text-zinc-400">You are currently disconnected from the internet. Action buttons requiring connection are disabled.</span>
+            </div>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full sm:w-auto px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold rounded-xl transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0 text-center"
+          >
+            Reconnect & Retry
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-col xl:flex-row gap-8 items-start w-full relative overflow-x-hidden">
       {/* Background neon dots */}
       <div className="w-[400px] h-[400px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.1)_0%,transparent_70%)] absolute top-[10%] left-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />
       <div className="w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.08)_0%,transparent_70%)] absolute bottom-[15%] right-[-5%] opacity-50 pointer-events-none filter blur-[35px]" />
@@ -548,9 +572,10 @@ export default function CardPreviewPage() {
             </div>
             <button
               type="submit"
-              className="w-full py-2.5 mt-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-bold text-white rounded-xl flex items-center justify-center transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-violet-600/10"
+              disabled={!isOnline}
+              className="w-full py-2.5 mt-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-bold text-white rounded-xl flex items-center justify-center transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shadow-md shadow-violet-600/10 disabled:opacity-50 disabled:pointer-events-none"
             >
-              Apply Targets
+              {!isOnline ? "Sync Disabled (Offline)" : "Apply Targets"}
             </button>
           </form>
           <div className="flex flex-col gap-1.5 px-3 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl text-[11px] text-zinc-400 leading-normal">
@@ -1017,20 +1042,50 @@ export default function CardPreviewPage() {
                   {card.tab === "preview" && (
                     <>
                       {card.loading && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-                          <svg className="animate-spin h-7 w-7 text-violet-500" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          <span className="text-[11px] text-zinc-500 font-medium">Fetching card SVG...</span>
+                        <div className="absolute inset-0 flex items-center justify-center p-6 bg-[#030014]/50 backdrop-blur-md">
+                          <div 
+                            style={{
+                              width: "100%",
+                              maxWidth: `${info.defaultWidth}px`,
+                              aspectRatio: `${info.defaultWidth} / ${info.defaultHeight}`
+                            }}
+                            className="glass-card rounded-[10px] border border-white/5 relative overflow-hidden flex flex-col justify-between p-5 animate-pulse"
+                          >
+                            {/* Glossy shimmer effect overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full animate-shimmer" />
+                            
+                            <div className="flex justify-between items-center pb-3 border-b border-white/5">
+                              <div className="flex gap-2 items-center">
+                                <div className="w-8 h-8 rounded-lg bg-white/5" />
+                                <div className="flex flex-col gap-1.5">
+                                  <div className="h-3.5 w-24 bg-white/5 rounded-md" />
+                                  <div className="h-2 w-16 bg-white/5 rounded-sm" />
+                                </div>
+                              </div>
+                              <div className="h-6 w-12 bg-white/5 rounded-md" />
+                            </div>
+
+                            <div className="flex flex-col gap-3 py-3">
+                              <div className="h-3 w-3/4 bg-white/5 rounded-sm" />
+                              <div className="h-3 w-1/2 bg-white/5 rounded-sm" />
+                            </div>
+
+                            <div className="h-4 w-full bg-white/5 rounded-md mt-auto" />
+                          </div>
                         </div>
                       )}
 
                       {card.error && (
-                        <div className="p-4 text-center flex flex-col items-center gap-2 max-w-[280px]">
-                          <AlertTriangle className="w-8 h-8 text-rose-500" />
-                          <h5 className="font-bold text-xs text-white">Error Rendering Card</h5>
-                          <p className="text-[10px] text-zinc-500 leading-normal">{card.error}</p>
+                        <div className="p-5 text-center flex flex-col items-center gap-3.5 max-w-[320px] animate-in fade-in duration-300">
+                          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 shadow-lg shadow-rose-500/5">
+                            <AlertTriangle className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h5 className="font-extrabold text-sm text-white">Widget Preview Blocked</h5>
+                            <p className="text-[10px] text-zinc-500 leading-relaxed mt-1">
+                              {card.error}. Common triggers include bad token configurations, missing public repo files, or API limits.
+                            </p>
+                          </div>
                           <button
                             onClick={() => {
                               // Trigger state re-fetch by updating state loader
@@ -1039,9 +1094,9 @@ export default function CardPreviewPage() {
                                 [type]: { ...prev[type], loading: true, error: null }
                               }));
                             }}
-                            className="mt-2 px-3 py-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg text-[10px] font-semibold transition-all cursor-pointer"
+                            className="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                           >
-                            Retry Request
+                            Retry Loading
                           </button>
                         </div>
                       )}
@@ -1339,6 +1394,7 @@ export default function CardPreviewPage() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }

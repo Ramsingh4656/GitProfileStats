@@ -254,22 +254,71 @@ export function renderLanguagesCard(
       })
     : [
         {
-          type: 'leaf',
+          type: 'column',
           width: 'fill',
           height: 'fill',
-          render: (x, y, w, h) =>
-            renderTypography(
-              {
-                x: x + w / 2,
-                y: y + h / 2,
-                text: 'No languages detected',
-                dominantBaseline: 'middle',
-                textAnchor: 'middle',
-              },
-              14,
-              400,
-              'var(--color-text-muted)',
-            ),
+          spacing: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          children: [
+            {
+              type: 'leaf',
+              width: 32,
+              height: 32,
+              render: (x, y, w) =>
+                icon({
+                  name: 'language',
+                  x,
+                  y,
+                  size: w,
+                  fill: 'var(--color-text-muted)',
+                }),
+            },
+            {
+              type: 'leaf',
+              width: 'auto',
+              height: 'auto',
+              measure: () => ({
+                width: estimateTextWidth('No languages detected', 14),
+                height: 16,
+              }),
+              render: (x, y, w) =>
+                renderTypography(
+                  {
+                    x: x + w / 2,
+                    y,
+                    text: 'No languages detected',
+                    dominantBaseline: 'hanging',
+                    textAnchor: 'middle',
+                  },
+                  14,
+                  600,
+                  'var(--color-text-muted)',
+                ),
+            },
+            {
+              type: 'leaf',
+              width: 'auto',
+              height: 'auto',
+              measure: () => ({
+                width: estimateTextWidth('Public repositories are empty or not classified.', 11),
+                height: 12,
+              }),
+              render: (x, y, w) =>
+                renderTypography(
+                  {
+                    x: x + w / 2,
+                    y,
+                    text: 'Public repositories are empty or not classified.',
+                    dominantBaseline: 'hanging',
+                    textAnchor: 'middle',
+                  },
+                  11,
+                  400,
+                  'var(--color-text-muted)',
+                ),
+            },
+          ],
         },
       ];
 

@@ -31,8 +31,10 @@ import {
   Sparkles,
   Settings,
   KeyRound,
-  X
+  X,
+  WifiOff
 } from "lucide-react";
+import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 // Curated GitHub language colors
 const LANGUAGE_COLORS: Record<string, string> = {
@@ -307,6 +309,7 @@ const DEMO_DATA: CombinedStats = {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const isOnline = useOnlineStatus();
   const [user, setUser] = useState<{
     id: string;
     username: string;
@@ -509,60 +512,81 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start w-full select-none">
-      
-      {/* LEFT COLUMN: User Profile & Configuration Section */}
-      <section className="w-full lg:w-80 shrink-0 flex flex-col gap-6">
-        
-        {/* Profile Card */}
-        <div className="glass-card rounded-3xl overflow-hidden relative">
-          {/* Cover Banner */}
-          <div className="h-28 bg-gradient-to-tr from-violet-600 via-indigo-600 to-fuchsia-600 relative overflow-hidden">
-            <div className="absolute inset-0 bg-black/20" />
-            <div className="absolute bottom-2 right-4 flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 text-[9px] font-mono text-zinc-300">
-              <ShieldCheck className="w-3 h-3 text-violet-400" />
-              <span>{demoMode ? "Demo mode" : "Verified Account"}</span>
+    <div className="flex flex-col gap-6 w-full select-none">
+      {!isOnline && (
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between px-6 py-4 rounded-3xl border border-amber-500/20 bg-amber-500/5 text-xs text-amber-400 backdrop-blur-md shadow-lg shadow-amber-950/20 animate-in fade-in duration-300 gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <WifiOff className="w-5 h-5" />
+            </div>
+            <div>
+              <strong className="text-white font-bold block text-sm">Offline Mode Active</strong>
+              <span className="text-zinc-400">You are currently disconnected from the internet. Action buttons requiring connection are disabled.</span>
             </div>
           </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full sm:w-auto px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold rounded-xl transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] shrink-0 text-center"
+          >
+            Reconnect & Retry
+          </button>
+        </div>
+      )}
 
-          <div className="px-6 pb-6 pt-0 relative flex flex-col items-center text-center">
-            {/* Overlapping Avatar */}
-            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[2px] -mt-12 overflow-hidden shadow-2xl relative">
-              {user?.avatarUrl ? (
-                <Image 
-                  src={user.avatarUrl} 
-                  alt={`${user.username}'s GitHub avatar`} 
-                  width={96}
-                  height={96}
-                  className="w-full h-full rounded-full object-cover bg-[#090620]"
-                />
-              ) : (
-                <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-black text-2xl text-white">
-                  {user?.username?.substring(0, 2).toUpperCase() || "US"}
-                </div>
-              )}
+      <div className="flex flex-col lg:flex-row gap-8 items-start w-full">
+        
+        {/* LEFT COLUMN: User Profile & Configuration Section */}
+        <section className="w-full lg:w-80 shrink-0 flex flex-col gap-6">
+          
+          {/* Profile Card */}
+          <div className="glass-card rounded-3xl overflow-hidden relative">
+            {/* Cover Banner */}
+            <div className="h-28 bg-gradient-to-tr from-violet-600 via-indigo-600 to-fuchsia-600 relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/20" />
+              <div className="absolute bottom-2 right-4 flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 text-[9px] font-mono text-zinc-300">
+                <ShieldCheck className="w-3 h-3 text-violet-400" />
+                <span>{demoMode ? "Demo mode" : "Verified Account"}</span>
+              </div>
             </div>
 
-            {/* Profile Identifiers */}
-            <h3 className="font-extrabold text-xl text-white mt-4 tracking-tight">
-              {user?.username}
-            </h3>
-            <p className="text-violet-400 text-sm font-semibold mt-0.5">@{user?.username}</p>
-            
-            {/* Bio Description */}
-            <p className="text-zinc-400 text-xs mt-3 leading-relaxed max-w-[240px]">
-              {mockBio}
-            </p>
+            <div className="px-6 pb-6 pt-0 relative flex flex-col items-center text-center">
+              {/* Overlapping Avatar */}
+              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[2px] -mt-12 overflow-hidden shadow-2xl relative">
+                {user?.avatarUrl ? (
+                  <Image 
+                    src={user.avatarUrl} 
+                    alt={`${user.username}'s GitHub avatar`} 
+                    width={96}
+                    height={96}
+                    className="w-full h-full rounded-full object-cover bg-[#090620]"
+                  />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-black text-2xl text-white">
+                    {user?.username?.substring(0, 2).toUpperCase() || "US"}
+                  </div>
+                )}
+              </div>
 
-            {/* Sync Status Button */}
-            <button 
-              onClick={handleSync}
-              disabled={syncing || loadingStats}
-              className="mt-5 w-full py-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${(syncing || loadingStats) ? "animate-spin text-violet-400" : "text-zinc-400"}`} />
-              <span>{syncing ? "Fetching stats..." : "Refresh Stats Data"}</span>
-            </button>
+              {/* Profile Identifiers */}
+              <h3 className="font-extrabold text-xl text-white mt-4 tracking-tight">
+                {user?.username}
+              </h3>
+              <p className="text-violet-400 text-sm font-semibold mt-0.5">@{user?.username}</p>
+              
+              {/* Bio Description */}
+              <p className="text-zinc-400 text-xs mt-3 leading-relaxed max-w-[240px]">
+                {mockBio}
+              </p>
+
+              {/* Sync Status Button */}
+              <button 
+                onClick={handleSync}
+                disabled={syncing || loadingStats || !isOnline}
+                className="mt-5 w-full py-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-white font-semibold text-xs flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${(syncing || loadingStats) ? "animate-spin text-violet-400" : "text-zinc-400"}`} />
+                <span>{!isOnline ? "Sync Disabled (Offline)" : syncing ? "Fetching stats..." : "Refresh Stats Data"}</span>
+              </button>
 
             {/* Metadata Links */}
             <div className="w-full border-t border-white/5 mt-5 pt-4 flex flex-col gap-2.5 text-left text-xs text-zinc-400">
@@ -703,30 +727,84 @@ export default function DashboardPage() {
 
         {/* FAILURE ALERTS STATE */}
         {statsError && !loadingStats && !stats && (
-          <div className="glass-card rounded-3xl p-6.5 border-rose-500/20 bg-rose-500/5 flex flex-col gap-4">
-            <div className="flex gap-3 items-start">
-              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0">
-                <AlertTriangle className="w-5 h-5" />
+          <div className="glass-card rounded-3xl p-6.5 border-rose-500/25 bg-rose-500/5 flex flex-col gap-5 animate-in fade-in duration-300">
+            <div className="flex gap-4.5 items-start">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400 shrink-0 shadow-lg shadow-rose-500/5">
+                <AlertTriangle className="w-6 h-6" />
               </div>
-              <div className="min-w-0">
-                <h4 className="font-bold text-sm text-white">GitHub Connection Incomplete</h4>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-bold text-base text-white">GitHub API Connection Failed</h4>
                 <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
-                  {statsError} The default configuration is using dummy tokens. Provide a GitHub PAT or load mock data.
+                  {statsError}
                 </p>
+                
+                <div className="mt-4 bg-black/40 rounded-2xl border border-white/5 p-4 flex flex-col gap-2">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Troubleshooting Diagnostics:</span>
+                  <ul className="text-xs text-zinc-400 list-disc list-inside space-y-1">
+                    <li>Check if the target GitHub username exists and is spelled correctly.</li>
+                    <li>Verify your GitHub Personal Access Token (PAT) hasn't expired.</li>
+                    <li>Ensure your internet connection is active and stable.</li>
+                    <li>GitHub API rate limits might have been reached. Wait 60s or configure a custom token.</li>
+                  </ul>
+                </div>
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-3 mt-1.5">
+            <div className="flex flex-wrap gap-3 pl-0 sm:pl-16 mt-1 border-t border-white/5 pt-4">
               <button
                 onClick={() => handleToggleDemo(true)}
-                className="px-4 py-2 bg-white text-zinc-950 rounded-xl font-bold text-xs hover:bg-zinc-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-white/5"
+                className="px-4 py-2.5 bg-white text-zinc-950 rounded-xl font-bold text-xs hover:bg-zinc-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-white/5 hover:scale-[1.01] active:scale-[0.99]"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Load Beautiful Demo Data</span>
               </button>
               <button
                 onClick={() => setShowPatInput(true)}
-                className="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Configure GitHub PAT</span>
+              </button>
+              {isOnline && (
+                <button
+                  onClick={() => {
+                    if (user) {
+                      loadStats(user.username, patToken, demoMode);
+                    }
+                  }}
+                  className="px-4 py-2.5 border border-violet-500/20 bg-violet-500/5 hover:bg-violet-500/10 text-violet-400 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Retry Connection</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* NO STATISTICS FALLBACK STATE */}
+        {!stats && !loadingStats && !statsError && (
+          <div className="glass-card rounded-3xl p-8 flex flex-col items-center justify-center text-center gap-5 border-zinc-500/10 bg-zinc-500/2">
+            <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
+              <Folder className="w-8 h-8" />
+            </div>
+            <div className="max-w-md">
+              <h3 className="font-extrabold text-lg text-white">No Statistics Loaded</h3>
+              <p className="text-zinc-400 text-xs mt-1.5 leading-relaxed">
+                Your developer statistics details are currently empty. You can enable simulation mode with high-fidelity mock metrics, or attach your personal GitHub PAT to pull live statistics.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button
+                onClick={() => handleToggleDemo(true)}
+                className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-600/15"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Simulate Demo Data</span>
+              </button>
+              <button
+                onClick={() => setShowPatInput(true)}
+                className="px-5 py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <KeyRound className="w-3.5 h-3.5" />
                 <span>Configure GitHub PAT</span>
@@ -984,8 +1062,16 @@ export default function DashboardPage() {
                       })}
                     </div>
                   ) : (
-                    <div className="py-8 text-center text-zinc-500 text-xs">
-                      No language statistics found for this profile.
+                    <div className="py-12 flex flex-col items-center justify-center text-center gap-3 animate-in fade-in duration-300">
+                      <div className="w-12 h-12 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center text-zinc-500 shadow-inner">
+                        <FileCode2 className="w-6 h-6 text-violet-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-white">No Languages Detected</h4>
+                        <p className="text-[10px] text-zinc-500 leading-relaxed max-w-[200px] mx-auto mt-1">
+                          We couldn't analyze any programming language bytes in your public repositories. Add some code or check your configuration.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1005,71 +1091,87 @@ export default function DashboardPage() {
                     Repository Statistics
                   </h3>
 
-                  {/* Summary Rows Grid */}
-                  <div className="grid grid-cols-3 gap-4 mt-5">
-                    <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Total</span>
-                      <span className="text-xl font-extrabold text-white mt-1 block">
-                        {stats.repositoryStats.total}
-                      </span>
-                    </div>
-                    <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Public</span>
-                      <span className="text-xl font-extrabold text-emerald-400 mt-1 block">
-                        {stats.repositoryStats.public}
-                      </span>
-                    </div>
-                    <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                      <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Private</span>
-                      <span className="text-xl font-extrabold text-fuchsia-400 mt-1 block">
-                        {stats.repositoryStats.private}
-                      </span>
-                    </div>
-                  </div>
+                  {stats.repositoryStats.total > 0 ? (
+                    <>
+                      {/* Summary Rows Grid */}
+                      <div className="grid grid-cols-3 gap-4 mt-5">
+                        <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
+                          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Total</span>
+                          <span className="text-xl font-extrabold text-white mt-1 block">
+                            {stats.repositoryStats.total}
+                          </span>
+                        </div>
+                        <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
+                          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Public</span>
+                          <span className="text-xl font-extrabold text-emerald-400 mt-1 block">
+                            {stats.repositoryStats.public}
+                          </span>
+                        </div>
+                        <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
+                          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Private</span>
+                          <span className="text-xl font-extrabold text-fuchsia-400 mt-1 block">
+                            {stats.repositoryStats.private}
+                          </span>
+                        </div>
+                      </div>
 
-                  {/* Metrics list */}
-                  <div className="flex flex-col gap-2.5 mt-5 text-xs text-zinc-400">
-                    <div className="flex justify-between border-b border-white/3 pb-1.5">
-                      <span className="flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-zinc-500" /> Private Repository access:
-                      </span>
-                      <span className="font-semibold text-zinc-300">
-                        {stats.repositoryStats.private > 0 ? "Enabled" : "None Detected"}
-                      </span>
+                      {/* Metrics list */}
+                      <div className="flex flex-col gap-2.5 mt-5 text-xs text-zinc-400">
+                        <div className="flex justify-between border-b border-white/3 pb-1.5">
+                          <span className="flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5 text-zinc-500" /> Private Repository access:
+                          </span>
+                          <span className="font-semibold text-zinc-300">
+                            {stats.repositoryStats.private > 0 ? "Enabled" : "None Detected"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/3 pb-1.5">
+                          <span className="flex items-center gap-1.5">
+                            <GitFork className="w-3.5 h-3.5 text-zinc-500" /> Repository forks count:
+                          </span>
+                          <span className="font-semibold text-zinc-300">
+                            {stats.repositoryStats.forks}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/3 pb-1.5">
+                          <span className="flex items-center gap-1.5">
+                            <BookOpen className="w-3.5 h-3.5 text-zinc-500" /> Original templates:
+                          </span>
+                          <span className="font-semibold text-zinc-300">
+                            {stats.repositoryStats.original}
+                          </span>
+                        </div>
+                        <div className="flex justify-between border-b border-white/3 pb-1.5">
+                          <span className="flex items-center gap-1.5">
+                            <GitPullRequest className="w-3.5 h-3.5 text-zinc-500" /> Merged PR count:
+                          </span>
+                          <span className="font-semibold text-zinc-300">
+                            {stats.pullRequestStats.mergedPullRequests}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="flex items-center gap-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 text-zinc-500" /> Average Issue Close Time:
+                          </span>
+                          <span className="font-semibold text-zinc-300">
+                            {stats.issueStats.averageCloseTimeFormatted}
+                          </span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="py-12 flex flex-col items-center justify-center text-center gap-3 animate-in fade-in duration-300">
+                      <div className="w-12 h-12 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center text-zinc-500 shadow-inner">
+                        <Folder className="w-6 h-6 text-violet-400" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-white">No Repositories Found</h4>
+                        <p className="text-[10px] text-zinc-500 leading-relaxed max-w-[240px] mx-auto mt-1">
+                          No public repositories were detected for this profile. Access token scopes may restrict private repository stats.
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex justify-between border-b border-white/3 pb-1.5">
-                      <span className="flex items-center gap-1.5">
-                        <GitFork className="w-3.5 h-3.5 text-zinc-500" /> Repository forks count:
-                      </span>
-                      <span className="font-semibold text-zinc-300">
-                        {stats.repositoryStats.forks}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-white/3 pb-1.5">
-                      <span className="flex items-center gap-1.5">
-                        <BookOpen className="w-3.5 h-3.5 text-zinc-500" /> Original templates:
-                      </span>
-                      <span className="font-semibold text-zinc-300">
-                        {stats.repositoryStats.original}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-b border-white/3 pb-1.5">
-                      <span className="flex items-center gap-1.5">
-                        <GitPullRequest className="w-3.5 h-3.5 text-zinc-500" /> Merged PR count:
-                      </span>
-                      <span className="font-semibold text-zinc-300">
-                        {stats.pullRequestStats.mergedPullRequests}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <AlertTriangle className="w-3.5 h-3.5 text-zinc-500" /> Average Issue Close Time:
-                      </span>
-                      <span className="font-semibold text-zinc-300">
-                        {stats.issueStats.averageCloseTimeFormatted}
-                      </span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="mt-6 border-t border-white/5 pt-4 text-left flex justify-between items-center">
@@ -1131,8 +1233,12 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-black/35 border border-white/5 rounded-2xl p-5 text-center text-zinc-600 text-xs">
-                    No starred repositories found.
+                  <div className="bg-black/35 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-2 min-h-[140px] animate-in fade-in duration-300">
+                    <Star className="w-5 h-5 text-zinc-600" />
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-400">No Starred Repos</h4>
+                      <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">We couldn't detect starred repositories.</p>
+                    </div>
                   </div>
                 )}
 
@@ -1168,8 +1274,12 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-black/35 border border-white/5 rounded-2xl p-5 text-center text-zinc-600 text-xs">
-                    No forked repositories found.
+                  <div className="bg-black/35 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-2 min-h-[140px] animate-in fade-in duration-300">
+                    <GitFork className="w-5 h-5 text-zinc-600" />
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-400">No Forked Repos</h4>
+                      <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">Forked repositories will show up here.</p>
+                    </div>
                   </div>
                 )}
 
@@ -1209,8 +1319,12 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-black/35 border border-white/5 rounded-2xl p-5 text-center text-zinc-600 text-xs">
-                    No active repositories found.
+                  <div className="bg-black/35 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center text-center gap-2 min-h-[140px] animate-in fade-in duration-300">
+                    <Eye className="w-5 h-5 text-zinc-600" />
+                    <div>
+                      <h4 className="font-bold text-xs text-zinc-400">No Active Repos</h4>
+                      <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">Active public repositories will be listed here.</p>
+                    </div>
                   </div>
                 )}
 
@@ -1221,6 +1335,7 @@ export default function DashboardPage() {
         )}
 
       </section>
+      </div>
     </div>
   );
 }
