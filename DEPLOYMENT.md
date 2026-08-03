@@ -17,12 +17,22 @@ The app is split into the following services, each hosted on a different platfor
 
 ```mermaid
 flowchart TD
-    Front[Frontend (Next.js)] -->|Calls API| Backend[Backend (Node.js)]
-    Backend -->|Reads/Writes| Neon[Neon PostgreSQL]
-    Backend -->|Caches| Upstash[Upstash Redis]
-    Front -->|OAuth Login| GitHub[GitHub OAuth]
-```
+    User[👤 User]
 
+    User --> Frontend[Frontend<br/>Next.js (Vercel)]
+
+    Frontend -->|API Requests| Backend[Backend<br/>Node.js (Render)]
+
+    Backend -->|Read / Write Data| Neon[(Neon PostgreSQL)]
+
+    Backend -->|Cache Data| Redis[(Upstash Redis)]
+
+    Frontend -->|Login with GitHub| GitHub[GitHub OAuth]
+
+    GitHub -->|OAuth Callback| Backend
+
+    Backend -->|GitHub REST & GraphQL APIs| GitHub
+```
 - **Frontend → Vercel** – Vercel builds and serves the React website.
 - **Backend → Render** – Render runs the Node.js API.
 - **Database → Neon** – Managed PostgreSQL database.
