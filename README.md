@@ -1,185 +1,381 @@
-# ![GitProfileStats Banner](file:///C:/Users/ram01/.gemini/antigravity-ide/brain/40f60ff5-1ddf-42d4-ae9a-d4dc51ea1a29/gitprofilestats_banner_1785785390970.png)
+# GitProfileStats
 
-<div align="center">
-  <h1>⚡ GitProfileStats</h1>
-  <p>Advanced GitHub Analytics & Dynamic Profile Cards</p>
-</div>
+A lightweight, open‑source service that provides real‑time GitHub statistics as **dynamic SVG cards** and a **React dashboard**. It authenticates users via **GitHub OAuth**, fetches public and private repository data (when a personal access token is provided), and renders customizable cards that can be embedded in READMEs, blogs, or anywhere that accepts SVG images.
 
 ---
 
-## 📺 Live Demo
-
-Explore the live demo of the dashboard and card customizer:
-
-[🔗 Live Demo – https://gitprofilestats.example.com](https://gitprofilestats.example.com)
+![Banner](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/.github/banner.png)
 
 ---
 
-## ✨ Features
+## Project Badges
 
-- **Dynamic SVG Profile Cards** – Real‑time stats for profiles, repos, languages, streaks, and more.
-- **Rich Customization** – Built‑in themes (Dark, Light, GitHub, Dracula, Nord) plus custom accent, background, border radius, and font style.
-- **Private Repository Support** – Secure GitHub OAuth / PAT integration to include private data.
-- **Blazing Performance** – Sub‑100 ms response times thanks to intelligent caching.
-- **Enterprise‑Grade Security** – AES‑encrypted tokens, Helmet headers, CORS, and OWASP best practices.
-- **Comprehensive Metrics** – Profile, Stats, Languages, Streak, Repository cards.
-- **Monorepo Architecture** – Turborepo + pnpm workspaces for fast, scalable builds.
-
----
-
-## 📸 Screenshots
-
-### Web Dashboard & Card Customizer
-
-![Dashboard Screenshot](apps/web/public/og-image.png)
+[![License](https://img.shields.io/github/license/Ramsingh4656/GitProfileStats)](https://github.com/Ramsingh4656/GitProfileStats/blob/main/LICENSE)
+[![Version](https://img.shields.io/github/package-json/v/Ramsingh4656/GitProfileStats)](https://github.com/Ramsingh4656/GitProfileStats/releases)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Ramsingh4656/GitProfileStats/ci.yml?branch=main)](https://github.com/Ramsingh4656/GitProfileStats/actions)
+[![Stars](https://img.shields.io/github/stars/Ramsingh4656/GitProfileStats?style=social)](https://github.com/Ramsingh4656/GitProfileStats/stargazers)
+[![Forks](https://img.shields.io/github/forks/Ramsingh4656/GitProfileStats?style=social)](https://github.com/Ramsingh4656/GitProfileStats/network/members)
+[![Issues](https://img.shields.io/github/issues/Ramsingh4656/GitProfileStats)](https://github.com/Ramsingh4656/GitProfileStats/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/Ramsingh4656/GitProfileStats)](https://github.com/Ramsingh4656/GitProfileStats/commits/main)
 
 ---
 
-## 💻 Installation & Running Locally
+## Features
 
-### Prerequisites
+- **GitHub OAuth** login flow
+- **Public & Private Repository** support (via optional GitHub PAT)
+- **Dynamic SVG Cards**
+  - Profile card (`/cards/profile.svg`)
+  - Stats card (`/cards/stats.svg`)
+  - Languages card (`/cards/languages.svg`)
+  - Streak card (`/cards/streak.svg`)
+  - Repository card (`/cards/repository.svg`)
+- **Theme Support** – `light`, `dark`, `github`, `dracula`, `nord`
+- **Customisation** – theme, accent colour, background, border radius, font family/style
+- **Dashboard UI** – responsive, glass‑morphism design, real‑time stats
+- **Mock/Demo mode** for offline testing
+- **Caching** of SVG responses (default 5 min) to respect GitHub rate limits
+- **REST API** – health check, user profile, combined statistics
+- **Rate limiting** – applied via Express middleware (helmet, cors, compression)
+- **Full TypeScript** codebase with dependency injection (`tsyringe`)
+- **Monorepo** managed by Turborepo and pnpm workspaces
 
-- **Node.js** ≥ 20
-- **pnpm** ≥ 9
+---
 
-### Steps
+## Screenshots
 
-```bash
-# Clone the repository
-git clone https://github.com/your-org/git-profile-stats.git
-cd git-profile-stats
+| Caption | Image |
+|---|---|
+| Landing Page | ![Landing Page](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/landing.png) |
+| Dashboard | ![Dashboard](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/dashboard.png) |
+| Stats Card | ![Stats Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/stats-card.png) |
+| Profile Card | ![Profile Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/profile-card.png) |
+| Language Card | ![Language Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/language-card.png) |
+| Repository Card | ![Repository Card](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/repository-card.png) |
+| Theme Gallery | ![Theme Gallery](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/screenshots/theme-gallery.png) |
 
-# Install dependencies
-pnpm install
+---
 
-# Set up environment variables
-cp .env.example .env   # Edit .env with your credentials
+## Live Demo
 
-# Start development servers (web + api)
-pnpm dev
+- **Frontend** – Deployed on Vercel. Visit the live dashboard to explore statistics and card previews.
+- **Backend API** – Deployed on Render. The API serves the SVG endpoints and the combined statistics endpoint.
+- **Documentation** – All deployment steps are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TD
+    subgraph Frontend[Next.js (Vercel)]
+        FE[Dashboard UI]
+    end
+    subgraph Backend[Express (Render)]
+        BE[API Server]
+        BE -->|/health| Health[Health Check]
+        BE -->|/auth/github| OAuth[GitHub OAuth]
+        BE -->|/api/v1/users/me| UserProfile[User Profile]
+        BE -->|/api/statistics| Stats[Combined Statistics]
+        BE -->|/cards/*.svg| SVG[SVG Card Renderer]
+    end
+    GitHub[GitHub API] -->|OAuth, Data| OAuth
+    GitHub -->|User data| BE
+    FE -->|fetch| Backend
+    style Frontend fill:#1e3a8a,color:#fff
+    style Backend fill:#064e3b,color:#fff
 ```
 
-The dashboard will be available at **http://localhost:3000** and the API at **http://localhost:4000**.
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js (App Router), React 18, Tailwind CSS, TypeScript |
+| Backend | Express, TypeScript, tsyringe (DI), Helmet, CORS, Compression |
+| Database | **Neon PostgreSQL** (managed) |
+| Cache | **Upstash Redis** (managed) |
+| Authentication | GitHub OAuth (OAuth App) |
+| SVG Rendering | Custom SVG engine using TypeScript (no external image libraries) |
+| CI/CD | GitHub Actions, Vercel (frontend), Render (backend) |
 
 ---
 
-## 🔧 Environment Variables
+## Folder Structure
 
-| Variable | Category | Description | Example / Default |
-| :--- | :--- | :--- | :--- |
-| `NODE_ENV` | Application | Runtime environment | `development` |
-| `PORT` | Application | API listening port | `4000` |
-| `WEB_BASE_URL` | Application | Frontend base URL | `http://localhost:3000` |
-| `LOG_LEVEL` | Logging | Minimum log level (`fatal`, `error`, `warn`, `info`, `debug`, `trace`) | `info` |
-| `GITHUB_CLIENT_ID` | GitHub OAuth | OAuth app client ID | `your_github_client_id` |
-| `GITHUB_CLIENT_SECRET` | GitHub OAuth | OAuth app client secret | `your_github_client_secret` |
-| `GITHUB_CALLBACK_URL` | GitHub OAuth | OAuth redirect URI | `http://localhost:4000/api/v1/auth/github/callback` |
-| `GITHUB_TOKEN` | GitHub API | Personal Access Token fallback | `your_github_pat` |
-| `NEXT_PUBLIC_API_URL` | Web App | Backend API base URL | `http://localhost:4000` |
+```
+GitProfileStats/
+├─ .editorconfig
+├─ .env.example
+├─ .gitignore
+├─ .husky/
+├─ .prettierrc
+├─ .turbo/
+├─ apps/
+│  ├─ api/
+│  │  ├─ src/
+│  │  │  ├─ app.ts
+│  │  │  ├─ cards/
+│  │  │  │  ├─ index.ts
+│  │  │  │  ├─ profileCard.ts
+│  │  │  │  ├─ statsCard.ts
+│  │  │  │  ├─ languagesCard.ts
+│  │  │  │  ├─ streakCard.ts
+│  │  │  │  ├─ repositoryCard.ts
+│  │  │  │  └─ engine/
+│  │  │  │     ├─ theme.ts
+│  │  │  │     └─ types.ts
+│  │  │  ├─ config/
+│  │  │  │  ├─ env.ts
+│  │  │  │  └─ logger.ts
+│  │  │  ├─ infrastructure/
+│  │  │  │  ├─ http/
+│  │  │  │  │  ├─ routes/
+│  │  │  │  │  │  ├─ authRoutes.ts
+│  │  │  │  │  │  ├─ cardRoutes.ts
+│  │  │  │  │  │  ├─ githubRoutes.ts
+│  │  │  │  │  │  ├─ index.ts
+│  │  │  │  │  │  └─ userRoutes.ts
+│  │  │  │  │  ├─ controllers/
+│  │  │  │  │  │  ├─ CardController.ts
+│  │  │  │  │  │  ├─ AuthController.ts
+│  │  │  │  │  │  └─ UserController.ts
+│  │  │  │  │  └─ middleware/
+│  │  │  │  │     ├─ authGuard.ts
+│  │  │  │  │     ├─ cacheMiddleware.ts
+│  │  │  │  │     ├─ validation.ts
+│  │  │  └─ ...
+│  └─ web/
+│     ├─ src/
+│     │  ├─ app/
+│     │  │  ├─ dashboard/
+│     │  │  └─ login/
+│     │  ├─ globals.css
+│     │  ├─ layout.tsx
+│     │  ├─ page.tsx
+│     │  └─ ...
+│     ├─ public/
+│     └─ ...
+├─ CONTRIBUTING.md
+├─ DEPLOYMENT.md
+├─ LICENSE
+├─ README.md
+├─ package.json
+├─ pnpm-workspace.yaml
+└─ turbo.json
+```
 
 ---
 
-## 🚀 Deployment Guide
+## Installation
 
-### Backend (Express API)
-
-1. **Choose a host** – Render, Railway, Fly.io, or any VPS.
-2. **Build & Start**
+1. **Clone the repository**
    ```bash
-   pnpm --filter @gitprofilestats/api build   # compile TypeScript
-   pnpm --filter @gitprofilestats/api start   # run the server
+   git clone https://github.com/Ramsingh4656/GitProfileStats.git
+   cd GitProfileStats
    ```
-3. **Configure Production Env** – Set all variables from the table above, ensure `NODE_ENV=production`.
-
-### Frontend (Next.js Dashboard)
-
-1. **Deploy to Vercel / Netlify** – Connect the `apps/web` folder.
-2. **Build Command**: `pnpm --filter @gitprofilestats/web build`
-3. **Environment Variable**: `NEXT_PUBLIC_API_URL` pointing to the live API endpoint.
-
----
-
-## 📡 API Examples
-
-```bash
-# Get combined statistics for a user
-curl "https://api.gitprofilestats.com/api/statistics?username=octocat"
-
-# Retrieve top languages
-curl "https://api.gitprofilestats.com/api/languages?username=octocat"
-
-# Get contribution streaks
-curl "https://api.gitprofilestats.com/api/contributions?username=octocat"
-```
-
-For full reference, see the [API Documentation](API.md).
-
----
-
-## 🎨 Card Examples & Markdown Embeds
-
-### Profile Card
-
-```markdown
-![Profile Card](https://api.gitprofilestats.com/api/cards/profile.svg?username=octocat&theme=dracula)
-```
-
-### Stats Card
-
-```markdown
-![Stats Card](https://api.gitprofilestats.com/api/cards/stats.svg?username=octocat&theme=nord&font_style=rounded)
-```
-
-### Languages Card
-
-```markdown
-![Languages Card](https://api.gitprofilestats.com/api/cards/languages.svg?username=octocat&theme=github&langs_count=6)
-```
-
-### Streak Card
-
-```markdown
-![Streak Card](https://api.gitprofilestats.com/api/cards/streak.svg?username=octocat&theme=light)
-```
-
-### Repository Card
-
-```markdown
-![Repository Card](https://api.gitprofilestats.com/api/cards/repository.svg?owner=octocat&repo=Hello-World&theme=dark&accent=ff79c6)
-```
+2. **Install dependencies** (pnpm workspaces)
+   ```bash
+   pnpm install
+   ```
+3. **Configure environment variables** – copy the example files and fill in your credentials:
+   ```bash
+   cp .env.example .env
+   cp apps/api/.env.example apps/api/.env
+   cp apps/web/.env.example apps/web/.env
+   ```
+   Required variables:
+   - `GITHUB_CLIENT_ID`
+   - `GITHUB_CLIENT_SECRET`
+   - `GITHUB_CALLBACK_URL`
+   - `GITHUB_TOKEN` (optional, for private data)
+   - `NEXT_PUBLIC_API_URL` (backend URL for the frontend)
+4. **Start the backend**
+   ```bash
+   cd apps/api
+   pnpm dev   # runs on http://localhost:4000
+   ```
+5. **Start the frontend**
+   ```bash
+   cd ../web
+   pnpm dev   # runs on http://localhost:3000
+   ```
+6. Open `http://localhost:3000` in a browser, log in with GitHub, and explore the dashboard.
 
 ---
 
-## 🎭 Themes
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `GITHUB_CLIENT_ID` | Yes | OAuth client ID from GitHub App |
+| `GITHUB_CLIENT_SECRET` | Yes | OAuth client secret |
+| `GITHUB_CALLBACK_URL` | Yes | Callback URL registered in the GitHub App |
+| `GITHUB_TOKEN` | No (optional) | Personal Access Token to access private repositories |
+| `WEB_BASE_URL` | Yes | Frontend base URL (used for CORS) |
+| `NEXT_PUBLIC_API_URL` | Yes | Backend API base URL for the frontend |
+| `PORT` | No (default `4000`) | Port for the Express server |
+| `NODE_ENV` | No (default `development`) | Runtime environment |
+| `LOG_LEVEL` | No (default `info`) | Logging verbosity |
+
+---
+
+## Usage
+
+- **Login** – Click *Login with GitHub* on the dashboard, grant the requested scopes.
+- **Generate cards** – Use the card endpoints, e.g.:
+  ```text
+  https://<backend-url>/cards/profile.svg?username=your‑github‑name&theme=dark
+  https://<backend-url>/cards/stats.svg?username=your‑github‑name&accent=%23ff6600
+  ```
+- **Preview cards** – The dashboard UI shows live previews for the authenticated user.
+- **Copy Markdown** – Click the *Copy Markdown* button on a card preview to get a ready‑to‑paste snippet:
+  ```markdown
+  ![GitHub profile](https://<backend-url>/cards/profile.svg?username=your‑github‑name)
+  ```
+- **Switch themes** – Choose from the built‑in themes (`light`, `dark`, `github`, `dracula`, `nord`) or provide custom colours via query parameters.
+
+---
+
+## SVG Endpoints
+
+| Endpoint | Description |
+|---|---|
+| `/cards/profile.svg` | Render a user profile card |
+| `/cards/stats.svg` | Render a statistics card (stars, repos, followers, etc.) |
+| `/cards/languages.svg` | Top language usage card |
+| `/cards/streak.svg` | Contribution streak card |
+| `/cards/repository.svg` | Repository information card (requires `owner` and `repo` query parameters) |
+
+All endpoints accept the following optional query parameters for customisation:
+- `theme` – theme name (`light`, `dark`, `github`, `dracula`, `nord`)
+- `accent` – hex colour for accent elements
+- `background` – hex colour for card background
+- `border_radius` – integer pixel value
+- `hide_border` – `true`/`false`
+- `font_family` – custom font family string
+- `font_style` – `sans`, `serif`, `mono`, `rounded`
+- `mock` – `true` to force mock data (useful for demos)
+
+---
+
+## API Documentation
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Simple health‑check, returns `OK`
+| `GET` | `/auth/github` | Initiates GitHub OAuth flow |
+| `GET` | `/auth/github/callback` | Handles OAuth callback, issues JWT |
+| `GET` | `/api/v1/users/me` | Returns authenticated user profile (requires JWT) |
+| `GET` | `/api/statistics?username={username}` | Returns combined statistics for the given GitHub username |
+| `GET` | `/cards/*` | See *SVG Endpoints* table above |
+
+All JSON responses follow the structure:
+```json
+{ "success": true, "data": { … } }
+```
+Error responses use `{ "success": false, "error": "Message" }`.
+
+---
+
+## Themes
 
 | Theme | Preview |
-| :--- | :--- |
-| `dark` (default) | ![dark theme](https://raw.githubusercontent.com/your-org/git-profile-stats/main/themes/dark.png) |
-| `light` | ![light theme](https://raw.githubusercontent.com/your-org/git-profile-stats/main/themes/light.png) |
-| `github` | ![github theme](https://raw.githubusercontent.com/your-org/git-profile-stats/main/themes/github.png) |
-| `dracula` | ![dracula theme](https://raw.githubusercontent.com/your-org/git-profile-stats/main/themes/dracula.png) |
-| `nord` | ![nord theme](https://raw.githubusercontent.com/your-org/git-profile-stats/main/themes/nord.png) |
+|---|---|
+| `light` | ![light](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/light.png) |
+| `dark` | ![dark](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/dark.png) |
+| `github` | ![github](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/github.png) |
+| `dracula` | ![dracula](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/dracula.png) |
+| `nord` | ![nord](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/nord.png) |
 
-You can also override any color with the `accent` and `background` query parameters.
-
----
-
-## ❓ FAQ
-
-**Q:** *Do the cards work on private repositories?*  
-**A:** Yes – provide a GitHub Personal Access Token (`GITHUB_TOKEN`) or authenticate via OAuth to include private data.
-
-**Q:** *Can I self‑host the service?*  
-**A:** Absolutely. Follow the Deployment Guide above and point `NEXT_PUBLIC_API_URL` to your own backend.
-
-**Q:** *What is the rate limit for the public API?*  
-**A:** Unauthenticated requests are limited to 60 req/min per IP. Authenticated requests (OAuth/PAT) enjoy higher limits based on your GitHub plan.
-
-**Q:** *How do I add a custom theme?*  
-**A:** Create a CSS file defining the colors and host it, then reference it via the `theme` query parameter or supply custom colors via `accent`/`background`.
+Custom themes can be created by passing colour overrides via query parameters (`accent`, `background`, `font_family`).
 
 ---
 
-## 📄 License
+## Deployment
 
-This project is licensed under the [MIT License](LICENSE).
+All deployment steps are documented in the dedicated guide:
+
+➡️ **[DEPLOYMENT.md](DEPLOYMENT.md)**
+
+---
+
+## Development
+
+1. **Run both services locally** (see *Installation* above).
+2. **Hot‑reload** – `pnpm dev` watches source files for both backend and frontend.
+3. **Testing** – Run unit and integration tests with:
+   ```bash
+   pnpm test
+   ```
+   The test suite covers card rendering, API routes, and service logic.
+4. **Linting & Formatting** – Enforced via ESLint and Prettier (`pnpm lint`).
+
+---
+
+## Testing
+
+```bash
+# Run the full test suite
+pnpm test
+
+# Run only API tests
+pnpm test --filter api
+
+# Run only frontend component tests
+pnpm test --filter web
+```
+
+The CI pipeline runs the test suite on every push.
+
+---
+
+## Performance
+
+- **Caching** – SVG responses are cached for 5 minutes using Upstash Redis.
+- **Compression** – `compression` middleware gzips responses.
+- **Rate limiting** – Helmet and CORS help mitigate abuse; the GitHub token (if provided) further raises rate limits.
+- **Optimised SVG generation** – Minimal DOM manipulation, pure string templates.
+
+---
+
+## Roadmap
+
+- Add **Markdown generator** endpoint for rendering card previews as markdown snippets.
+- Support **GitHub Enterprise** hosts.
+- Expose **Webhooks** to automatically refresh cached cards on push events.
+- Add **CLI** tool for generating cards locally.
+
+---
+
+## Contributing
+
+Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to propose changes, report bugs, and submit pull requests.
+
+---
+
+## License
+
+Distributed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Credits
+
+- **Ramsingh4656** – Project author and maintainer
+- Inspired by community projects such as **github-readme-stats** and **profile-readme-stats**
+
+---
+
+## Support
+
+- Open an issue on GitHub: [GitProfileStats/issues](https://github.com/Ramsingh4656/GitProfileStats/issues)
+- Join the discussion forum: [GitHub Discussions](https://github.com/Ramsingh4656/GitProfileStats/discussions)
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Ramsingh4656/GitProfileStats&type=Date)](https://star-history.com/#Ramsingh4656/GitProfileStats&Date)
