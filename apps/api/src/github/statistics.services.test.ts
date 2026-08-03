@@ -68,15 +68,17 @@ describe('Statistics Services', () => {
       const repoStats = await service.getRepositoryStats('john_doe');
 
       expect(repoStats).toEqual({
-        username: 'john_doe',
-        totalRepositories: 2,
-        sourcesCount: 1,
-        forksCount: 1,
+        total: 2,
+        public: 2,
+        private: 0,
+        forks: 1,
+        original: 1,
+        archived: 0,
+        disabled: 0,
         totalStars: 15,
         totalForks: 5,
         totalWatchers: 15,
-        totalOpenIssues: 3,
-        totalSizeKb: 300,
+        openIssuesCount: 3,
       });
     });
   });
@@ -92,10 +94,8 @@ describe('Statistics Services', () => {
       const service = new RepositoryRankingService(mockGitHubService as unknown as GitHubService);
       const rankings = await service.getRepositoryRankings('john_doe');
 
-      expect(rankings.username).toBe('john_doe');
-      expect(rankings.topStarred[0]?.name).toBe('repo-B');
-      expect(rankings.topStarred[1]?.name).toBe('repo-C');
-      expect(rankings.topForks[0]?.name).toBe('repo-A');
+      expect(rankings.mostStarred?.name).toBe('repo-B');
+      expect(rankings.mostForked?.name).toBe('repo-A');
     });
   });
 
@@ -109,6 +109,8 @@ describe('Statistics Services', () => {
       mockGitHubService.getRepositoryLanguages
         .mockResolvedValueOnce({ TypeScript: 1000, JavaScript: 500 })
         .mockResolvedValueOnce({ TypeScript: 500, HTML: 500 });
+
+      mockGitHubService.graphql.mockRejectedValue(new Error('GraphQL disabled for REST test'));
 
       const service = new LanguageCollectorService(mockGitHubService as unknown as GitHubService);
       const languages = await service.collectLanguages('john_doe');
@@ -190,7 +192,12 @@ describe('Statistics Services', () => {
       mockGitHubService.graphql.mockResolvedValueOnce({
         viewer: { login: 'john_doe' },
       }).mockResolvedValueOnce({
-        search: { issueCount: 42 },
+        user: {
+          pullRequests: { totalCount: 42 },
+          openPRs: { totalCount: 10 },
+          closedPRs: { totalCount: 20 },
+          mergedPRs: { totalCount: 12 },
+        },
       });
 
       const service = new PullRequestService(mockGitHubService as unknown as GitHubService);
@@ -199,17 +206,35 @@ describe('Statistics Services', () => {
       expect(prStats).toEqual({
         username: 'john_doe',
         totalPullRequests: 42,
+        openPullRequests: 10,
+        closedPullRequests: 20,
+        mergedPullRequests: 12,
       });
     });
   });
 
   describe('IssueStatisticsService', () => {
     it('should count issues correctly from search query', async () => {
-      mockGitHubService.graphql.mockResolvedValueOnce({
-        user: { login: 'john_doe' },
-      }).mockResolvedValueOnce({
-        search: { issueCount: 24 },
-      });
+      mockGitHubService.graphql
+        .mockResolvedValueOnce({
+          user: { login: 'john_doe' },
+        })
+        .mockResolvedValueOnce({
+          user: {
+            allIssues: { totalCount: 24 },
+            closedIssues: { totalCount: 1 },
+          },
+        })
+        .mockResolvedValueOnce({
+          user: {
+            closedIssuesList: {
+              pageInfo: { hasNextPage: false, endCursor: null },
+              nodes: [
+                { createdAt: '2026-07-28T00:00:00Z', closedAt: '2026-07-29T00:00:00Z' },
+              ],
+            },
+          },
+        });
 
       const service = new IssueStatisticsService(mockGitHubService as unknown as GitHubService);
       const issueStats = await service.getIssueStats('john_doe');
@@ -217,6 +242,11 @@ describe('Statistics Services', () => {
       expect(issueStats).toEqual({
         username: 'john_doe',
         totalIssuesOpened: 24,
+        totalIssuesClosed: 1,
+        averageCloseTimeMs: 86400000,
+        averageCloseTimeDays: 1,
+        averageCloseTimeHours: 24,
+        averageCloseTimeFormatted: '1d 0h',
       });
     });
   });

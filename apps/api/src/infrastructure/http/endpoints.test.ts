@@ -1,8 +1,189 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../../app.js';
 
 describe('API Endpoints', () => {
+  const mockFetch = vi.fn(async (url: string, options?: any) => {
+    const urlString = String(url);
+    
+    // 1. GraphQL Mocking
+    if (urlString.includes('/graphql')) {
+      const body = JSON.parse(options?.body || '{}');
+      const query = body.query || '';
+      
+      if (query.includes('viewer { login') || query.includes('viewer{login')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              viewer: {
+                login: 'demo',
+                createdAt: '2026-01-01T00:00:00Z',
+              },
+            },
+          }),
+        };
+      }
+      if (query.includes('thisYear: contributionsCollection')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              user: {
+                thisYear: { totalCommitContributions: 100, restrictedContributionsCount: 10 },
+                thisMonth: { totalCommitContributions: 20, restrictedContributionsCount: 2 },
+                thisWeek: { totalCommitContributions: 5, restrictedContributionsCount: 1 },
+                year_2026: { totalCommitContributions: 100, restrictedContributionsCount: 10 },
+              },
+            },
+          }),
+        };
+      }
+      if (query.includes('standardCalendar: contributionsCollection')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              user: {
+                standardCalendar: {
+                  contributionCalendar: {
+                    totalContributions: 150,
+                    weeks: [],
+                  },
+                },
+                year_2026: {
+                  contributionCalendar: {
+                    totalContributions: 150,
+                    weeks: [],
+                  },
+                },
+              },
+            },
+          }),
+        };
+      }
+      if (query.includes('pullRequests(states: [OPEN])') || query.includes('pullRequests {')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              user: {
+                pullRequests: { totalCount: 42 },
+                openPRs: { totalCount: 10 },
+                closedPRs: { totalCount: 20 },
+                mergedPRs: { totalCount: 12 },
+              },
+            },
+          }),
+        };
+      }
+      if (query.includes('allIssues: issues {') || query.includes('allIssues: issues(')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              user: {
+                allIssues: { totalCount: 24 },
+                closedIssues: { totalCount: 1 },
+              },
+            },
+          }),
+        };
+      }
+      if (query.includes('closedIssuesList: issues(')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              user: {
+                closedIssuesList: {
+                  pageInfo: { hasNextPage: false, endCursor: null },
+                  nodes: [
+                    { createdAt: '2026-07-28T00:00:00Z', closedAt: '2026-07-29T00:00:00Z' },
+                  ],
+                },
+              },
+            },
+          }),
+        };
+      }
+      if (query.includes('user(login: $login)')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              user: {
+                login: 'demo',
+                createdAt: '2026-01-01T00:00:00Z',
+              },
+            },
+          }),
+        };
+      }
+    }
+
+    // 2. REST Mocking
+    if (urlString.includes('/users/demo/repos') || urlString.includes('/user/repos')) {
+      return {
+        ok: true,
+        json: async () => [
+          { stargazers_count: 5, forks_count: 2, watchers_count: 5, open_issues_count: 1, size: 100, fork: false },
+        ],
+      };
+    }
+    if (urlString.includes('/users/demo') || urlString.includes('/user')) {
+      return {
+        ok: true,
+        json: async () => ({
+          login: 'demo',
+          name: 'Demo User',
+          followers: 10,
+          following: 5,
+          public_repos: 2,
+          total_private_repos: 1,
+          avatar_url: 'https://avatars.githubusercontent.com/u/5832347?v=4',
+        }),
+      };
+    }
+    if (urlString.includes('/repos/demo/test/languages')) {
+      return {
+        ok: true,
+        json: async () => ({ TypeScript: 1000, JavaScript: 500 }),
+      };
+    }
+    if (urlString.includes('/repos/demo/test')) {
+      return {
+        ok: true,
+        json: async () => ({
+          name: 'test',
+          owner: { login: 'demo' },
+          description: 'Mock repository description',
+          language: 'TypeScript',
+          stargazers_count: 99,
+          forks_count: 14,
+          license: { name: 'MIT License', spdx_id: 'MIT' },
+          updated_at: '2026-08-01T00:00:00Z',
+        }),
+      };
+    }
+
+    // Fallback for avatar base64 fetch
+    return {
+      ok: true,
+      text: async () => 'mock-base64',
+      arrayBuffer: async () => new ArrayBuffer(0),
+      json: async () => ({}),
+    };
+  });
+
+  beforeEach(() => {
+    vi.stubGlobal('fetch', mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('GET /health', () => {
     it('should return 200 OK and health statistics', async () => {
       const response = await request(app).get('/health');
@@ -17,7 +198,6 @@ describe('API Endpoints', () => {
     it('should return 400 Bad Request if neither username nor token is provided', async () => {
       const response = await request(app).get('/api/stats');
       expect(response.status).toBe(400);
-      // Centralized error handler outputs error details
       expect(response.body).toHaveProperty('error');
     });
 
@@ -87,8 +267,9 @@ describe('API Endpoints', () => {
         .get('/api/cards/profile.svg?username=demo')
         .expect('Content-Type', /image\/svg\+xml/);
       expect(response.status).toBe(200);
-      expect(response.text).toContain('<svg');
-      expect(response.text).toContain('</svg>');
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
     });
 
     it('should generate stats card SVG', async () => {
@@ -96,8 +277,9 @@ describe('API Endpoints', () => {
         .get('/api/cards/stats.svg?username=demo')
         .expect('Content-Type', /image\/svg\+xml/);
       expect(response.status).toBe(200);
-      expect(response.text).toContain('<svg');
-      expect(response.text).toContain('</svg>');
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
     });
 
     it('should generate languages card SVG', async () => {
@@ -105,8 +287,9 @@ describe('API Endpoints', () => {
         .get('/api/cards/languages.svg?username=demo')
         .expect('Content-Type', /image\/svg\+xml/);
       expect(response.status).toBe(200);
-      expect(response.text).toContain('<svg');
-      expect(response.text).toContain('</svg>');
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
     });
 
     it('should generate streak card SVG', async () => {
@@ -114,8 +297,9 @@ describe('API Endpoints', () => {
         .get('/api/cards/streak.svg?username=demo')
         .expect('Content-Type', /image\/svg\+xml/);
       expect(response.status).toBe(200);
-      expect(response.text).toContain('<svg');
-      expect(response.text).toContain('</svg>');
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
     });
 
     it('should generate repository card SVG', async () => {
@@ -123,8 +307,9 @@ describe('API Endpoints', () => {
         .get('/api/cards/repository.svg?owner=demo&repo=test')
         .expect('Content-Type', /image\/svg\+xml/);
       expect(response.status).toBe(200);
-      expect(response.text).toContain('<svg');
-      expect(response.text).toContain('</svg>');
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
     });
   });
 
@@ -135,17 +320,12 @@ describe('API Endpoints', () => {
     });
 
     it('should pass simulation authentication with authorization header', async () => {
-      // In the volatile InMemoryUserRepository, if the user doesn't exist, it returns 404
-      // But we pass authentication (authGuard) successfully and hit the UserController logic.
       const response = await request(app)
         .get('/api/v1/users/me')
         .set('Authorization', 'Bearer some-test-id');
       
-      // authGuard sets req.user = { id: 'some-test-id' }.
-      // UserController executes GetUserProfileUseCase, which queries the InMemoryUserRepository, which is empty, throwing 404.
-      // So status should be 404.
       expect(response.status).toBe(404);
-      expect(response.body.error).toContain('User not found');
+      expect(response.body.error.message).toContain('not found');
     });
   });
 });

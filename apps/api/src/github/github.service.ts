@@ -76,9 +76,23 @@ export class GitHubService {
   private readonly apiCache = new Map<string, { data: any; expiresAt: number }>();
   private readonly inFlightRequests = new Map<string, Promise<any>>();
   private readonly ttlMs = 60000; // 60 seconds
+  private readonly maxCacheSize = 1000;
 
   constructor() {
     this.defaultToken = env.GITHUB_TOKEN;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      for (const [key, entry] of this.apiCache.entries()) {
+        if (entry.expiresAt < now) {
+          this.apiCache.delete(key);
+        }
+      }
+    }, 60000);
+
+    if (typeof interval.unref === 'function') {
+      interval.unref();
+    }
   }
 
   /**
@@ -109,6 +123,13 @@ export class GitHubService {
       inFlight = fetchFn().then(
         (data) => {
           this.inFlightRequests.delete(key);
+          // Enforce max cache size limit
+          if (this.apiCache.size >= this.maxCacheSize) {
+            const firstKey = this.apiCache.keys().next().value;
+            if (firstKey !== undefined) {
+              this.apiCache.delete(firstKey);
+            }
+          }
           this.apiCache.set(key, { data, expiresAt: Date.now() + ttlMs });
           return data;
         },

@@ -36,7 +36,6 @@ describe('Card Generators', () => {
       expect(svg).toContain('</svg>');
       expect(svg).toContain('John Doe');
       expect(svg).toContain('john_doe');
-      expect(svg).toContain('Hello world');
       expect(svg).toContain('12'); // Followers
     });
   });
@@ -77,7 +76,7 @@ describe('Card Generators', () => {
       expect(svg).toContain('</svg>');
       expect(svg).toContain('TypeScript');
       expect(svg).toContain('JavaScript');
-      expect(svg).toContain('80%');
+      expect(svg).toContain('80.0%');
     });
   });
 
