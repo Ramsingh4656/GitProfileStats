@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/dot-notation */
 import { createHash } from 'node:crypto';
-import { injectable } from 'tsyringe';
+import { inject, injectable } from 'tsyringe';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
 import { GitHubApiError } from '../domain/errors/DomainError.js';
+import { InMemoryResponseCache } from '../infrastructure/cache/InMemoryResponseCache.js';
+import type { IResponseCache } from '../infrastructure/cache/IResponseCache.js';
 
 export interface GitHubUser {
   login: string;
@@ -74,33 +76,20 @@ export interface GitHubRepository {
 @injectable()
 export class GitHubService {
   private readonly defaultToken: string;
-  private readonly apiCache = new Map<string, { data: any; expiresAt: number }>();
-  private readonly inFlightRequests = new Map<string, Promise<any>>();
+  private readonly inFlightRequests = new Map<string, Promise<unknown>>();
   private readonly ttlMs = 60000; // 60 seconds
-  private readonly maxCacheSize = 1000;
+  private readonly responseCache: IResponseCache;
 
-  constructor() {
+  constructor(@inject('ResponseCache') responseCache?: IResponseCache) {
     this.defaultToken = env.GITHUB_TOKEN;
-
-    const interval = setInterval(() => {
-      const now = Date.now();
-      for (const [key, entry] of this.apiCache.entries()) {
-        if (entry.expiresAt < now) {
-          this.apiCache.delete(key);
-        }
-      }
-    }, 60000);
-
-    if (typeof interval.unref === 'function') {
-      interval.unref();
-    }
+    this.responseCache = responseCache ?? new InMemoryResponseCache();
   }
 
   /**
    * Clears the API cache. Useful for test suites.
    */
   public clearCache(): void {
-    this.apiCache.clear();
+    this.responseCache.clear();
     this.inFlightRequests.clear();
   }
 
@@ -112,26 +101,18 @@ export class GitHubService {
     fetchFn: () => Promise<T>,
     ttlMs: number = this.ttlMs,
   ): Promise<T> {
-    const now = Date.now();
-    const cached = this.apiCache.get(key);
-    if (cached && cached.expiresAt > now) {
+    const cached = await this.responseCache.get<T>(key);
+    if (cached !== undefined) {
       logger.debug({ key }, 'Serving GitHub API response from cache');
-      return cached.data as T;
+      return cached;
     }
 
     let inFlight = this.inFlightRequests.get(key);
     if (!inFlight) {
       inFlight = fetchFn().then(
-        (data) => {
+        async (data) => {
           this.inFlightRequests.delete(key);
-          // Enforce max cache size limit
-          if (this.apiCache.size >= this.maxCacheSize) {
-            const firstKey = this.apiCache.keys().next().value;
-            if (firstKey !== undefined) {
-              this.apiCache.delete(firstKey);
-            }
-          }
-          this.apiCache.set(key, { data, expiresAt: Date.now() + ttlMs });
+          await this.responseCache.set(key, data, ttlMs);
           return data;
         },
         (error) => {
@@ -344,10 +325,7 @@ export class GitHubService {
 
         const result = (await response.json()) as { data?: T; errors?: any[] };
         if (result.errors && result.errors.length > 0) {
-          logger.error(
-            { errorCount: result.errors.length },
-            'GitHub GraphQL returned errors',
-          );
+          logger.error({ errorCount: result.errors.length }, 'GitHub GraphQL returned errors');
           throw new GitHubApiError(
             'GitHub GraphQL request returned errors',
             400,
