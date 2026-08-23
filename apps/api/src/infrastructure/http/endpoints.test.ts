@@ -220,6 +220,16 @@ describe('API Endpoints', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
     });
+
+    it('should reject a GitHub token in the query string', async () => {
+      const rawToken = 'query-token-must-not-be-accepted';
+      const response = await request(app).get(
+        `/api/statistics?username=demo&token=${encodeURIComponent(rawToken)}`,
+      );
+
+      expect(response.status).toBe(401);
+      expect(JSON.stringify(response.body)).not.toContain(rawToken);
+    });
   });
 
   describe('GitHub Controller Endpoints', () => {
@@ -390,6 +400,34 @@ describe('API Endpoints', () => {
       expect(profileResponse.status).toBe(200);
       expect(profileResponse.body.success).toBe(true);
       expect(profileResponse.body.data.username).toBe('demo');
+      expect(profileResponse.body.data.hasGithubToken).toBe(true);
+      expect(profileResponse.body.data).not.toHaveProperty('githubAccessToken');
+      expect(JSON.stringify(profileResponse.body)).not.toContain('mock-access-token');
+
+      mockFetch.mockClear();
+      const statisticsResponse = await request(app)
+        .get('/api/statistics?username=demo')
+        .set('Cookie', sessionCookie as string);
+      expect(statisticsResponse.status).toBe(200);
+      const userRequest = mockFetch.mock.calls.find(([url]) => String(url).includes('/users/demo'));
+      expect(userRequest?.[1]?.headers?.Authorization).toBe('Bearer mock-access-token');
+      expect(JSON.stringify(statisticsResponse.body)).not.toContain('mock-access-token');
+
+      const replacementToken = 'replacement-token-kept-server-side';
+      const setTokenResponse = await request(app)
+        .put('/api/v1/users/github-token')
+        .set('Cookie', sessionCookie as string)
+        .send({ token: replacementToken });
+      expect(setTokenResponse.status).toBe(200);
+      expect(setTokenResponse.body.data).toEqual({ hasGithubToken: true });
+      expect(JSON.stringify(setTokenResponse.body)).not.toContain(replacementToken);
+
+      const clearTokenResponse = await request(app)
+        .delete('/api/v1/users/github-token')
+        .set('Cookie', sessionCookie as string);
+      expect(clearTokenResponse.status).toBe(200);
+      expect(clearTokenResponse.body.data).toEqual({ hasGithubToken: false });
+      expect(JSON.stringify(clearTokenResponse.body)).not.toContain(replacementToken);
     });
   });
 });

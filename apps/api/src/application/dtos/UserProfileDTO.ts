@@ -8,4 +8,5 @@ export interface IUserProfileResponse {
   tier: 'FREE' | 'PRO';
   createdAt: string;
   settings: IUserSettings;
+  hasGithubToken: boolean;
 }

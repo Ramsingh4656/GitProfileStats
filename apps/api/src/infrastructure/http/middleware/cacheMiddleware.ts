@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import type { IAuthenticatedRequest } from './authGuard.js';
 import { logger } from '../../../config/logger.js';
 
 interface CacheEntry {
@@ -40,14 +41,14 @@ export const cacheMiddleware = (ttlSeconds = 300) => {
       return;
     }
 
-    // Create a deterministic cache key from path, sorted query parameters, and token
+    // Create a deterministic cache key without token material.
     const sortedQuery = Object.keys(req.query)
+      .filter((key) => key !== 'token')
       .sort()
       .map((key) => `${key}=${String(req.query[key])}`)
       .join('&');
-
-    const token = (req.query.token as string) || (req.headers['x-github-token'] as string) || '';
-    const cacheKey = `${req.path}?${sortedQuery}&token=${token}`;
+    const userId = (req as IAuthenticatedRequest).user?.id ?? 'public';
+    const cacheKey = `${req.path}?${sortedQuery}&user=${userId}`;
 
     const now = Date.now();
     const cached = cache.get(cacheKey);

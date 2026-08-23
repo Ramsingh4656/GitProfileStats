@@ -15,9 +15,9 @@ import type { IGitHubRequest } from '../middleware/validation.js';
 
 function getParams(req: Request): { username?: string; token?: string } {
   const params = (req as IGitHubRequest).githubParams;
-  if (params) return params;
+  if (params) return { username: params.username, token: params.githubAccessToken };
   const username = req.query.username as string | undefined;
-  const token = (req.query.token || req.headers['x-github-token']) as string | undefined;
+  const token = (req as IGitHubRequest).githubAccessToken;
   return { username, token };
 }
 

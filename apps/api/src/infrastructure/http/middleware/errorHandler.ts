@@ -35,7 +35,14 @@ export const errorHandler = (
     return;
   }
 
-  logger.error(error, `Unhandled exception on ${req.method} ${req.url}`);
+  logger.error(
+    {
+      method: req.method,
+      path: req.path,
+      errorType: error.name,
+    },
+    'Unhandled API exception',
+  );
 
   res.status(500).json({
     success: false,

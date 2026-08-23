@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any, @typescript-eslint/prefer-nullish-coalescing, @typescript-eslint/dot-notation */
+import { createHash } from 'node:crypto';
 import { injectable } from 'tsyringe';
 import { env } from '../config/env.js';
 import { logger } from '../config/logger.js';
@@ -151,7 +152,7 @@ export class GitHubService {
    */
   private async request<T>(endpoint: string, token?: string): Promise<T> {
     const activeToken = token || this.defaultToken;
-    const cacheKey = `REST:${endpoint}:${activeToken || ''}`;
+    const cacheKey = `REST:${endpoint}:${this.getTokenCacheKey(activeToken)}`;
 
     return this.requestWithCache<T>(cacheKey, async () => {
       const url = `https://api.github.com${endpoint}`;
@@ -170,13 +171,13 @@ export class GitHubService {
         const response = await fetch(url, { headers });
 
         if (!response.ok) {
-          const errorText = await response.text().catch(() => 'No response body');
+          await response.text().catch(() => undefined);
           logger.error(
-            { url, status: response.status, statusText: response.statusText, errorText },
+            { url, status: response.status, statusText: response.statusText },
             'GitHub API request failed',
           );
           throw new GitHubApiError(
-            `GitHub API error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+            `GitHub API error: ${response.status.toString()} ${response.statusText}`,
             response.status,
             'GITHUB_API_ERROR',
           );
@@ -184,7 +185,10 @@ export class GitHubService {
 
         return (await response.json()) as T;
       } catch (error) {
-        logger.error({ url, error }, 'Error calling GitHub API');
+        logger.error(
+          { url, errorType: error instanceof Error ? error.name : typeof error },
+          'Error calling GitHub API',
+        );
         throw error;
       }
     });
@@ -303,7 +307,7 @@ export class GitHubService {
     token?: string,
   ): Promise<T> {
     const activeToken = token || this.defaultToken;
-    const cacheKey = `GRAPHQL:${query}:${JSON.stringify(variables || {})}:${activeToken || ''}`;
+    const cacheKey = `GRAPHQL:${query}:${JSON.stringify(variables || {})}:${this.getTokenCacheKey(activeToken)}`;
 
     return this.requestWithCache<T>(cacheKey, async () => {
       const url = 'https://api.github.com/graphql';
@@ -326,13 +330,13 @@ export class GitHubService {
         });
 
         if (!response.ok) {
-          const errorText = await response.text().catch(() => 'No response body');
+          await response.text().catch(() => undefined);
           logger.error(
-            { status: response.status, statusText: response.statusText, errorText },
+            { status: response.status, statusText: response.statusText },
             'GitHub GraphQL API request failed',
           );
           throw new GitHubApiError(
-            `GitHub GraphQL error: ${response.status.toString()} ${response.statusText} - ${errorText}`,
+            `GitHub GraphQL error: ${response.status.toString()} ${response.statusText}`,
             response.status,
             'GITHUB_GRAPHQL_ERROR',
           );
@@ -340,9 +344,12 @@ export class GitHubService {
 
         const result = (await response.json()) as { data?: T; errors?: any[] };
         if (result.errors && result.errors.length > 0) {
-          logger.error({ errors: result.errors }, 'GitHub GraphQL returned errors');
+          logger.error(
+            { errorCount: result.errors.length },
+            'GitHub GraphQL returned errors',
+          );
           throw new GitHubApiError(
-            `GitHub GraphQL errors: ${JSON.stringify(result.errors)}`,
+            'GitHub GraphQL request returned errors',
             400,
             'GITHUB_GRAPHQL_ERROR',
           );
@@ -354,9 +361,19 @@ export class GitHubService {
 
         return result.data;
       } catch (error) {
-        logger.error({ error }, 'Error calling GitHub GraphQL API');
+        logger.error(
+          { errorType: error instanceof Error ? error.name : typeof error },
+          'Error calling GitHub GraphQL API',
+        );
         throw error;
       }
     });
+  }
+
+  private getTokenCacheKey(token?: string): string {
+    if (!token) {
+      return 'default';
+    }
+    return createHash('sha256').update(token).digest('hex');
   }
 }

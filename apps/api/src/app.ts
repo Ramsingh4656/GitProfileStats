@@ -30,7 +30,7 @@ app.use(express.static(path.resolve(process.cwd(), 'public')));
 
 // Request logger middleware
 app.use((req, res, next) => {
-  logger.info({ method: req.method, url: req.url }, 'Incoming request');
+  logger.info({ method: req.method, path: req.path }, 'Incoming request');
   next();
 });
 

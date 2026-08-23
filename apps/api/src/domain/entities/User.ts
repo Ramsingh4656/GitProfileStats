@@ -20,6 +20,7 @@ export interface IUserProps {
   createdAt: Date;
   updatedAt: Date;
   settings?: IUserSettings;
+  githubAccessToken?: string;
 }
 
 export class User {
@@ -69,6 +70,24 @@ export class User {
     return this.props.settings ?? { ...this.defaultSettings };
   }
 
+  public get githubAccessToken(): string | undefined {
+    return this.props.githubAccessToken;
+  }
+
+  public get hasGithubAccessToken(): boolean {
+    return Boolean(this.props.githubAccessToken);
+  }
+
+  public updateGithubAccessToken(token: string): void {
+    this.props.githubAccessToken = token;
+    this.props.updatedAt = new Date();
+  }
+
+  public clearGithubAccessToken(): void {
+    delete this.props.githubAccessToken;
+    this.props.updatedAt = new Date();
+  }
+
   public updateSettings(settings: Partial<IUserSettings>): void {
     const currentSettings = this.props.settings ?? { ...this.defaultSettings };
     
@@ -95,7 +114,14 @@ export class User {
 
   public toJSON(): IUserProps {
     return {
-      ...this.props,
+      id: this.props.id,
+      githubId: this.props.githubId,
+      username: this.props.username,
+      email: this.props.email,
+      avatarUrl: this.props.avatarUrl,
+      tier: this.props.tier,
+      createdAt: this.props.createdAt,
+      updatedAt: this.props.updatedAt,
       settings: this.settings,
     };
   }

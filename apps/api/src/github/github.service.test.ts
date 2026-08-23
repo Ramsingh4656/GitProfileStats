@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { GitHubService } from './github.service.js';
 import { GitHubApiError } from '../domain/errors/DomainError.js';
+import { logger } from '../config/logger.js';
 
 describe('GitHubService', () => {
   let gitHubService: GitHubService;
@@ -156,6 +157,35 @@ describe('GitHubService', () => {
       mockFetch.mockRejectedValueOnce(networkError);
 
       await expect(gitHubService.getUser('john_doe')).rejects.toThrow('Network failure');
+    });
+
+    it('should not expose a raw token in cache-key logs', async () => {
+      const rawToken = 'cache-key-token-must-not-be-logged';
+      const debugSpy = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ login: 'octocat', id: 1 }),
+      });
+
+      await gitHubService.getAuthenticatedUser(rawToken);
+      await gitHubService.getAuthenticatedUser(rawToken);
+
+      expect(JSON.stringify(debugSpy.mock.calls)).not.toContain(rawToken);
+    });
+
+    it('should not expose a raw token in GitHub error logs', async () => {
+      const rawToken = 'error-log-token-must-not-be-logged';
+      const errorSpy = vi.spyOn(logger, 'error').mockImplementation(() => undefined);
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+        text: async () => `invalid token ${rawToken}`,
+      });
+
+      await expect(gitHubService.getAuthenticatedUser(rawToken)).rejects.toThrow(GitHubApiError);
+
+      expect(JSON.stringify(errorSpy.mock.calls)).not.toContain(rawToken);
     });
   });
 

@@ -194,8 +194,6 @@ export default function ThemeGalleryPage() {
   // Load preview SVGs when username, repo, selected card, or demoMode change
   useEffect(() => {
     const apiBase = env.NEXT_PUBLIC_API_URL;
-    const patToken = typeof window !== "undefined" ? (localStorage.getItem("github_pat") || "") : "";
-
     THEMES_INFO.forEach(async (theme) => {
       setPreviews((prev) => ({
         ...prev,
@@ -208,8 +206,6 @@ export default function ThemeGalleryPage() {
 
         if (demoMode) {
           params.append("mock", "true");
-        } else if (patToken) {
-          params.append("token", patToken);
         }
 
         let endpoint = "";
@@ -222,7 +218,9 @@ export default function ThemeGalleryPage() {
           endpoint = `${apiBase}/api/cards/${selectedCard}.svg?${params.toString()}`;
         }
 
-        const response = await fetch(endpoint);
+        const response = await fetch(endpoint, {
+          credentials: "include",
+        });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }

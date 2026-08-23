@@ -118,9 +118,7 @@ export default function CardPreviewPage() {
     return false;
   });
 
-  // Read-only values from localStorage
-  const patToken = typeof window !== "undefined" ? (localStorage.getItem("github_pat") || "") : "";
-  const isPatVerified = !!patToken;
+  const [isPatVerified, setIsPatVerified] = useState(false);
 
   // Global UI controls
   const [globalZoom, setGlobalZoom] = useState(1);
@@ -149,6 +147,7 @@ export default function CardPreviewPage() {
           const data = await response.json();
           if (data.success && data.data?.username) {
             setUsername(data.data.username);
+            setIsPatVerified(Boolean(data.data.hasGithubToken));
             setUsernameInput(data.data.username);
 
             // Prefill with backend user settings if available
@@ -225,11 +224,6 @@ export default function CardPreviewPage() {
           params.append("langs_count", langsCount.toString());
         }
 
-        // Include PAT in query if demoMode is false and PAT is configured
-        if (!demoMode && patToken) {
-          params.append("token", patToken);
-        }
-
         if (customAccent) {
           params.append("accent", customAccent.replace("#", ""));
         }
@@ -245,7 +239,9 @@ export default function CardPreviewPage() {
         }
 
         const url = `${apiBase}/api/cards/${type}.svg?${params.toString()}`;
-        const response = await fetch(url);
+        const response = await fetch(url, {
+          credentials: "include",
+        });
 
         if (!response.ok) {
           throw new Error(`Failed to load card (${response.status} ${response.statusText})`);
@@ -279,7 +275,6 @@ export default function CardPreviewPage() {
     selectedTheme,
     langsCount,
     demoMode,
-    patToken,
     customAccent,
     customBackground,
     borderRadius,

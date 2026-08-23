@@ -25,6 +25,7 @@ export class GetUserProfileUseCase {
       tier: raw.tier,
       createdAt: raw.createdAt.toISOString(),
       settings: user.settings,
+      hasGithubToken: user.hasGithubAccessToken,
     };
   }
 }

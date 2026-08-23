@@ -87,12 +87,15 @@ export class AuthController {
           email: githubUser.email ?? null,
           avatarUrl: githubUser.avatar_url,
           tier: 'FREE',
+          githubAccessToken: accessToken,
           createdAt: new Date(),
           updatedAt: new Date(),
         });
         await this.userRepository.save(user);
         logger.info({ username: user.username }, 'Created new user');
       } else {
+        user.updateGithubAccessToken(accessToken);
+        await this.userRepository.save(user);
         logger.info({ username: user.username }, 'Existing user logged in');
       }
 
@@ -106,9 +109,11 @@ export class AuthController {
       });
       res.redirect(`${env.WEB_BASE_URL}/login/callback`);
     } catch (error: unknown) {
-      logger.error({ error }, 'GitHub OAuth callback error');
-      const errMsg = error instanceof Error ? error.message : 'auth_failed';
-      res.redirect(`${env.WEB_BASE_URL}/login/callback?error=${encodeURIComponent(errMsg)}`);
+      logger.error(
+        { errorType: error instanceof Error ? error.name : typeof error },
+        'GitHub OAuth callback error',
+      );
+      res.redirect(`${env.WEB_BASE_URL}/login/callback?error=auth_failed`);
     }
   }
 }

@@ -169,7 +169,7 @@ export class CardController {
       next(new Error('GitHub parameters not found'));
       return;
     }
-    const { username, token } = githubParams;
+    const { username, githubAccessToken: token } = githubParams;
     const options = this.getCardOptions(req);
 
     logger.info({ username, hasToken: !!token, options }, 'Received request to render profile card');
@@ -200,9 +200,9 @@ export class CardController {
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
-      } catch (error) {
+      } catch {
         logger.warn(
-          { error, username },
+          { username },
           'Failed to render profile card, falling back to mock data',
         );
         try {
@@ -227,7 +227,7 @@ export class CardController {
       next(new Error('GitHub parameters not found'));
       return;
     }
-    const { username, token } = githubParams;
+    const { username, githubAccessToken: token } = githubParams;
     const options = this.getCardOptions(req);
 
     logger.info({ username, hasToken: !!token, options }, 'Received request to render stats card');
@@ -274,8 +274,8 @@ export class CardController {
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
-      } catch (error) {
-        logger.warn({ error, username }, 'Failed to render stats card, falling back to mock data');
+      } catch {
+        logger.warn({ username }, 'Failed to render stats card, falling back to mock data');
         try {
           const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
@@ -297,7 +297,7 @@ export class CardController {
       next(new Error('GitHub parameters not found'));
       return;
     }
-    const { username, token } = githubParams;
+    const { username, githubAccessToken: token } = githubParams;
     const options = this.getCardOptions(req);
     const langsCountStr = req.query.langs_count as string | undefined;
     const langsCount = langsCountStr ? parseInt(langsCountStr, 10) : undefined;
@@ -333,9 +333,9 @@ export class CardController {
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
-      } catch (error) {
+      } catch {
         logger.warn(
-          { error, username },
+          { username },
           'Failed to render languages card, falling back to mock data',
         );
         try {
@@ -359,7 +359,7 @@ export class CardController {
       next(new Error('GitHub parameters not found'));
       return;
     }
-    const { username, token } = githubParams;
+    const { username, githubAccessToken: token } = githubParams;
     const options = this.getCardOptions(req);
 
     logger.info({ username, hasToken: !!token, options }, 'Received request to render streak card');
@@ -387,8 +387,8 @@ export class CardController {
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
         res.status(200).send(svg);
-      } catch (error) {
-        logger.warn({ error, username }, 'Failed to render streak card, falling back to mock data');
+      } catch {
+        logger.warn({ username }, 'Failed to render streak card, falling back to mock data');
         try {
           const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
@@ -410,7 +410,7 @@ export class CardController {
       next(new Error('Repository parameters not found'));
       return;
     }
-    const { owner, repo, token } = repoParams;
+    const { owner, repo, githubAccessToken: token } = repoParams;
     const options = this.getCardOptions(req);
 
     logger.info({ owner, repo, hasToken: !!token, options }, 'Received request to render repository card');
@@ -439,9 +439,9 @@ export class CardController {
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
         res.status(200).send(svg);
-      } catch (error) {
+      } catch {
         logger.warn(
-          { error, owner, repo },
+          { owner, repo },
           'Failed to render repository card, falling back to mock data',
         );
         try {

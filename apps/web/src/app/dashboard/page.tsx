@@ -327,15 +327,11 @@ export default function DashboardPage() {
     return false;
   });
   const [syncing, setSyncing] = useState(false);
-  const [patToken, setPatToken] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("github_pat") || "";
-    }
-    return "";
-  });
+  const [patToken, setPatToken] = useState("");
+  const [hasGithubToken, setHasGithubToken] = useState(false);
   const [showPatInput, setShowPatInput] = useState(false);
 
-  const loadStats = useCallback(async (username: string, patOverride?: string, forceDemo?: boolean) => {
+  const loadStats = useCallback(async (username: string, forceDemo?: boolean) => {
     setLoadingStats(true);
     setStatsError(null);
 
@@ -351,14 +347,8 @@ export default function DashboardPage() {
 
     try {
       const apiBase = env.NEXT_PUBLIC_API_URL;
-      const token = patOverride !== undefined ? patOverride : patToken;
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers["x-github-token"] = token;
-      }
-
       const response = await fetch(`${apiBase}/api/statistics?username=${username}`, {
-        headers
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -380,7 +370,7 @@ export default function DashboardPage() {
     } finally {
       setLoadingStats(false);
     }
-  }, [patToken]);
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -397,10 +387,10 @@ export default function DashboardPage() {
         const data = await response.json();
         if (data.success && data.data) {
           setUser(data.data);
+          setHasGithubToken(Boolean(data.data.hasGithubToken));
           // Trigger data loading with verified profile username
-          const localPat = localStorage.getItem("github_pat") || "";
           const localDemo = localStorage.getItem("dashboard_demo_mode") === "true";
-          loadStats(data.data.username, localPat, localDemo);
+          loadStats(data.data.username, localDemo);
         } else {
           throw new Error("Invalid response format");
         }
@@ -419,33 +409,65 @@ export default function DashboardPage() {
     setDemoMode(checked);
     localStorage.setItem("dashboard_demo_mode", checked ? "true" : "false");
     if (user) {
-      loadStats(user.username, patToken, checked);
+      loadStats(user.username, checked);
     }
   };
 
-  const handleSavePat = () => {
-    localStorage.setItem("github_pat", patToken);
-    setShowPatInput(false);
-    if (user) {
-      // Disable demo mode when adding a PAT
+  const handleSavePat = async () => {
+    if (!user || !patToken.trim()) return;
+
+    try {
+      const apiBase = env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiBase}/api/v1/users/github-token`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ token: patToken.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save GitHub token (${response.status})`);
+      }
+
+      setPatToken("");
+      setHasGithubToken(true);
+      setShowPatInput(false);
       setDemoMode(false);
       localStorage.setItem("dashboard_demo_mode", "false");
-      loadStats(user.username, patToken, false);
+      loadStats(user.username, false);
+    } catch (err) {
+      console.error("Failed to save GitHub token:", err);
+      setStatsError("Failed to save the GitHub token securely.");
     }
   };
 
-  const handleClearPat = () => {
-    setPatToken("");
-    localStorage.removeItem("github_pat");
-    if (user) {
-      loadStats(user.username, "", demoMode);
+  const handleClearPat = async () => {
+    if (!user) return;
+
+    try {
+      const apiBase = env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiBase}/api/v1/users/github-token`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to clear GitHub token (${response.status})`);
+      }
+
+      setHasGithubToken(false);
+      setPatToken("");
+      loadStats(user.username, demoMode);
+    } catch (err) {
+      console.error("Failed to clear GitHub token:", err);
+      setStatsError("Failed to clear the GitHub token securely.");
     }
   };
 
   const handleSync = () => {
     if (!user) return;
     setSyncing(true);
-    loadStats(user.username, patToken, demoMode).then(() => {
+    loadStats(user.username, demoMode).then(() => {
       setSyncing(false);
     });
   };
@@ -672,25 +694,25 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-1.5 min-w-0">
                   <KeyRound className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
                   <span className="text-xs text-zinc-400 truncate">
-                    {patToken ? "Token Configured" : "No Token Set"}
+                    {hasGithubToken ? "Token Configured" : "No Token Set"}
                   </span>
                 </div>
                 <button
                   onClick={() => setShowPatInput(true)}
                   className="text-[10px] text-violet-400 hover:text-violet-300 font-bold transition-all cursor-pointer"
                 >
-                  {patToken ? "Edit" : "Set PAT"}
+                  {hasGithubToken ? "Edit" : "Set PAT"}
                 </button>
               </div>
             )}
 
-            {patToken && !showPatInput && (
+            {hasGithubToken && !showPatInput && (
               <button
                 onClick={handleClearPat}
                 className="text-[9px] text-zinc-500 hover:text-zinc-300 transition-all self-start flex items-center gap-1 mt-1 cursor-pointer"
               >
                 <X className="w-2.5 h-2.5" />
-                Clear Local Token
+                Clear Server Token
               </button>
             )}
           </div>
@@ -760,7 +782,7 @@ export default function DashboardPage() {
                 <button
                   onClick={() => {
                     if (user) {
-                      loadStats(user.username, patToken, demoMode);
+                      loadStats(user.username, demoMode);
                     }
                   }}
                   className="px-4 py-2.5 border border-violet-500/20 bg-violet-500/5 hover:bg-violet-500/10 text-violet-400 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
