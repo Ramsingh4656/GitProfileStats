@@ -16,6 +16,7 @@ const envSchema = z.object({
   GITHUB_CALLBACK_URL: z.string(),
   GITHUB_TOKEN: z.string(),
   SESSION_SECRET: z.string().min(32),
+  DATABASE_URL: z.string().min(1).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

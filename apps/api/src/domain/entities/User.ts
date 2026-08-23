@@ -90,7 +90,7 @@ export class User {
 
   public updateSettings(settings: Partial<IUserSettings>): void {
     const currentSettings = this.props.settings ?? { ...this.defaultSettings };
-    
+
     this.props.settings = {
       ...currentSettings,
       ...settings,

@@ -39,7 +39,7 @@ export class UserController {
       res.status(401).json({ success: false, error: 'Unauthorized' });
       return;
     }
-    
+
     this.updateUserSettingsUseCase
       .execute(userId, req.body as Partial<IUserSettings>)
       .then((profile) => {
