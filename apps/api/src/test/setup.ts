@@ -11,6 +11,9 @@ process.env.GITHUB_CLIENT_SECRET = 'dummy_client_secret';
 process.env.GITHUB_CALLBACK_URL = 'http://localhost:4000/api/v1/auth/github/callback';
 process.env.GITHUB_TOKEN = 'dummy_token';
 process.env.SESSION_SECRET = 'test-session-secret-with-at-least-32-characters';
+delete process.env.DATABASE_URL;
+delete process.env.UPSTASH_REDIS_REST_URL;
+delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
 const { clearResponseCache } = await import('../infrastructure/http/middleware/cacheMiddleware.js');
 const { clearAvatarCache } = await import('../utils/image.js');

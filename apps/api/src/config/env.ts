@@ -2,9 +2,11 @@ import { z } from 'zod';
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
-dotenv.config(); // fallback to local .env
+// Load application environment files outside tests. Vitest setupFiles establishes test-safe values first.
+if (process.env.NODE_ENV !== 'test') {
+  dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
+  dotenv.config(); // fallback to local .env
+}
 
 const envSchema = z
   .object({
