@@ -86,7 +86,7 @@ Below are the exact commands you will run, why you run them, and what you should
 
 ## 1. Start the Backend (API)
 ```powershell
-cd apps/backend
+cd apps/api
 pnpm dev
 ```
 - **Why?** Starts the API locally on `http://localhost:3001`.
@@ -97,7 +97,7 @@ pnpm dev
 
 ## 2. Start the Frontend (Website)
 ```powershell
-cd apps/frontend
+cd apps/web
 pnpm dev
 ```
 - **Why?** Starts the Next.js dev server on `http://localhost:3000`.
@@ -190,7 +190,7 @@ Environment variables keep secret values (API keys, database URLs) out of the so
 
 ## Backend
 ```powershell
-cd apps/backend
+cd apps/api
 pnpm dev
 ```
 - You should see `🚀 Server ready at http://localhost:3001`.
@@ -198,7 +198,7 @@ pnpm dev
 
 ## Frontend
 ```powershell
-cd apps/frontend
+cd apps/web
 pnpm dev
 ```
 - Browser opens automatically at `http://localhost:3000`.
@@ -215,7 +215,7 @@ pnpm dev
 2. Click **New → Web Service** (top‑right button).
 3. **Connect to GitHub** – choose *GitHub* as the source and click **Connect**.
 4. Select the repository `GitProfileStats`.
-5. **Root Directory**: type `apps/backend`.
+5. **Root Directory**: type `apps/api`.
 6. **Name**: (optional) `gitprofilestats-backend`.
 7. **Environment**: `Node`.
 8. **Build Command**: `pnpm install && pnpm build`.
@@ -239,7 +239,7 @@ pnpm dev
 1. Open https://vercel.com and **Log In**.
 2. Click **New Project**.
 3. **Import GitHub Repository** – select `GitProfileStats`.
-4. **Root Directory**: set to `apps/frontend`.
+4. **Root Directory**: set to `apps/web`.
 5. **Framework Preset**: Vercel should auto‑detect **Next.js**; leave as is.
 6. **Build Settings** – defaults are fine (`pnpm install` then `pnpm build`).
 7. **Environment Variables** – click **Edit** and add each `NEXT_PUBLIC_*` variable:
@@ -258,7 +258,7 @@ pnpm dev
 
 1. In the **frontend** `.env.local`, set `NEXT_PUBLIC_API_URL` to the Render service URL you got in step 13 of the backend deployment (e.g., `https://gitprofilestats-backend.onrender.com/api`).
 2. In the **backend**, ensure CORS allows the Vercel domain:
-   - Open `apps/backend/src/config/cors.ts` (or similar).
+   - Open `apps/api/src/config/cors.ts` (or similar).
    - Add `https://gitprofilestats.vercel.app` to the whitelist array.
 3. Restart both services (re‑deploy on Vercel and Render) to pick up the changes.
 4. Verify by opening the Vercel site and checking that the stats load without errors.
@@ -292,7 +292,7 @@ pnpm dev
 | **Render service sleeps** | Free tier idle timeout | Keep the keep‑alive cron job active (see Deploy Backend section).
 | **Vercel build fails** | Missing `NEXT_PUBLIC_*` vars | Add all required vars under Vercel project settings → Environment Variables.
 | **GitHub login loops back to login page** | `NEXTAUTH_URL` incorrect | Set `NEXTAUTH_URL` to your Vercel site URL (no trailing slash).
-| **Incorrect root directory** | Deployed from wrong folder | For Render: root `apps/backend`. For Vercel: root `apps/frontend`.
+| **Incorrect root directory** | Deployed from wrong folder | For Render: root `apps/api`. For Vercel: root `apps/web`.
 | **Build command error** | Using `npm` instead of `pnpm` | Use the exact commands `pnpm install && pnpm build`.
 | **Database migration not run** | Forgot to run `pnpm prisma migrate` | After setting `DATABASE_URL`, run `pnpm prisma migrate deploy` in backend.
 | **Session cookie not set** | `SESSION_SECRET` missing | Add a random secret string to both backend and frontend env files.
