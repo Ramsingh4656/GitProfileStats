@@ -70,21 +70,13 @@ export default function SettingsPage() {
     }
   });
 
-  // Verify token & Load saved settings
+  // Verify session & Load saved settings
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     const fetchSettings = async () => {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -111,12 +103,6 @@ export default function SettingsPage() {
 
   // Handle Settings Saving
   const handleSave = async () => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     setSaving(true);
     setErrorMsg(null);
     setSaveSuccess(false);
@@ -127,8 +113,8 @@ export default function SettingsPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
         },
+        credentials: "include",
         body: JSON.stringify(settings)
       });
 

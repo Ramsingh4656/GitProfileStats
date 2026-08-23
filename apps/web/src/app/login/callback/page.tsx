@@ -12,24 +12,19 @@ function CallbackHandler() {
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
-    const token = searchParams.get("token");
     const error = searchParams.get("error");
 
     const timer = setTimeout(() => {
       if (error) {
         setStatus("error");
         setErrorMessage(decodeURIComponent(error));
-      } else if (token) {
-        localStorage.setItem("auth_token", token);
-        setStatus("success");
       } else {
-        setStatus("error");
-        setErrorMessage("No authentication token received.");
+        setStatus("success");
       }
     }, 0);
 
     let redirectTimer: NodeJS.Timeout;
-    if (token) {
+    if (!error) {
       redirectTimer = setTimeout(() => {
         router.push("/dashboard");
       }, 1500);

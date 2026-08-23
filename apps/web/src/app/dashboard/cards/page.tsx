@@ -137,20 +137,12 @@ export default function CardPreviewPage() {
 
   // Verify auth session on load
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     // Prefill username with logged-in user profile
     const fetchProfile = async () => {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          credentials: "include",
         });
 
         if (response.ok) {

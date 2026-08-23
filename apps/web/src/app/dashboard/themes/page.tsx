@@ -161,19 +161,11 @@ export default function ThemeGalleryPage() {
 
   // Verify auth session, load user settings to find current preferredTheme
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     const fetchUserSettings = async () => {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
 
         if (response.ok) {
@@ -342,9 +334,6 @@ export default function ThemeGalleryPage() {
 
   // Apply theme as profile default settings
   const handleApplyTheme = async (themeId: string) => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) return;
-
     setApplyingTheme(themeId);
     setErrorMsg(null);
     setApplySuccess(null);
@@ -369,8 +358,8 @@ export default function ThemeGalleryPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
         body: JSON.stringify(updatedSettings),
       });
 

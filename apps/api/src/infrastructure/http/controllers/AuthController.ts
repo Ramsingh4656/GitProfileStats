@@ -5,6 +5,11 @@ import { logger } from '../../../config/logger.js';
 import type { IUserRepository } from '../../../domain/interfaces/IUserRepository.js';
 import { User } from '../../../domain/entities/User.js';
 import { GitHubService } from '../../../github/github.service.js';
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_MAX_AGE_SECONDS,
+  SessionService,
+} from '../../../application/services/SessionService.js';
 
 @injectable()
 export class AuthController {
@@ -13,6 +18,8 @@ export class AuthController {
     private readonly userRepository: IUserRepository,
     @inject(GitHubService)
     private readonly gitHubService: GitHubService,
+    @inject(SessionService)
+    private readonly sessionService: SessionService,
   ) {}
 
   public loginWithGithub = (req: Request, res: Response): void => {
@@ -89,14 +96,19 @@ export class AuthController {
         logger.info({ username: user.username }, 'Existing user logged in');
       }
 
-      // Redirect back to frontend callback page with the session token (user.id)
-      res.redirect(`${env.WEB_BASE_URL}/login/callback?token=${user.id}`);
+      const session = this.sessionService.createSession(user.id);
+      res.cookie(SESSION_COOKIE_NAME, session, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'lax',
+        maxAge: SESSION_MAX_AGE_SECONDS * 1000,
+        path: '/',
+      });
+      res.redirect(`${env.WEB_BASE_URL}/login/callback`);
     } catch (error: unknown) {
       logger.error({ error }, 'GitHub OAuth callback error');
       const errMsg = error instanceof Error ? error.message : 'auth_failed';
-      res.redirect(
-        `${env.WEB_BASE_URL}/login/callback?error=${encodeURIComponent(errMsg)}`,
-      );
+      res.redirect(`${env.WEB_BASE_URL}/login/callback?error=${encodeURIComponent(errMsg)}`);
     }
   }
 }

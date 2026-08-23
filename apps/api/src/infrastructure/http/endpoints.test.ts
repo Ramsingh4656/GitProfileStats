@@ -5,12 +5,12 @@ import { app } from '../../app.js';
 describe('API Endpoints', () => {
   const mockFetch = vi.fn(async (url: string, options?: any) => {
     const urlString = String(url);
-    
+
     // 1. GraphQL Mocking
     if (urlString.includes('/graphql')) {
       const body = JSON.parse(options?.body || '{}');
       const query = body.query || '';
-      
+
       if (query.includes('viewer { login') || query.includes('viewer{login')) {
         return {
           ok: true,
@@ -98,9 +98,7 @@ describe('API Endpoints', () => {
               user: {
                 closedIssuesList: {
                   pageInfo: { hasNextPage: false, endCursor: null },
-                  nodes: [
-                    { createdAt: '2026-07-28T00:00:00Z', closedAt: '2026-07-29T00:00:00Z' },
-                  ],
+                  nodes: [{ createdAt: '2026-07-28T00:00:00Z', closedAt: '2026-07-29T00:00:00Z' }],
                 },
               },
             },
@@ -127,7 +125,14 @@ describe('API Endpoints', () => {
       return {
         ok: true,
         json: async () => [
-          { stargazers_count: 5, forks_count: 2, watchers_count: 5, open_issues_count: 1, size: 100, fork: false },
+          {
+            stargazers_count: 5,
+            forks_count: 2,
+            watchers_count: 5,
+            open_issues_count: 1,
+            size: 100,
+            fork: false,
+          },
         ],
       };
     }
@@ -328,13 +333,12 @@ describe('API Endpoints', () => {
       expect(response.status).toBe(401);
     });
 
-    it('should pass simulation authentication with authorization header', async () => {
+    it('should reject an unsigned bearer value as an identity', async () => {
       const response = await request(app)
         .get('/api/v1/users/me')
         .set('Authorization', 'Bearer some-test-id');
-      
-      expect(response.status).toBe(404);
-      expect(response.body.error.message).toContain('not found');
+
+      expect(response.status).toBe(401);
     });
 
     it('should redirect to GitHub authorize URL for login', async () => {
@@ -349,18 +353,40 @@ describe('API Endpoints', () => {
       expect(response.headers.location).toContain('error=missing_code');
     });
 
-    it('should handle oauth callback with code and redirect to frontend callback with token', async () => {
+    it('should issue a signed session cookie and redirect without an identifier', async () => {
       const response = await request(app)
         .get('/api/v1/auth/github/callback')
         .query({ code: 'some-oauth-code' });
-      
-      expect(response.status).toBe(302);
-      expect(response.headers.location).toContain('token=5832347');
 
-      // Now query /users/me with the token and expect it to succeed
+      expect(response.status).toBe(302);
+      expect(response.headers.location).toBe('http://localhost:3000/login/callback');
+      expect(response.headers.location).not.toContain('5832347');
+      expect(response.headers.location).not.toContain('token=');
+
+      const setCookie = response.headers['set-cookie'];
+      expect(setCookie).toBeDefined();
+      expect(setCookie?.some((cookie) => cookie.startsWith('gitprofilestats_session='))).toBe(true);
+      expect(setCookie?.some((cookie) => cookie.includes('HttpOnly'))).toBe(true);
+      expect(setCookie?.some((cookie) => cookie.includes('Secure'))).toBe(true);
+      expect(setCookie?.some((cookie) => cookie.includes('SameSite=Lax'))).toBe(true);
+
+      const sessionCookie = setCookie
+        ?.find((cookie) => cookie.startsWith('gitprofilestats_session='))
+        ?.split(';')[0];
+      expect(sessionCookie).toBeDefined();
+
+      const [cookieName, signedSession] = (sessionCookie as string).split('=');
+      const [encodedClaims, signature] = signedSession.split('.');
+      const forgedSignature = `${signature.startsWith('a') ? 'b' : 'a'}${signature.slice(1)}`;
+      const forgedSessionCookie = `${cookieName}=${encodedClaims}.${forgedSignature}`;
+      const forgedProfileResponse = await request(app)
+        .get('/api/v1/users/me')
+        .set('Cookie', forgedSessionCookie);
+      expect(forgedProfileResponse.status).toBe(401);
+
       const profileResponse = await request(app)
         .get('/api/v1/users/me')
-        .set('Authorization', 'Bearer 5832347');
+        .set('Cookie', sessionCookie as string);
       expect(profileResponse.status).toBe(200);
       expect(profileResponse.body.success).toBe(true);
       expect(profileResponse.body.data.username).toBe('demo');

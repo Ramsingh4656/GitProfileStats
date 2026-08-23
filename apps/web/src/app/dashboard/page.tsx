@@ -383,19 +383,11 @@ export default function DashboardPage() {
   }, [patToken]);
 
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
     const fetchProfile = async () => {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -414,7 +406,6 @@ export default function DashboardPage() {
         }
       } catch (err) {
         console.error("Session verification failed:", err);
-        localStorage.removeItem("auth_token");
         router.push("/login");
       } finally {
         setLoading(false);
