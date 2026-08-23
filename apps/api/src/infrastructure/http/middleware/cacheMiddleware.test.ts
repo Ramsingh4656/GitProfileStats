@@ -1,55 +1,143 @@
 import type { Request, Response } from 'express';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { logger } from '../../../config/logger.js';
+import type { IResponseCache } from '../../cache/IResponseCache.js';
 import { cacheMiddleware, clearResponseCache } from './cacheMiddleware.js';
 
-describe('cacheMiddleware', () => {
-  beforeEach(() => {
-    clearResponseCache();
-  });
+const makeResponse = (): Response =>
+  ({
+    statusCode: 200,
+    getHeader: vi.fn().mockReturnValue(undefined),
+    setHeader: vi.fn(),
+    status: vi.fn(function (this: Response, statusCode: number) {
+      this.statusCode = statusCode;
+      return this;
+    }),
+    send: vi.fn(function (this: Response) {
+      return this;
+    }),
+  }) as unknown as Response;
 
+const makeRequest = (): Request =>
+  ({
+    method: 'GET',
+    path: '/api/stats',
+    query: { username: 'demo', token: 'cache-token-must-not-appear' },
+    user: { id: 'verified-user-id' },
+  }) as unknown as Request;
+
+describe('cacheMiddleware', () => {
   afterEach(() => {
+    clearResponseCache();
     vi.restoreAllMocks();
   });
 
-  it('does not include a raw token in cache keys or cache-hit logs', () => {
-    const rawToken = 'cache-token-must-not-appear';
-    const debugSpy = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
-    const middleware = cacheMiddleware();
-    const request = {
-      method: 'GET',
-      path: '/api/stats',
-      query: { username: 'demo', token: rawToken },
-      user: { id: 'verified-user-id' },
-    } as unknown as Request;
+  it('serves a valid HTTP cache hit without rerunning the controller', async () => {
+    const cachedEntry = {
+      body: 'cached body',
+      headers: { 'content-type': 'text/plain' },
+      statusCode: 201,
+    };
+    const cache: IResponseCache = {
+      get: vi.fn().mockResolvedValue(cachedEntry),
+      set: vi.fn(),
+      clear: vi.fn(),
+    };
+    const response = makeResponse();
     const next = vi.fn();
-    const makeResponse = (): Response =>
-      ({
+
+    await cacheMiddleware(300, cache)(makeRequest(), response, next);
+
+    expect(cache.get).toHaveBeenCalledWith('HTTP:/api/stats?username=demo&user=verified-user-id');
+    expect(next).not.toHaveBeenCalled();
+    expect(response.setHeader).toHaveBeenCalledWith('content-type', 'text/plain');
+    expect(response.status).toHaveBeenCalledWith(201);
+    expect(response.send).toHaveBeenCalledWith('cached body');
+    expect(cache.set).not.toHaveBeenCalled();
+  });
+
+  it('runs the controller on a miss and stores only successful responses with the existing TTL', async () => {
+    const cache: IResponseCache = {
+      get: vi.fn().mockResolvedValue(undefined),
+      set: vi.fn().mockResolvedValue(undefined),
+      clear: vi.fn(),
+    };
+    const response = makeResponse();
+    const next = vi.fn();
+
+    await cacheMiddleware(300, cache)(makeRequest(), response, next);
+    response.send('fresh body');
+    await Promise.resolve();
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(cache.set).toHaveBeenCalledWith(
+      'HTTP:/api/stats?username=demo&user=verified-user-id',
+      {
+        body: 'fresh body',
+        headers: {},
         statusCode: 200,
-        getHeader: vi.fn().mockReturnValue(undefined),
-        setHeader: vi.fn(),
-        status: vi.fn(function (this: Response) {
-          return this;
-        }),
-        send: vi.fn(function (this: Response) {
-          return this;
-        }),
-      }) as unknown as Response;
-
-    const firstResponse = makeResponse();
-    middleware(request, firstResponse, next);
-    firstResponse.send('cached body');
-
-    const secondResponse = makeResponse();
-    middleware(request, secondResponse, next);
-
-    expect(secondResponse.send).toHaveBeenCalledWith('cached body');
-    expect(debugSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        cacheKey: expect.stringContaining('user=verified-user-id'),
-      }),
-      'Serving endpoint response from cache',
+      },
+      300000,
     );
-    expect(JSON.stringify(debugSpy.mock.calls)).not.toContain(rawToken);
+  });
+
+  it('continues normally when a cache read fails', async () => {
+    const cache: IResponseCache = {
+      get: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
+      set: vi.fn().mockResolvedValue(undefined),
+      clear: vi.fn(),
+    };
+    const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const response = makeResponse();
+    const next = vi.fn();
+
+    await expect(
+      cacheMiddleware(300, cache)(makeRequest(), response, next),
+    ).resolves.toBeUndefined();
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ operation: 'read', errorType: 'Error' }),
+      'Response cache read failed; continuing without cache',
+    );
+  });
+
+  it('continues normally when a cache write fails', async () => {
+    const cache: IResponseCache = {
+      get: vi.fn().mockResolvedValue(undefined),
+      set: vi.fn().mockRejectedValue(new Error('Redis unavailable')),
+      clear: vi.fn(),
+    };
+    const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const response = makeResponse();
+    const next = vi.fn();
+
+    await cacheMiddleware(300, cache)(makeRequest(), response, next);
+    expect(() => response.send('fresh body')).not.toThrow();
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ operation: 'write', errorType: 'Error' }),
+      'Response cache write failed; continuing without cache',
+    );
+  });
+
+  it('treats malformed cache entries as misses', async () => {
+    const cache: IResponseCache = {
+      get: vi.fn().mockResolvedValue({ body: 'missing status' }),
+      set: vi.fn().mockResolvedValue(undefined),
+      clear: vi.fn(),
+    };
+    const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const response = makeResponse();
+    const next = vi.fn();
+
+    await cacheMiddleware(300, cache)(makeRequest(), response, next);
+
+    expect(next).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Response cache entry was malformed; continuing without cache',
+    );
   });
 });
