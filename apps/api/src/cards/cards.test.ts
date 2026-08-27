@@ -106,7 +106,7 @@ describe('Card Generators', () => {
       const svg = renderStatsCard(mockStats, dummyOptions);
 
       expect(svg).toContain('<svg');
-      expect(svg).toContain('width="490"');
+      expect(svg).toContain('width="440"');
       expect(svg).toContain('height="195"');
       expect(svg).toContain('</svg>');
       expect(svg).toContain('John Doe');
@@ -125,7 +125,7 @@ describe('Card Generators', () => {
       const svg = renderLanguagesCard(mockLanguages, dummyOptions);
 
       expect(svg).toContain('<svg');
-      expect(svg).toContain('width="490"');
+      expect(svg).toContain('width="440"');
       expect(svg).toContain('height="195"');
       expect(svg).toContain('</svg>');
       expect(svg).toContain('TypeScript');

@@ -129,10 +129,10 @@ export function renderStatsCard(stats: IGitHubStatsData, options?: CardOptions):
   const resolvedTheme = resolveThemeWithOptions(options);
   const titleText = `${stats.name ?? stats.username}'s GitHub Stats`;
 
-  // Build layout tree (490x195)
+  // Build layout tree (440x195)
   const rootNode: ContainerNode = {
     type: 'column',
-    width: 490,
+    width: 440,
     height: 195,
     padding: 20,
     spacing: 16,
@@ -181,7 +181,7 @@ export function renderStatsCard(stats: IGitHubStatsData, options?: CardOptions):
                   y,
                   text: titleText,
                   dominantBaseline: 'hanging',
-                  maxWidth: 420,
+                  maxWidth: 370,
                 },
                 16,
                 700,
@@ -222,7 +222,7 @@ export function renderStatsCard(stats: IGitHubStatsData, options?: CardOptions):
   };
 
   // Compute and Render layout
-  const computed = computeLayout(rootNode, 490, 195);
+  const computed = computeLayout(rootNode, 440, 195);
   const layoutContent = renderLayout(computed);
 
   // Gradient definitions using adjusted background colors
@@ -252,7 +252,7 @@ export function renderStatsCard(stats: IGitHubStatsData, options?: CardOptions):
 
   return svgDocument(
     {
-      width: 490,
+      width: 440,
       height: 195,
       theme: resolvedTheme,
       customStyles,

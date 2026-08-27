@@ -359,7 +359,7 @@ export function renderLanguagesCard(
                 y,
                 text: titleText,
                 dominantBaseline: 'hanging',
-                maxWidth: 420,
+                maxWidth: 370,
               },
               16,
               700,
@@ -410,7 +410,7 @@ export function renderLanguagesCard(
 
   const rootNode: ContainerNode = {
     type: 'column',
-    width: 490,
+    width: 440,
     height: 195,
     padding: { top: 16, right: 20, bottom: 16, left: 20 },
     spacing: 12,
@@ -426,7 +426,7 @@ export function renderLanguagesCard(
   };
 
   // Compute and Render layout
-  const computed = computeLayout(rootNode, 490, 195);
+  const computed = computeLayout(rootNode, 440, 195);
   const layoutContent = renderLayout(computed);
 
   // Generate dynamic clipPath for the combined progress bar based on computed coordinates
@@ -470,7 +470,7 @@ export function renderLanguagesCard(
 
   return svgDocument(
     {
-      width: 490,
+      width: 440,
       height: 195,
       theme: resolvedTheme,
       customStyles,

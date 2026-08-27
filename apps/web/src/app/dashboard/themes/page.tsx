@@ -88,13 +88,13 @@ const CARD_TYPES: Record<CardType, CardConfig> = {
   stats: {
     title: 'Stats Card',
     desc: 'Repository count, stars, forks, commits, and issues tracker',
-    defaultWidth: 490,
+    defaultWidth: 440,
     defaultHeight: 195,
   },
   languages: {
     title: 'Languages Card',
     desc: 'Breakdown of coding languages and bytes written',
-    defaultWidth: 490,
+    defaultWidth: 440,
     defaultHeight: 195,
   },
   streak: {
