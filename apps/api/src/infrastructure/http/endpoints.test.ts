@@ -111,7 +111,7 @@ describe('API Endpoints', () => {
           json: async () => ({
             data: {
               user: {
-                login: 'demo',
+                login: body.variables?.login || 'demo',
                 createdAt: '2026-01-01T00:00:00Z',
               },
             },
@@ -142,13 +142,18 @@ describe('API Endpoints', () => {
     }
 
     // 2. REST Mocking
-    if (urlString.includes('/users/demo/repos') || urlString.includes('/user/repos')) {
+    if (/\/users\/[^/]+\/repos($|\?)/.test(urlString) || urlString.includes('/user/repos')) {
+      const parts = urlString.split('?')[0].split('/');
+      let login = 'demo';
+      if (urlString.includes('/users/')) {
+        login = parts[parts.indexOf('users') + 1] || 'demo';
+      }
       return {
         ok: true,
         json: async () => [
           {
             name: 'test',
-            owner: { login: 'demo' },
+            owner: { login },
             stargazers_count: 5,
             forks_count: 2,
             watchers_count: 5,
@@ -167,12 +172,14 @@ describe('API Endpoints', () => {
         }),
       };
     }
-    if (urlString.includes('/users/demo') || urlString.includes('/user')) {
+    if (/\/users\/[^/]+($|\?)/.test(urlString) || urlString.endsWith('/user') || urlString.includes('/user?')) {
+      const parts = urlString.split('?')[0].split('/');
+      const login = parts[parts.length - 1] || 'demo';
       return {
         ok: true,
         json: async () => ({
           id: 5832347,
-          login: 'demo',
+          login: login === 'user' ? 'demo' : login,
           name: 'Demo User',
           followers: 10,
           following: 5,
@@ -451,6 +458,35 @@ describe('API Endpoints', () => {
       expect(clearTokenResponse.status).toBe(200);
       expect(clearTokenResponse.body.data).toEqual({ hasGithubToken: false });
       expect(JSON.stringify(clearTokenResponse.body)).not.toContain(replacementToken);
+    });
+
+    it('should not allow spoofing another user private repositories', async () => {
+      // 1. Authenticate and get session cookie for 'demo'
+      const loginResponse = await request(app)
+        .get('/api/v1/auth/github/callback')
+        .query({ code: 'some-oauth-code' });
+      const setCookie = loginResponse.headers['set-cookie'];
+      const sessionCookie = setCookie
+        ?.find((cookie) => cookie.startsWith('gitprofilestats_session='))
+        ?.split(';')[0];
+
+      // 2. Request statistics for 'attacker' using 'demo's session cookie
+      // In this case, 'demo' is the authenticated user, but they request 'attacker'
+      mockFetch.mockClear();
+      const response = await request(app)
+        .get('/api/statistics?username=attacker')
+        .set('Cookie', sessionCookie as string);
+
+      expect(response.status).toBe(200);
+      
+      // The backend should query public endpoint for 'attacker' (/users/attacker), NOT /user or /user/repos
+      const hasUserReposCall = mockFetch.mock.calls.some(([url]) => String(url).includes('/user/repos'));
+      const hasViewerReposGraphQLCall = mockFetch.mock.calls.some(([url, opts]) => 
+        String(url).includes('/graphql') && String(opts?.body).includes('viewer {')
+      );
+      
+      expect(hasUserReposCall).toBe(false);
+      expect(hasViewerReposGraphQLCall).toBe(false);
     });
   });
 });

@@ -115,6 +115,27 @@ describe('GitHubService', () => {
       expect(repos).toEqual(mockRepos);
     });
 
+    it('should fetch repositories from public endpoint when username does not match authenticated user', async () => {
+      const mockRepos = [{ id: 105, name: 'repo-5' }];
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ login: 'john_doe' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockRepos,
+        });
+
+      const repos = await gitHubService.getRepositories('other_user', 'some-token');
+
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        'https://api.github.com/users/other_user/repos',
+        expect.any(Object),
+      );
+      expect(repos).toEqual(mockRepos);
+    });
+
     it('should fetch a specific repository details', async () => {
       const mockRepo = { id: 103, name: 'special-repo' };
       mockFetch.mockResolvedValueOnce({
