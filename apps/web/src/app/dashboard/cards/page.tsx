@@ -91,25 +91,25 @@ const CARD_INFOS: Record<
   stats: {
     title: 'Stats Card',
     desc: 'Overall repository count, stars, forks, commits, and issues tracker',
-    defaultWidth: 495,
+    defaultWidth: 490,
     defaultHeight: 195,
   },
   languages: {
     title: 'Languages Card',
     desc: 'Visual representation of your most frequent coding languages and bytes written',
-    defaultWidth: 495,
+    defaultWidth: 490,
     defaultHeight: 195,
   },
   streak: {
     title: 'Streak Card',
     desc: 'Contributions count, current coding streak, and your longest streak',
-    defaultWidth: 495,
-    defaultHeight: 195,
+    defaultWidth: 490,
+    defaultHeight: 165,
   },
   repository: {
     title: 'Repository Card',
     desc: 'Repository status, stars, forks, and licenses info',
-    defaultWidth: 495,
+    defaultWidth: 450,
     defaultHeight: 150,
   },
 };

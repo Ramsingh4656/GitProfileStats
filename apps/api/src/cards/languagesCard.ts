@@ -211,7 +211,7 @@ export function renderLanguagesCard(
             {
               type: 'leaf',
               width: 'fill',
-              height: 6,
+              height: 5,
               render: (x, y, w, h) =>
                 progressBar({
                   x,
@@ -376,7 +376,7 @@ export function renderLanguagesCard(
       id: 'progress-bar-combined',
       type: 'leaf',
       width: 'fill',
-      height: 10,
+      height: 8,
       render: (x, y, w, h) => {
         const rects: string[] = [];
         let currentX = x;
@@ -404,16 +404,16 @@ export function renderLanguagesCard(
     type: 'column',
     width: 'fill',
     height: 'fill',
-    spacing: 8,
+    spacing: 6,
     children: languagesListChildren,
   });
 
   const rootNode: ContainerNode = {
     type: 'column',
     width: 490,
-    height: 220,
-    padding: 20,
-    spacing: 16,
+    height: 195,
+    padding: { top: 16, right: 20, bottom: 16, left: 20 },
+    spacing: 12,
     style: {
       rx: options?.borderRadius !== undefined ? options.borderRadius : 10,
       ry: options?.borderRadius !== undefined ? options.borderRadius : 10,
@@ -426,7 +426,7 @@ export function renderLanguagesCard(
   };
 
   // Compute and Render layout
-  const computed = computeLayout(rootNode, 490, 220);
+  const computed = computeLayout(rootNode, 490, 195);
   const layoutContent = renderLayout(computed);
 
   // Generate dynamic clipPath for the combined progress bar based on computed coordinates
@@ -471,7 +471,7 @@ export function renderLanguagesCard(
   return svgDocument(
     {
       width: 490,
-      height: 220,
+      height: 195,
       theme: resolvedTheme,
       customStyles,
     },
