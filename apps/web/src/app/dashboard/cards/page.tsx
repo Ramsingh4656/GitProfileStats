@@ -5,7 +5,6 @@ import { env } from "@/config/env";
 import { useRouter } from "next/navigation";
 import {
   CreditCard,
-  Sparkles,
   RefreshCw,
   Sliders,
   ZoomIn,
@@ -111,12 +110,7 @@ export default function CardPreviewPage() {
   });
   const [readmeCopied, setReadmeCopied] = useState(false);
 
-  const [demoMode, setDemoMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("dashboard_demo_mode") === "true";
-    }
-    return false;
-  });
+
 
   const [isPatVerified, setIsPatVerified] = useState(false);
 
@@ -216,9 +210,7 @@ export default function CardPreviewPage() {
         }
         params.append("theme", selectedTheme);
 
-        if (demoMode) {
-          params.append("mock", "true");
-        }
+
 
         if (type === "languages") {
           params.append("langs_count", langsCount.toString());
@@ -274,7 +266,6 @@ export default function CardPreviewPage() {
     repoName,
     selectedTheme,
     langsCount,
-    demoMode,
     customAccent,
     customBackground,
     borderRadius,
@@ -423,9 +414,7 @@ export default function CardPreviewPage() {
       if (fontStyle && fontStyle !== "sans") {
         params.append("font_style", fontStyle);
       }
-      if (demoMode) {
-        params.append("mock", "true");
-      }
+
       return `${host}/api/cards/${type}.svg?${params.toString()}`;
     };
 
@@ -819,28 +808,7 @@ export default function CardPreviewPage() {
             </span>
           </div>
 
-          {/* Demo Mock Switch */}
-          <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-1">
-            <div className="flex flex-col gap-0.5 max-w-[70%]">
-              <span id="force-mock-label" className="text-xs text-zinc-300 font-medium">Force Mock Data</span>
-              <span className="text-[9px] text-zinc-500">Render standard mock stats without hitting real GitHub API</span>
-            </div>
-            <button
-              onClick={() => setDemoMode(!demoMode)}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
-                demoMode ? "bg-violet-600" : "bg-zinc-800"
-              }`}
-              role="switch"
-              aria-checked={demoMode}
-              aria-labelledby="force-mock-label"
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                  demoMode ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </button>
-          </div>
+
 
           {/* Token usage indicator */}
           <div className="border-t border-white/5 pt-4 mt-1 flex flex-col gap-2">
@@ -920,15 +888,9 @@ export default function CardPreviewPage() {
           </div>
           {/* Status indicators */}
           <div className="flex gap-2 self-start sm:self-center">
-            {demoMode ? (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-violet-600/10 border border-violet-500/20 text-violet-400 flex items-center gap-1.5 animate-pulse-slow">
-                <Sparkles className="w-3.5 h-3.5" /> Demo Mode active
-              </span>
-            ) : (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-1.5">
-                <RefreshCw className="w-3.5 h-3.5" /> Live synchronization
-              </span>
-            )}
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" /> Live synchronization
+            </span>
           </div>
         </div>
 

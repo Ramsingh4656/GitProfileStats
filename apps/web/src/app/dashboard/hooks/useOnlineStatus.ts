@@ -19,9 +19,6 @@ export function useOnlineStatus() {
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    // Sync in case it changed between initial render and effect mount
-    setIsOnline(navigator.onLine);
-
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);

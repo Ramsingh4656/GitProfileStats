@@ -141,7 +141,6 @@ export default function ThemeGalleryPage() {
   
   // Customization controls
   const [selectedCard, setSelectedCard] = useState<CardType>("profile");
-  const [demoMode, setDemoMode] = useState(false);
   const [preferredTheme, setPreferredTheme] = useState<string>("dark");
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
 
@@ -204,9 +203,7 @@ export default function ThemeGalleryPage() {
         const params = new URLSearchParams();
         params.append("theme", theme.id);
 
-        if (demoMode) {
-          params.append("mock", "true");
-        }
+
 
         let endpoint = "";
         if (selectedCard === "repository") {
@@ -252,7 +249,7 @@ export default function ThemeGalleryPage() {
         }));
       }
     });
-  }, [username, repoName, selectedCard, demoMode]);
+  }, [username, repoName, selectedCard]);
 
   // Handle username/repo form submissions
   const handleApplyTargets = (e: React.FormEvent) => {
@@ -270,9 +267,7 @@ export default function ThemeGalleryPage() {
     const apiBase = env.NEXT_PUBLIC_API_URL;
     const params = new URLSearchParams();
     params.append("theme", themeId);
-    if (demoMode) {
-      params.append("mock", "true");
-    }
+
 
     let endpoint = "";
     if (selectedCard === "repository") {
@@ -465,23 +460,7 @@ export default function ThemeGalleryPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-zinc-400 font-medium">Force Mock</span>
-            <button
-              onClick={() => setDemoMode(!demoMode)}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none ${
-                demoMode ? "bg-violet-600" : "bg-zinc-800"
-              }`}
-              role="switch"
-              aria-checked={demoMode}
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                  demoMode ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </button>
-          </div>
+
         </div>
       </div>
 

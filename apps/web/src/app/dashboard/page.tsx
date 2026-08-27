@@ -28,7 +28,6 @@ import {
   CalendarDays,
   Flame,
   Info,
-  Sparkles,
   Settings,
   KeyRound,
   X,
@@ -150,162 +149,7 @@ interface CombinedStats {
   };
 }
 
-// Generate mock contribution graph weeks (53 weeks)
-function generateMockContributionWeeks() {
-  const weeks: ContributionWeek[] = [];
-  const now = new Date();
-  const startDate = new Date(now);
-  startDate.setDate(startDate.getDate() - 365); // start 1 year ago
-  
-  // Align start to Sunday
-  const startDay = startDate.getDay();
-  startDate.setDate(startDate.getDate() - startDay);
-  
-  const currentDate = new Date(startDate);
-  
-  for (let w = 0; w < 53; w++) {
-    const days: ContributionDay[] = [];
-    for (let d = 0; d < 7; d++) {
-      if (currentDate > now) {
-        break;
-      }
-      
-      const dayOfWeek = currentDate.getDay();
-      let count = 0;
-      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        const rand = Math.random();
-        if (rand > 0.3) {
-          count = Math.floor(Math.random() * 8) + 1;
-        }
-      } else {
-        if (Math.random() > 0.7) {
-          count = Math.floor(Math.random() * 3) + 1;
-        }
-      }
-      
-      let color = "#161030"; // 0 commits (faded background purple)
-      if (count > 0 && count <= 2) color = "#4c1d95"; // light violet
-      else if (count > 2 && count <= 5) color = "#7c3aed"; // violet-600
-      else if (count > 5 && count <= 8) color = "#a78bfa"; // violet-400
-      else if (count > 8) color = "#d946ef"; // fuchsia-500
-      
-      days.push({
-        date: currentDate.toISOString().split("T")[0],
-        contributionCount: count,
-        color: color,
-        weekday: d
-      });
-      
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    weeks.push({ contributionDays: days });
-  }
-  return weeks;
-}
 
-const DEMO_DATA: CombinedStats = {
-  repositoryStats: {
-    total: 28,
-    public: 22,
-    private: 6,
-    forks: 7,
-    original: 21,
-    archived: 1,
-    disabled: 0,
-    totalStars: 582,
-    totalForks: 114,
-    totalWatchers: 630,
-    openIssuesCount: 9
-  },
-  repositoryRankings: {
-    mostStarred: {
-      id: 1,
-      name: "GitProfileStats",
-      fullName: "Ramsingh4656/GitProfileStats",
-      htmlUrl: "https://github.com/Ramsingh4656/GitProfileStats",
-      description: "📊 Premium developer statistics widgets and interactive profiles. Built with Next.js App Router, Express, and Tailwind CSS.",
-      stars: 312,
-      forks: 48,
-      size: 4096,
-      createdAt: "2026-07-28T00:00:00Z",
-      updatedAt: "2026-07-31T15:30:00Z"
-    },
-    mostForked: {
-      id: 2,
-      name: "react-dashboard-boilerplate",
-      fullName: "Ramsingh4656/react-dashboard-boilerplate",
-      htmlUrl: "https://github.com/Ramsingh4656/react-dashboard-boilerplate",
-      description: "🚀 Highly customizable React boilerplate with glassmorphism UI design, dark mode, and pre-configured workspace systems.",
-      stars: 184,
-      forks: 56,
-      size: 2048,
-      createdAt: "2025-11-12T00:00:00Z",
-      updatedAt: "2026-07-29T10:00:00Z"
-    },
-    largest: {
-      id: 3,
-      name: "fullstack-monorepo-template",
-      fullName: "Ramsingh4656/fullstack-monorepo-template",
-      htmlUrl: "https://github.com/Ramsingh4656/fullstack-monorepo-template",
-      description: "📦 Complete workspace turborepo template containing Next.js, Express, Docker configs, and database integration templates.",
-      stars: 62,
-      forks: 10,
-      size: 15360,
-      createdAt: "2025-05-15T00:00:00Z",
-      updatedAt: "2026-07-20T18:45:00Z"
-    },
-    smallest: null,
-    newest: null,
-    oldest: null,
-    mostRecentlyUpdated: {
-      id: 1,
-      name: "GitProfileStats",
-      fullName: "Ramsingh4656/GitProfileStats",
-      htmlUrl: "https://github.com/Ramsingh4656/GitProfileStats",
-      description: "📊 Premium developer statistics widgets and interactive profiles. Built with Next.js App Router, Express, and Tailwind CSS.",
-      stars: 312,
-      forks: 48,
-      size: 4096,
-      createdAt: "2026-07-28T00:00:00Z",
-      updatedAt: "2026-07-31T15:30:00Z"
-    }
-  },
-  languageStats: [
-    { language: "TypeScript", bytes: 512400, percentage: 51.24, repositoryCount: 14 },
-    { language: "JavaScript", bytes: 231500, percentage: 23.15, repositoryCount: 9 },
-    { language: "CSS", bytes: 124800, percentage: 12.48, repositoryCount: 18 },
-    { language: "HTML", bytes: 81300, percentage: 8.13, repositoryCount: 22 },
-    { language: "Python", bytes: 50000, percentage: 5.00, repositoryCount: 3 }
-  ],
-  commitStats: {
-    username: "Ramsingh4656",
-    totalCommits: 1845,
-    commitsThisYear: 824,
-    commitsThisMonth: 148,
-    commitsThisWeek: 42
-  },
-  contributionStats: {
-    username: "Ramsingh4656",
-    totalContributions: 984,
-    currentStreak: 18,
-    longestStreak: 52,
-    contributionCalendar: {
-      totalContributions: 984,
-      weeks: generateMockContributionWeeks()
-    }
-  },
-  pullRequestStats: {
-    totalPullRequests: 132,
-    openPullRequests: 4,
-    closedPullRequests: 28,
-    mergedPullRequests: 100
-  },
-  issueStats: {
-    totalIssuesOpened: 48,
-    totalIssuesClosed: 42,
-    averageCloseTimeFormatted: "2d 4h"
-  }
-};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -320,30 +164,14 @@ export default function DashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [stats, setStats] = useState<CombinedStats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
-  const [demoMode, setDemoMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("dashboard_demo_mode") === "true";
-    }
-    return false;
-  });
   const [syncing, setSyncing] = useState(false);
   const [patToken, setPatToken] = useState("");
   const [hasGithubToken, setHasGithubToken] = useState(false);
   const [showPatInput, setShowPatInput] = useState(false);
 
-  const loadStats = useCallback(async (username: string, forceDemo?: boolean) => {
+  const loadStats = useCallback(async (username: string) => {
     setLoadingStats(true);
     setStatsError(null);
-
-    const activeDemo = forceDemo !== undefined ? forceDemo : (typeof window !== "undefined" ? localStorage.getItem("dashboard_demo_mode") === "true" : false);
-    if (activeDemo) {
-      // Simulate API lag
-      setTimeout(() => {
-        setStats(DEMO_DATA);
-        setLoadingStats(false);
-      }, 800);
-      return;
-    }
 
     try {
       const apiBase = env.NEXT_PUBLIC_API_URL;
@@ -389,8 +217,7 @@ export default function DashboardPage() {
           setUser(data.data);
           setHasGithubToken(Boolean(data.data.hasGithubToken));
           // Trigger data loading with verified profile username
-          const localDemo = localStorage.getItem("dashboard_demo_mode") === "true";
-          loadStats(data.data.username, localDemo);
+          loadStats(data.data.username);
         } else {
           throw new Error("Invalid response format");
         }
@@ -404,14 +231,6 @@ export default function DashboardPage() {
 
     fetchProfile();
   }, [router, loadStats]);
-
-  const handleToggleDemo = (checked: boolean) => {
-    setDemoMode(checked);
-    localStorage.setItem("dashboard_demo_mode", checked ? "true" : "false");
-    if (user) {
-      loadStats(user.username, checked);
-    }
-  };
 
   const handleSavePat = async () => {
     if (!user || !patToken.trim()) return;
@@ -432,9 +251,7 @@ export default function DashboardPage() {
       setPatToken("");
       setHasGithubToken(true);
       setShowPatInput(false);
-      setDemoMode(false);
-      localStorage.setItem("dashboard_demo_mode", "false");
-      loadStats(user.username, false);
+      loadStats(user.username);
     } catch (err) {
       console.error("Failed to save GitHub token:", err);
       setStatsError("Failed to save the GitHub token securely.");
@@ -457,7 +274,7 @@ export default function DashboardPage() {
 
       setHasGithubToken(false);
       setPatToken("");
-      loadStats(user.username, demoMode);
+      loadStats(user.username);
     } catch (err) {
       console.error("Failed to clear GitHub token:", err);
       setStatsError("Failed to clear the GitHub token securely.");
@@ -467,7 +284,7 @@ export default function DashboardPage() {
   const handleSync = () => {
     if (!user) return;
     setSyncing(true);
-    loadStats(user.username, demoMode).then(() => {
+    loadStats(user.username).then(() => {
       setSyncing(false);
     });
   };
@@ -558,7 +375,7 @@ export default function DashboardPage() {
               <div className="absolute inset-0 bg-black/20" />
               <div className="absolute bottom-2 right-4 flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10 text-[9px] font-mono text-zinc-300">
                 <ShieldCheck className="w-3 h-3 text-violet-400" />
-                <span>{demoMode ? "Demo mode" : "Verified Account"}</span>
+                <span>Verified Account</span>
               </div>
             </div>
 
@@ -640,25 +457,7 @@ export default function DashboardPage() {
             Dashboard settings
           </h4>
 
-          {/* Demo Mode Toggle */}
-          <div className="flex items-center justify-between">
-            <span id="demo-mode-label" className="text-xs text-zinc-300 font-medium">Demo/Mock Data Mode</span>
-            <button
-              onClick={() => handleToggleDemo(!demoMode)}
-              className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
-                demoMode ? "bg-violet-600" : "bg-zinc-800"
-              }`}
-              role="switch"
-              aria-checked={demoMode}
-              aria-labelledby="demo-mode-label"
-            >
-              <div
-                className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                  demoMode ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </button>
-          </div>
+
 
           {/* GitHub Token PAT Management */}
           <div className="flex flex-col gap-2 mt-1">
@@ -755,7 +554,7 @@ export default function DashboardPage() {
                   <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">Troubleshooting Diagnostics:</span>
                   <ul className="text-xs text-zinc-400 list-disc list-inside space-y-1">
                     <li>Check if the target GitHub username exists and is spelled correctly.</li>
-                    <li>Verify your GitHub Personal Access Token (PAT) hasn't expired.</li>
+                    <li>Verify your GitHub Personal Access Token (PAT) hasn&apos;t expired.</li>
                     <li>Ensure your internet connection is active and stable.</li>
                     <li>GitHub API rate limits might have been reached. Wait 60s or configure a custom token.</li>
                   </ul>
@@ -764,13 +563,6 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex flex-wrap gap-3 pl-0 sm:pl-16 mt-1 border-t border-white/5 pt-4">
-              <button
-                onClick={() => handleToggleDemo(true)}
-                className="px-4 py-2.5 bg-white text-zinc-950 rounded-xl font-bold text-xs hover:bg-zinc-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-white/5 hover:scale-[1.01] active:scale-[0.99]"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Load Beautiful Demo Data</span>
-              </button>
               <button
                 onClick={() => setShowPatInput(true)}
                 className="px-4 py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
@@ -782,7 +574,7 @@ export default function DashboardPage() {
                 <button
                   onClick={() => {
                     if (user) {
-                      loadStats(user.username, demoMode);
+                      loadStats(user.username);
                     }
                   }}
                   className="px-4 py-2.5 border border-violet-500/20 bg-violet-500/5 hover:bg-violet-500/10 text-violet-400 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
@@ -804,17 +596,10 @@ export default function DashboardPage() {
             <div className="max-w-md">
               <h3 className="font-extrabold text-lg text-white">No Statistics Loaded</h3>
               <p className="text-zinc-400 text-xs mt-1.5 leading-relaxed">
-                Your developer statistics details are currently empty. You can enable simulation mode with high-fidelity mock metrics, or attach your personal GitHub PAT to pull live statistics.
+                Your developer statistics details are currently empty. Attach your personal GitHub PAT to pull live statistics.
               </p>
             </div>
             <div className="flex flex-wrap gap-3 justify-center">
-              <button
-                onClick={() => handleToggleDemo(true)}
-                className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-600/15"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Simulate Demo Data</span>
-              </button>
               <button
                 onClick={() => setShowPatInput(true)}
                 className="px-5 py-2.5 border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1.5"
@@ -869,21 +654,7 @@ export default function DashboardPage() {
         {stats && !loadingStats && (
           <div className="flex flex-col gap-6 w-full animate-in fade-in duration-300">
 
-            {/* DEMO MODE FLOATING BADGE NOTICE */}
-            {demoMode && (
-              <div className="flex items-center justify-between px-5 py-3 rounded-2xl border border-violet-500/20 bg-violet-500/5 text-xs text-violet-400">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-violet-400 animate-pulse" />
-                  <span><strong>Demo Mode Active:</strong> Displaying high-fidelity mock metrics. Set custom PAT key to view live accounts.</span>
-                </div>
-                <button
-                  onClick={() => handleToggleDemo(false)}
-                  className="font-bold hover:underline transition-all cursor-pointer shrink-0 ml-4"
-                >
-                  Exit Demo
-                </button>
-              </div>
-            )}
+
 
             {/* METRICS GRID: Stars, Commits, Contributions, Followers */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -939,7 +710,7 @@ export default function DashboardPage() {
                 <div>
                   <span className="text-zinc-500 text-xs font-semibold">Followers</span>
                   <h4 className="font-extrabold text-2xl text-white tracking-tight mt-0.5">
-                    {stats.commitStats.username === "Ramsingh4656" && demoMode ? "142" : stats.repositoryStats.totalStars > 100 ? (stats.repositoryStats.totalStars * 0.4).toFixed(0) : "12"}
+                    {stats.repositoryStats.totalStars > 100 ? (stats.repositoryStats.totalStars * 0.4).toFixed(0) : "12"}
                   </h4>
                 </div>
               </div>
@@ -985,7 +756,7 @@ export default function DashboardPage() {
                               key={day.date}
                               className="w-[10px] h-[10px] rounded-[2px] transition-colors duration-200 cursor-pointer relative group"
                               style={{ 
-                                backgroundColor: demoMode ? day.color : getContributionColor(day.contributionCount) 
+                                backgroundColor: getContributionColor(day.contributionCount) 
                               }}
                             >
                               {/* Hover Tooltip */}
@@ -1082,7 +853,7 @@ export default function DashboardPage() {
                       <div>
                         <h4 className="font-bold text-xs text-white">No Languages Detected</h4>
                         <p className="text-[10px] text-zinc-500 leading-relaxed max-w-[200px] mx-auto mt-1">
-                          We couldn't analyze any programming language bytes in your public repositories. Add some code or check your configuration.
+                          We couldn&apos;t analyze any programming language bytes in your public repositories. Add some code or check your configuration.
                         </p>
                       </div>
                     </div>
@@ -1250,7 +1021,7 @@ export default function DashboardPage() {
                     <Star className="w-5 h-5 text-zinc-600" />
                     <div>
                       <h4 className="font-bold text-xs text-zinc-400">No Starred Repos</h4>
-                      <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">We couldn't detect starred repositories.</p>
+                      <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">We couldn&apos;t detect starred repositories.</p>
                     </div>
                   </div>
                 )}
