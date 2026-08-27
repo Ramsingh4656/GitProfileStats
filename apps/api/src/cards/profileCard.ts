@@ -106,18 +106,10 @@ export async function renderProfileCard(
   let options = optionsInput;
 
   if (statsOrOptions) {
-    if (
-      'theme' in statsOrOptions ||
-      'accent' in statsOrOptions ||
-      'background' in statsOrOptions ||
-      'borderRadius' in statsOrOptions ||
-      'hideBorder' in statsOrOptions ||
-      'fontFamily' in statsOrOptions ||
-      'fontStyle' in statsOrOptions
-    ) {
-      options = statsOrOptions;
-    } else {
+    if ('publicRepositories' in statsOrOptions) {
       stats = statsOrOptions;
+    } else {
+      options = statsOrOptions;
     }
   }
 
