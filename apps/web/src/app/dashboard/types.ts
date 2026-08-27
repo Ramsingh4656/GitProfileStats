@@ -73,6 +73,13 @@ export interface ContributionStats {
 }
 
 export interface CombinedStats {
+  userProfile: {
+    bio: string | null;
+    location: string | null;
+    company: string | null;
+    blog: string | null;
+    email: string | null;
+  };
   repositoryStats: RepositoryStats;
   repositoryRankings: RepositoryRankings;
   languageStats: LanguageStat[];

@@ -116,10 +116,31 @@ export default function DashboardPage() {
     return null; // layout.tsx displays session verifier spinner
   }
 
-  const mockBio = "Software developer passionate about open-source projects, high-performance web applications, and developer tools. Currently building beautiful developer statistics widgets.";
-  const mockLocation = "San Francisco, CA";
-  const mockCompany = "Freelance / Open Source Contributor";
-  const mockWebsite = `github.com/${user?.username}`;
+  const bio = loadingStats
+    ? "Loading bio..."
+    : (stats?.userProfile.bio ?? "No bio provided");
+  const location = loadingStats
+    ? "Loading location..."
+    : (stats?.userProfile.location ?? null);
+  const company = loadingStats
+    ? "Loading organization..."
+    : (stats?.userProfile.company ?? null);
+  const website = loadingStats
+    ? `github.com/${user?.username ?? ""}`
+    : (stats?.userProfile.blog ?? `github.com/${user?.username ?? ""}`);
+
+  const getWebsiteLink = (webStr: string) => {
+    if (!webStr) return "";
+    if (webStr.startsWith("http://") || webStr.startsWith("https://")) {
+      return webStr;
+    }
+    return `https://${webStr}`;
+  };
+
+  const getWebsiteDisplay = (webStr: string) => {
+    if (!webStr) return "";
+    return webStr.replace(/^https?:\/\/(www\.)?/, "");
+  };
 
   // Custom mapping for contribution day background to blend with application theme
   const getContributionColor = (count: number) => {
@@ -228,7 +249,7 @@ export default function DashboardPage() {
               
               {/* Bio Description */}
               <p className="text-zinc-400 text-xs mt-3 leading-relaxed max-w-[240px]">
-                {mockBio}
+                {bio}
               </p>
 
               {/* Sync Status Button */}
@@ -243,32 +264,38 @@ export default function DashboardPage() {
 
             {/* Metadata Links */}
             <div className="w-full border-t border-white/5 mt-5 pt-4 flex flex-col gap-2.5 text-left text-xs text-zinc-400">
-              <div className="flex items-center gap-2.5">
-                <MapPin className="w-4 h-4 text-zinc-500 shrink-0" />
-                <span className="truncate">{mockLocation}</span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <Globe className="w-4 h-4 text-zinc-500 shrink-0" />
-                <span className="truncate">{mockCompany}</span>
-              </div>
+              {location && (
+                <div className="flex items-center gap-2.5">
+                  <MapPin className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <span className="truncate">{location}</span>
+                </div>
+              )}
+              {company && (
+                <div className="flex items-center gap-2.5">
+                  <Globe className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <span className="truncate">{company}</span>
+                </div>
+              )}
               {user?.email && (
                 <div className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-zinc-500 shrink-0" />
                   <span className="truncate">{user.email}</span>
                 </div>
               )}
-              <div className="flex items-center gap-2.5">
-                <LinkIcon className="w-4 h-4 text-zinc-500 shrink-0" />
-                <a 
-                  href={`https://${mockWebsite}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="hover:text-violet-400 truncate flex items-center gap-1 group"
-                >
-                  <span>{mockWebsite}</span>
-                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </a>
-              </div>
+              {website && (
+                <div className="flex items-center gap-2.5">
+                  <LinkIcon className="w-4 h-4 text-zinc-500 shrink-0" />
+                  <a 
+                    href={getWebsiteLink(website)} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="hover:text-violet-400 truncate flex items-center gap-1 group"
+                  >
+                    <span>{getWebsiteDisplay(website)}</span>
+                    <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>

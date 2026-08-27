@@ -253,6 +253,15 @@ describe('Statistics Services', () => {
 
   describe('GitHubStatisticsService', () => {
     it('should aggregate combined stats from all sub-services', async () => {
+      const mockUserProfile = {
+        bio: 'Hello world',
+        location: 'San Francisco',
+        company: 'GitHub',
+        blog: 'https://github.blog',
+        email: 'john@doe.com',
+      };
+      mockGitHubService.getUser.mockResolvedValue(mockUserProfile);
+
       const mockRepoStats = { totalRepositories: 5 };
       const mockRankings = { topStarred: [] };
       const mockLanguages = [{ language: 'TypeScript', bytes: 100 }];
@@ -270,6 +279,7 @@ describe('Statistics Services', () => {
       const issueService = { getIssueStats: vi.fn().mockResolvedValue(mockIssueStats) };
 
       const service = new GitHubStatisticsService(
+        mockGitHubService as any,
         repoStatsService as any,
         rankingService as any,
         languageCollector as any,
@@ -282,6 +292,7 @@ describe('Statistics Services', () => {
       const combined = await service.getCombinedStatistics('john_doe');
 
       expect(combined).toEqual({
+        userProfile: mockUserProfile,
         repositoryStats: mockRepoStats,
         repositoryRankings: mockRankings,
         languageStats: mockLanguages,

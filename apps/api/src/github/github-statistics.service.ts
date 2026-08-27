@@ -9,9 +9,19 @@ import { CommitStatsService, ICommitStats } from './commit-stats.service.js';
 import { ContributionService, IContributionStats } from './contribution.service.js';
 import { PullRequestService, IPullRequestStats } from './pull-request.service.js';
 import { IssueStatisticsService, IIssueStats } from './issue-statistics.service.js';
+import { GitHubService } from './github.service.js';
 import { logger } from '../config/logger.js';
 
+export interface IGitHubUserProfile {
+  bio: string | null;
+  location: string | null;
+  company: string | null;
+  blog: string | null;
+  email: string | null;
+}
+
 export interface IGitHubCombinedStats {
+  userProfile: IGitHubUserProfile;
   repositoryStats: IRepositoryStats;
   repositoryRankings: IRepositoryRankings;
   languageStats: LanguageCollectionResult;
@@ -24,6 +34,8 @@ export interface IGitHubCombinedStats {
 @injectable()
 export class GitHubStatisticsService {
   constructor(
+    @inject(GitHubService)
+    private readonly gitHubService: GitHubService,
     @inject(RepositoryStatsService)
     private readonly repositoryStatsService: RepositoryStatsService,
     @inject(RepositoryRankingService)
@@ -50,6 +62,7 @@ export class GitHubStatisticsService {
     logger.info({ username, hasToken: !!options?.token }, 'Fetching combined GitHub statistics');
 
     const [
+      user,
       repositoryStats,
       repositoryRankings,
       languageStats,
@@ -58,6 +71,9 @@ export class GitHubStatisticsService {
       pullRequestStats,
       issueStats,
     ] = await Promise.all([
+      username
+        ? this.gitHubService.getUser(username, options?.token)
+        : this.gitHubService.getAuthenticatedUser(options?.token),
       this.repositoryStatsService.getRepositoryStats(username, options),
       this.repositoryRankingService.getRepositoryRankings(username, options),
       this.languageCollectorService.collectLanguages(username, options),
@@ -68,6 +84,13 @@ export class GitHubStatisticsService {
     ]);
 
     const combinedStats: IGitHubCombinedStats = {
+      userProfile: {
+        bio: user.bio,
+        location: user.location,
+        company: user.company,
+        blog: user.blog,
+        email: user.email,
+      },
       repositoryStats,
       repositoryRankings,
       languageStats,
