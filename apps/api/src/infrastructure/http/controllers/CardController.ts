@@ -186,7 +186,7 @@ export class CardController {
           const mockStats = { publicRepositories: 42, privateRepositories: 18 };
           const svg = await renderProfileCard(mockUser, mockStats, options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
           return;
         }
@@ -214,7 +214,7 @@ export class CardController {
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch {
         logger.warn({ username }, 'Failed to render profile card, falling back to mock data');
@@ -223,7 +223,7 @@ export class CardController {
           const mockStats = { publicRepositories: 42, privateRepositories: 18 };
           const svg = await renderProfileCard(mockUser, mockStats, options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
         } catch (fallbackError) {
           next(fallbackError);
@@ -252,7 +252,7 @@ export class CardController {
         if (this.shouldMock(username, token, forceMock)) {
           const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
           return;
         }
@@ -286,14 +286,14 @@ export class CardController {
 
         // Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch {
         logger.warn({ username }, 'Failed to render stats card, falling back to mock data');
         try {
           const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
         } catch (fallbackError) {
           next(fallbackError);
@@ -327,7 +327,7 @@ export class CardController {
         if (this.shouldMock(username, token, forceMock)) {
           const svg = renderLanguagesCard(MOCK_LANGUAGES, { ...options, langsCount });
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
           return;
         }
@@ -345,14 +345,14 @@ export class CardController {
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch {
         logger.warn({ username }, 'Failed to render languages card, falling back to mock data');
         try {
           const svg = renderLanguagesCard(MOCK_LANGUAGES, { ...options, langsCount });
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
         } catch (fallbackError) {
           next(fallbackError);
@@ -381,7 +381,7 @@ export class CardController {
         if (this.shouldMock(username, token, forceMock)) {
           const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
           return;
         }
@@ -396,14 +396,14 @@ export class CardController {
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
         res.status(200).send(svg);
       } catch {
         logger.warn({ username }, 'Failed to render streak card, falling back to mock data');
         try {
           const svg = renderStreakCard(MOCK_STREAK(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
         } catch (fallbackError) {
           next(fallbackError);
@@ -436,7 +436,7 @@ export class CardController {
           const mockRepo = MOCK_REPOSITORY(owner || 'Ramsingh4656', repo || 'GitProfileStats');
           const svg = renderRepositoryCard(mockRepo, options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
           return;
         }
@@ -451,7 +451,7 @@ export class CardController {
 
         // Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
         res.status(200).send(svg);
       } catch {
         logger.warn({ owner, repo }, 'Failed to render repository card, falling back to mock data');
@@ -459,7 +459,7 @@ export class CardController {
           const mockRepo = MOCK_REPOSITORY(owner || 'Ramsingh4656', repo || 'GitProfileStats');
           const svg = renderRepositoryCard(mockRepo, options);
           res.setHeader('Content-Type', 'image/svg+xml');
-          res.setHeader('Cache-Control', 'public, max-age=3600');
+          res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);
         } catch (fallbackError) {
           next(fallbackError);
