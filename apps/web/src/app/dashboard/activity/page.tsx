@@ -249,9 +249,9 @@ export default function ActivityPage() {
             <div className="pb-5 border-b border-white/5 mb-5">
               <h3 className="font-bold text-base text-white flex items-center gap-2">
                 <CalendarDays className="w-5 h-5 text-violet-400" />
-                Activity Calendar Heatmap
+                Annual Contribution Pulse
               </h3>
-              <p className="text-zinc-500 text-xs mt-0.5">Visual representation of daily GitHub contributions over the past year.</p>
+              <p className="text-zinc-500 text-xs mt-0.5">A day-by-day heatmap visualizing your GitHub contributions and development momentum over the past year.</p>
             </div>
 
             <div className="pt-2">
