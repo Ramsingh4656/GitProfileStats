@@ -27,7 +27,7 @@ function createStatNode(
   const countStr = count.toLocaleString();
   return {
     type: 'column',
-    spacing: 2,
+    spacing: 6,
     alignItems: 'start',
     style: {
       className: 'stat-item',
@@ -173,7 +173,7 @@ export async function renderProfileCard(
             y,
             text: displayUsername,
             dominantBaseline: 'hanging',
-            maxWidth: 100,
+            maxWidth: 180,
           },
           12,
           400,
@@ -183,9 +183,9 @@ export async function renderProfileCard(
   }
 
   detailsChildren.push({
-    type: 'row',
-    spacing: 8,
-    alignItems: 'center',
+    type: 'column',
+    spacing: 4,
+    alignItems: 'start',
     children: nameAndUserChildren,
   });
 
@@ -269,7 +269,7 @@ export async function renderProfileCard(
       // Right Part: Stats Row
       {
         type: 'row',
-        spacing: 16,
+        spacing: 28,
         alignItems: 'center',
         children: [
           createStatNode('repo', publicRepos, 'Public Repos'),
