@@ -123,7 +123,8 @@ export type IconName =
   | 'language'
   | 'fire'
   | 'calendar'
-  | 'law';
+  | 'law'
+  | 'lock';
 
 export interface IconOptions {
   name: IconName;

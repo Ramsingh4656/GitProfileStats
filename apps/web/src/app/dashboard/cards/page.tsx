@@ -85,7 +85,7 @@ const CARD_INFOS: Record<
   profile: {
     title: 'Profile Card',
     desc: 'Compact summary of your public developer profile identity',
-    defaultWidth: 400,
+    defaultWidth: 800,
     defaultHeight: 120,
   },
   stats: {

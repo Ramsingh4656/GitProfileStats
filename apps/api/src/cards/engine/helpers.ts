@@ -83,12 +83,14 @@ export function formatAttributes(attrs: Record<string, string | number | undefin
 
 export function svgDocument(options: SvgDocumentOptions, content: string | string[]): string {
   const theme = resolveTheme(options.theme);
-  const themeStyles = generateThemeStyles(theme);
+  const svgId = options.attributes?.id ?? `svg-card-${Math.random().toString(36).substring(2, 10)}`;
+  const themeStyles = generateThemeStyles(theme, svgId);
   const innerContent = Array.isArray(content) ? content.join('\n  ') : content;
 
   const docAttrs = {
     xmlns: 'http://www.w3.org/2000/svg',
     'xmlns:xlink': 'http://www.w3.org/1999/xlink',
+    id: svgId,
     width: options.width,
     height: options.height,
     viewBox: options.viewBox ?? `0 0 ${String(options.width)} ${String(options.height)}`,

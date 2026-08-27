@@ -130,12 +130,12 @@ export function resolveThemeWithOptions(options?: CardOptions): Theme {
   return theme;
 }
 
-export function generateThemeStyles(theme: Theme): string {
+export function generateThemeStyles(theme: Theme, svgId: string): string {
   const font =
     theme.fontFamily ??
     '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif';
   return `
-    svg {
+    #${svgId} {
       --color-bg: ${theme.background};
       --color-text: ${theme.primaryText};
       --color-text-muted: ${theme.secondaryText};
@@ -148,13 +148,13 @@ export function generateThemeStyles(theme: Theme): string {
       background-color: var(--color-bg);
       font-family: var(--font-family);
     }
-    .bg { fill: var(--color-bg); }
-    .text { fill: var(--color-text); }
-    .text-muted { fill: var(--color-text-muted); }
-    .primary { fill: var(--color-primary); }
-    .secondary { fill: var(--color-secondary); }
-    .accent { fill: var(--color-accent); }
-    .border { stroke: var(--color-border); }
-    .track-bg { fill: var(--color-track-bg); }
+    #${svgId} .bg { fill: var(--color-bg); }
+    #${svgId} .text { fill: var(--color-text); }
+    #${svgId} .text-muted { fill: var(--color-text-muted); }
+    #${svgId} .primary { fill: var(--color-primary); }
+    #${svgId} .secondary { fill: var(--color-secondary); }
+    #${svgId} .accent { fill: var(--color-accent); }
+    #${svgId} .border { stroke: var(--color-border); }
+    #${svgId} .track-bg { fill: var(--color-track-bg); }
   `.trim();
 }

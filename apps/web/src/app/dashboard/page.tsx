@@ -229,7 +229,7 @@ export default function DashboardPage() {
 
             <div className="px-6 pb-6 pt-0 relative flex flex-col items-center text-center">
               {/* Overlapping Avatar */}
-              <div className="w-24 h-24 rounded-full p-[2px] -mt-12 overflow-hidden shadow-2xl relative profile-avatar-container bg-zinc-950">
+              <div className="w-24 h-24 rounded-full p-[2px] -mt-12 overflow-hidden shadow-2xl relative profile-avatar-container">
                 {user?.avatarUrl ? (
                   <Image
                     src={user.avatarUrl}

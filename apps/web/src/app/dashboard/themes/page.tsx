@@ -82,7 +82,7 @@ const CARD_TYPES: Record<CardType, CardConfig> = {
   profile: {
     title: 'Profile Card',
     desc: 'Compact developer identity overview',
-    defaultWidth: 400,
+    defaultWidth: 800,
     defaultHeight: 120,
   },
   stats: {

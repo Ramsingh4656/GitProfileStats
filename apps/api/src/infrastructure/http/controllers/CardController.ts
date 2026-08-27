@@ -183,7 +183,8 @@ export class CardController {
         const forceMock = req.query.mock === 'true';
         if (this.shouldMock(username, token, forceMock)) {
           const mockUser = MOCK_USER(username || 'octocat');
-          const svg = await renderProfileCard(mockUser, options);
+          const mockStats = { publicRepositories: 42, privateRepositories: 18 };
+          const svg = await renderProfileCard(mockUser, mockStats, options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);
@@ -197,8 +198,19 @@ export class CardController {
 
         logger.debug({ username: user.login }, 'Fetched GitHub user profile for card');
 
+        // Fetch stats to get public and private repository counts
+        let stats = null;
+        try {
+          stats = await this.statsService.getStats(username, { token });
+        } catch (err) {
+          logger.warn(
+            { username, err },
+            'Failed to fetch user stats for profile card, private repo count will fallback to 0',
+          );
+        }
+
         // 2. Render SVG Profile Card
-        const svg = await renderProfileCard(user, options);
+        const svg = await renderProfileCard(user, stats, options);
 
         // 3. Return response with SVG headers and caching
         res.setHeader('Content-Type', 'image/svg+xml');
@@ -208,7 +220,8 @@ export class CardController {
         logger.warn({ username }, 'Failed to render profile card, falling back to mock data');
         try {
           const mockUser = MOCK_USER(username || 'octocat');
-          const svg = await renderProfileCard(mockUser, options);
+          const mockStats = { publicRepositories: 42, privateRepositories: 18 };
+          const svg = await renderProfileCard(mockUser, mockStats, options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=3600');
           res.status(200).send(svg);

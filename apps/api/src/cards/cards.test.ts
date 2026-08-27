@@ -38,6 +38,53 @@ describe('Card Generators', () => {
       expect(svg).toContain('john_doe');
       expect(svg).toContain('12'); // Followers
     });
+
+    it('should show private repository count correctly when stats are provided', async () => {
+      const mockUser = {
+        login: 'john_doe',
+        name: 'John Doe',
+        avatar_url: 'https://avatars.githubusercontent.com/u/1234?v=4',
+        bio: 'Hello world',
+        public_repos: 5,
+        followers: 12,
+        following: 15,
+        created_at: '2026-01-01T00:00:00Z',
+      };
+      const mockStats = { publicRepositories: 5, privateRepositories: 7 };
+
+      const svg = await renderProfileCard(mockUser, mockStats, dummyOptions);
+      expect(svg).toContain('5'); // Public repos
+      expect(svg).toContain('7'); // Private repos
+      expect(svg).toContain('Public Repos');
+      expect(svg).toContain('Private Repos');
+    });
+
+    it('should render distinct colors for different themes', async () => {
+      const mockUser = {
+        login: 'john_doe',
+        name: 'John Doe',
+        avatar_url: 'https://avatars.githubusercontent.com/u/1234?v=4',
+        bio: 'Hello world',
+        public_repos: 5,
+        followers: 12,
+        following: 15,
+        created_at: '2026-01-01T00:00:00Z',
+      };
+
+      const lightSvg = await renderProfileCard(mockUser, { theme: 'light' });
+      const darkSvg = await renderProfileCard(mockUser, { theme: 'dark' });
+      const draculaSvg = await renderProfileCard(mockUser, { theme: 'dracula' });
+
+      // Light background is #ffffff
+      expect(lightSvg).toContain('#ffffff');
+      // Dark background is #0d1117
+      expect(darkSvg).toContain('#0d1117');
+      // Dracula background is #282a36
+      expect(draculaSvg).toContain('#282a36');
+
+      expect(lightSvg).not.toEqual(darkSvg);
+      expect(darkSvg).not.toEqual(draculaSvg);
+    });
   });
 
   describe('renderStatsCard', () => {

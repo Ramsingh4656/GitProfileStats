@@ -89,62 +89,81 @@ body {
   background: #3f3f46;
 }
 
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px);
+@theme {
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-pulse-slow: pulse-slow 8s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s infinite;
+  --animate-banner-gradient: gradient-shift 10s ease infinite;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+  --animate-profile-entrance: profile-card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
-  50% {
-    transform: translateY(-8px);
+
+  @keyframes pulse-slow {
+    0%,
+    100% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.03);
+    }
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 4px rgba(139, 92, 246, 0.2);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+      border-color: rgba(139, 92, 246, 0.4);
+    }
+  }
+
+  @keyframes profile-card-entrance {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-.animate-float {
-  animation: float 5s ease-in-out infinite;
-}
-
-@keyframes pulse-slow {
-  0%,
-  100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.85;
-    transform: scale(1.03);
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 8s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 2s infinite;
-}
-
-/* Custom animations for Profile Card */
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
+/* Custom helper classes */
 .animate-banner-gradient {
   background-size: 200% 200%;
-  animation: gradient-shift 10s ease infinite;
 }
 
 .profile-avatar-container {
@@ -161,33 +180,3 @@ body {
   box-shadow: 0 12px 30px rgba(139, 92, 246, 0.4);
 }
 
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 4px rgba(139, 92, 246, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
-    border-color: rgba(139, 92, 246, 0.4);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-@keyframes profile-card-entrance {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-profile-entrance {
-  animation: profile-card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}

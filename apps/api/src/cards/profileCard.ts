@@ -19,7 +19,11 @@ import { fetchBase64Image } from '../utils/image.js';
 /**
  * Creates a layout node for a single statistic item (value + label + icon).
  */
-function createStatNode(iconName: 'repo' | 'followers', count: number, label: string): LayoutNode {
+function createStatNode(
+  iconName: 'repo' | 'followers' | 'lock',
+  count: number,
+  label: string,
+): LayoutNode {
   const countStr = count.toLocaleString();
   return {
     type: 'column',
@@ -38,7 +42,7 @@ function createStatNode(iconName: 'repo' | 'followers', count: number, label: st
             type: 'leaf',
             width: 14,
             height: 14,
-            render: (x: number, y: number, w: number, h: number) =>
+            render: (x: number, y: number, w: number, _h: number) =>
               icon({
                 name: iconName,
                 x,
@@ -55,7 +59,7 @@ function createStatNode(iconName: 'repo' | 'followers', count: number, label: st
               width: estimateTextWidth(countStr, 13),
               height: 14,
             }),
-            render: (x: number, y: number, w: number, h: number) =>
+            render: (x: number, y: number, _w: number, _h: number) =>
               renderTypography(
                 {
                   x,
@@ -78,7 +82,7 @@ function createStatNode(iconName: 'repo' | 'followers', count: number, label: st
           width: estimateTextWidth(label, 11),
           height: 12,
         }),
-        render: (x: number, y: number, w: number, h: number) =>
+        render: (x: number, y: number, _w: number, _h: number) =>
           caption({
             x,
             y,
@@ -93,76 +97,137 @@ function createStatNode(iconName: 'repo' | 'followers', count: number, label: st
 /**
  * Renders a full Profile Card as an SVG string.
  */
-export async function renderProfileCard(user: GitHubUser, options?: CardOptions): Promise<string> {
+export async function renderProfileCard(
+  user: GitHubUser,
+  statsOrOptions?: { publicRepositories: number; privateRepositories: number } | CardOptions | null,
+  optionsInput?: CardOptions,
+): Promise<string> {
+  let stats: { publicRepositories: number; privateRepositories: number } | null = null;
+  let options = optionsInput;
+
+  if (statsOrOptions) {
+    if (
+      'theme' in statsOrOptions ||
+      'accent' in statsOrOptions ||
+      'background' in statsOrOptions ||
+      'borderRadius' in statsOrOptions ||
+      'hideBorder' in statsOrOptions ||
+      'fontFamily' in statsOrOptions ||
+      'fontStyle' in statsOrOptions
+    ) {
+      options = statsOrOptions;
+    } else {
+      stats = statsOrOptions;
+    }
+  }
+
   const resolvedTheme = resolveThemeWithOptions(options);
 
   // 1. Fetch avatar and convert to base64
   const avatarBase64 = await fetchBase64Image(user.avatar_url);
 
-  const displayName = user.name || user.login;
+  const displayName = user.name ?? user.login;
   const displayUsername = user.name ? `@${user.login}` : '';
 
-  // Construct typed array of header details to avoid TS inference issue
-  const headerChildren: LayoutNode[] = [];
-  headerChildren.push({
-    type: 'leaf',
-    width: 'auto',
-    height: 'auto',
-    measure: () => ({
-      width: estimateTextWidth(displayName, 18),
-      height: 20,
-    }),
-    render: (x: number, y: number, w: number, h: number) =>
-      renderTypography(
-        {
-          x,
-          y,
-          text: displayName,
-          dominantBaseline: 'hanging',
-          maxWidth: 280, // Prevent overflow for long names
-        },
-        18,
-        700,
-        'var(--color-text)',
-      ),
-  });
+  let bioText = user.bio ?? '';
+  if (bioText.length > 60) {
+    bioText = bioText.substring(0, 57) + '...';
+  }
 
-  if (displayUsername) {
-    headerChildren.push({
+  const publicRepos = stats ? stats.publicRepositories : user.public_repos;
+  const privateRepos = stats ? stats.privateRepositories : 0;
+
+  // Construct detailsChildren for Name, Username, and truncated Bio
+  const detailsChildren: LayoutNode[] = [];
+
+  const nameAndUserChildren: LayoutNode[] = [
+    {
       type: 'leaf',
       width: 'auto',
       height: 'auto',
       measure: () => ({
-        width: estimateTextWidth(displayUsername, 13),
+        width: estimateTextWidth(displayName, 16),
+        height: 18,
+      }),
+      render: (x: number, y: number) =>
+        renderTypography(
+          {
+            x,
+            y,
+            text: displayName,
+            dominantBaseline: 'hanging',
+            maxWidth: 180,
+          },
+          16,
+          700,
+          'var(--color-text)',
+        ),
+    },
+  ];
+
+  if (displayUsername) {
+    nameAndUserChildren.push({
+      type: 'leaf',
+      width: 'auto',
+      height: 'auto',
+      measure: () => ({
+        width: estimateTextWidth(displayUsername, 12),
         height: 14,
       }),
-      render: (x: number, y: number, w: number, h: number) =>
+      render: (x: number, y: number) =>
         renderTypography(
           {
             x,
             y,
             text: displayUsername,
             dominantBaseline: 'hanging',
-            maxWidth: 280,
+            maxWidth: 100,
           },
-          13,
+          12,
           400,
           'var(--color-text-muted)',
         ),
     });
   }
 
+  detailsChildren.push({
+    type: 'row',
+    spacing: 8,
+    alignItems: 'center',
+    children: nameAndUserChildren,
+  });
+
+  if (bioText) {
+    detailsChildren.push({
+      type: 'leaf',
+      width: 'auto',
+      height: 'auto',
+      measure: () => ({
+        width: estimateTextWidth(bioText, 11),
+        height: 12,
+      }),
+      render: (x: number, y: number) =>
+        caption({
+          x,
+          y,
+          text: bioText,
+          dominantBaseline: 'hanging',
+          maxWidth: 320,
+        }),
+    });
+  }
+
   // 2. Build layout tree
   const rootNode: ContainerNode = {
     type: 'row',
-    width: 450,
-    height: 160,
-    padding: 20,
-    spacing: 24,
+    width: 800,
+    height: 120,
+    padding: 16,
+    spacing: 20,
     alignItems: 'center',
     style: {
-      rx: options?.borderRadius !== undefined ? options.borderRadius : 10,
-      ry: options?.borderRadius !== undefined ? options.borderRadius : 10,
+      rx: options?.borderRadius ?? 10,
+      ry: options?.borderRadius ?? 10,
       fill: 'var(--color-bg)',
       stroke: options?.hideBorder ? 'none' : 'var(--color-border)',
       strokeWidth: options?.hideBorder ? 0 : 1,
@@ -172,8 +237,8 @@ export async function renderProfileCard(user: GitHubUser, options?: CardOptions)
       // Left Part: Circular Avatar
       {
         type: 'leaf',
-        width: 90,
-        height: 90,
+        width: 80,
+        height: 80,
         render: (x: number, y: number, w: number, h: number) => {
           const cx = x + w / 2;
           const cy = y + h / 2;
@@ -200,39 +265,32 @@ export async function renderProfileCard(user: GitHubUser, options?: CardOptions)
           return `${avatarImage}\n  ${avatarBorder}`;
         },
       },
-      // Right Part: Profile Details & Stats
+      // Middle Part: Profile Details & Bio
       {
         type: 'column',
         width: 'fill',
         height: 'fill',
         justifyContent: 'center',
+        spacing: 8,
+        children: detailsChildren,
+      },
+      // Right Part: Stats Row
+      {
+        type: 'row',
         spacing: 16,
+        alignItems: 'center',
         children: [
-          // Header details (Name & Username)
-          {
-            type: 'column',
-            spacing: 2,
-            children: headerChildren,
-          },
-          // Stats Row
-          {
-            type: 'row',
-            width: 'fill',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            children: [
-              createStatNode('repo', user.public_repos, 'Repos'),
-              createStatNode('followers', user.followers, 'Followers'),
-              createStatNode('followers', user.following, 'Following'),
-            ],
-          },
+          createStatNode('repo', publicRepos, 'Public Repos'),
+          createStatNode('lock', privateRepos, 'Private Repos'),
+          createStatNode('followers', user.followers, 'Followers'),
+          createStatNode('followers', user.following, 'Following'),
         ],
       },
     ],
   };
 
   // Compute and Render layout
-  const computed = computeLayout(rootNode, 450, 160);
+  const computed = computeLayout(rootNode, 800, 120);
   const layoutContent = renderLayout(computed);
 
   const defs = `
@@ -258,8 +316,8 @@ export async function renderProfileCard(user: GitHubUser, options?: CardOptions)
 
   return svgDocument(
     {
-      width: 450,
-      height: 160,
+      width: 800,
+      height: 120,
       theme: resolvedTheme,
       customStyles,
     },
