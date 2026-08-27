@@ -67,15 +67,15 @@ Create a checklist and complete each item before proceeding.
    git clone https://github.com/your-username/GitProfileStats.git
    cd GitProfileStats
    ```
-   - *Why?* This creates a local copy of all source files.
+   - _Why?_ This creates a local copy of all source files.
 2. **Or download as a ZIP** – Go to the GitHub page, click **Code → Download ZIP**, unzip to `C:\GitProfileStats`.
-3. **Open the folder in VS Code** – Right‑click the folder → *Open with Code*.
-4. **Open a terminal inside VS Code** – *Terminal → New Terminal* (or ``Ctrl+` ``).
+3. **Open the folder in VS Code** – Right‑click the folder → _Open with Code_.
+4. **Open a terminal inside VS Code** – _Terminal → New Terminal_ (or ``Ctrl+` ``).
 5. **Install dependencies** – In the terminal run:
    ```powershell
    pnpm install
    ```
-   - *What it does*: Downloads all JavaScript packages listed in `package.json`.
+   - _What it does_: Downloads all JavaScript packages listed in `package.json`.
 6. **Verify installation** – You should see a `node_modules` folder and a message `+ [number] packages installed`.
 
 ---
@@ -85,25 +85,29 @@ Create a checklist and complete each item before proceeding.
 Below are the exact commands you will run, why you run them, and what you should see.
 
 ## 1. Start the Backend (API)
+
 ```powershell
 cd apps/api
 pnpm dev
 ```
+
 - **Why?** Starts the API locally on `http://localhost:3001`.
 - **Expected output**: A line like `Server listening on http://localhost:3001`.
 - **Common errors**:
-  - *Port already in use*: Change the port in `.env.local` (`PORT=3002`).
-  - *Missing env vars*: See the **Environment Variables** section below.
+  - _Port already in use_: Change the port in `.env.local` (`PORT=3002`).
+  - _Missing env vars_: See the **Environment Variables** section below.
 
 ## 2. Start the Frontend (Website)
+
 ```powershell
 cd apps/web
 pnpm dev
 ```
+
 - **Why?** Starts the Next.js dev server on `http://localhost:3000`.
 - **Expected output**: `Ready on http://localhost:3000`.
 - **Common errors**:
-  - *Missing NEXT_PUBLIC_API_URL*: The app will show a red error screen; add the variable.
+  - _Missing NEXT_PUBLIC_API_URL_: The app will show a red error screen; add the variable.
 
 ---
 
@@ -112,25 +116,28 @@ pnpm dev
 > **Important**: Variables are stored in a file named `.env` (or `.env.local` for local dev). The file lives in the **root of the project**.
 
 ## How to Create the File
+
 1. In the project root, locate the file `.env.example`.
-2. Right‑click → *Copy* → *Paste* and rename the copy to `.env.local`.
+2. Right‑click → _Copy_ → _Paste_ and rename the copy to `.env.local`.
 3. Open `.env.local` in VS Code.
 
 ## Why We Need It
+
 Environment variables keep secret values (API keys, database URLs) out of the source code.
 
 ## List of All Variables
-| Variable | Example Value | Where to Get It | Required? | Purpose |
-|----------|---------------|----------------|-----------|---------|
-| `NEXT_PUBLIC_API_URL` | `https://my-backend.onrender.com/api` | From Render deployment (see **Deploy Backend to Render** step) | Yes | Frontend tells the browser where the backend lives. |
-| `NEXT_PUBLIC_GITHUB_CLIENT_ID` | `Iv1.1234567890abcdef` | GitHub OAuth app → *Client ID* | Yes | Allows the frontend to start the GitHub login flow. |
-| `GITHUB_CLIENT_SECRET` | `abcd1234efgh5678ijkl9012mnop3456qrst7890` | GitHub OAuth app → *Client Secret* (keep secret, only backend uses) | Yes | Auth server validates the login response. |
-| `DATABASE_URL` | `postgresql://username:password@aws-us-east-1.pooler.neon.tech:5432/dbname` | Neon dashboard → *Connection string* (copy button) | Yes | Backend connects to the PostgreSQL database. |
-| `UPSTASH_REDIS_URL` | `redis://default:abcd1234efgh@redis-12345.upstash.io:6379` | Upstash dashboard → *Redis URL* | Yes | Backend uses Redis for caching. |
-| `SESSION_SECRET` | `aRandomLongString123!@#` | Generate a random string (e.g., use `openssl rand -base64 32`). | Yes | Signs session cookies so they cannot be forged. |
-| `NEXTAUTH_URL` | `https://gitprofilestats.vercel.app` | Your Vercel deployment URL (once deployed) | Yes | Needed by NextAuth for callbacks. |
-| `NEXTAUTH_SECRET` | `anotherRandomSecret567!@#` | Generate like `SESSION_SECRET`. | Yes | Encrypts NextAuth JWT tokens. |
-| `RENDER_SERVICE_URL` | *(Optional)* `https://my-backend.onrender.com` | Same as `NEXT_PUBLIC_API_URL` but without `/api`. | No | Used by health‑check jobs. |
+
+| Variable                       | Example Value                                                               | Where to Get It                                                     | Required? | Purpose                                             |
+| ------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------- | --------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`          | `https://my-backend.onrender.com/api`                                       | From Render deployment (see **Deploy Backend to Render** step)      | Yes       | Frontend tells the browser where the backend lives. |
+| `NEXT_PUBLIC_GITHUB_CLIENT_ID` | `Iv1.1234567890abcdef`                                                      | GitHub OAuth app → _Client ID_                                      | Yes       | Allows the frontend to start the GitHub login flow. |
+| `GITHUB_CLIENT_SECRET`         | `abcd1234efgh5678ijkl9012mnop3456qrst7890`                                  | GitHub OAuth app → _Client Secret_ (keep secret, only backend uses) | Yes       | Auth server validates the login response.           |
+| `DATABASE_URL`                 | `postgresql://username:password@aws-us-east-1.pooler.neon.tech:5432/dbname` | Neon dashboard → _Connection string_ (copy button)                  | Yes       | Backend connects to the PostgreSQL database.        |
+| `UPSTASH_REDIS_URL`            | `redis://default:abcd1234efgh@redis-12345.upstash.io:6379`                  | Upstash dashboard → _Redis URL_                                     | Yes       | Backend uses Redis for caching.                     |
+| `SESSION_SECRET`               | `aRandomLongString123!@#`                                                   | Generate a random string (e.g., use `openssl rand -base64 32`).     | Yes       | Signs session cookies so they cannot be forged.     |
+| `NEXTAUTH_URL`                 | `https://gitprofilestats.vercel.app`                                        | Your Vercel deployment URL (once deployed)                          | Yes       | Needed by NextAuth for callbacks.                   |
+| `NEXTAUTH_SECRET`              | `anotherRandomSecret567!@#`                                                 | Generate like `SESSION_SECRET`.                                     | Yes       | Encrypts NextAuth JWT tokens.                       |
+| `RENDER_SERVICE_URL`           | _(Optional)_ `https://my-backend.onrender.com`                              | Same as `NEXT_PUBLIC_API_URL` but without `/api`.                   | No        | Used by health‑check jobs.                          |
 
 > **Tip**: After filling the values, save the file. VS Code will automatically reload the environment for `pnpm dev`.
 
@@ -139,9 +146,9 @@ Environment variables keep secret values (API keys, database URLs) out of the so
 # Neon PostgreSQL
 
 1. **Create a Neon account** – Visit https://neon.tech and sign up.
-2. **Create a Project** – Click **New Project**, give it a name (e.g., *gitprofilestats-db*), and choose the free tier.
+2. **Create a Project** – Click **New Project**, give it a name (e.g., _gitprofilestats-db_), and choose the free tier.
 3. **Create a Database** – In the project view, click **Create Database**. The default name `postgres` is fine.
-4. **Get the Connection String** – In the database details panel, click **Connection string** → *Copy*.
+4. **Get the Connection String** – In the database details panel, click **Connection string** → _Copy_.
 5. **Paste into `.env.local`** → set `DATABASE_URL` to the copied value.
 6. **Test the connection** – Back in PowerShell, run:
    ```powershell
@@ -156,7 +163,7 @@ Environment variables keep secret values (API keys, database URLs) out of the so
 # Upstash Redis
 
 1. **Create an Upstash account** – Go to https://upstash.com and sign up.
-2. **Create a Redis database** – Click **Create Database**, choose *Redis* and the free tier.
+2. **Create a Redis database** – Click **Create Database**, choose _Redis_ and the free tier.
 3. **Copy the Redis URL** – In the database view, click **Show connection details** → copy the `REDIS_URL`.
 4. **Paste into `.env.local`** → set `UPSTASH_REDIS_URL`.
 5. **Test the connection** – Run:
@@ -174,9 +181,9 @@ Environment variables keep secret values (API keys, database URLs) out of the so
 2. In the left sidebar, select **Developer settings** → **OAuth Apps** → **New OAuth App**.
 3. Fill out the form:
    - **Application name**: `GitProfileStats`
-   - **Homepage URL**: `https://gitprofilestats.vercel.app` *(replace with your Vercel URL after deployment)*
+   - **Homepage URL**: `https://gitprofilestats.vercel.app` _(replace with your Vercel URL after deployment)_
    - **Authorization callback URL**: `https://gitprofilestats.vercel.app/api/auth/callback/github`
-   - **Description**: *Optional*.
+   - **Description**: _Optional_.
    - Click **Register application**.
 4. After registration, you will see **Client ID** and **Client Secret**.
 5. Copy **Client ID** → paste into `.env.local` as `NEXT_PUBLIC_GITHUB_CLIENT_ID`.
@@ -189,18 +196,22 @@ Environment variables keep secret values (API keys, database URLs) out of the so
 # Run Locally
 
 ## Backend
+
 ```powershell
 cd apps/api
 pnpm dev
 ```
+
 - You should see `🚀 Server ready at http://localhost:3001`.
 - Open `http://localhost:3001/api/health` in a browser; you should see `{ "status": "ok" }`.
 
 ## Frontend
+
 ```powershell
 cd apps/web
 pnpm dev
 ```
+
 - Browser opens automatically at `http://localhost:3000`.
 - Click **Login with GitHub** – you will be redirected to GitHub, then back to the app.
 - If you see your stats, the local setup works!
@@ -213,7 +224,7 @@ pnpm dev
 
 1. Go to https://render.com and **Log In**.
 2. Click **New → Web Service** (top‑right button).
-3. **Connect to GitHub** – choose *GitHub* as the source and click **Connect**.
+3. **Connect to GitHub** – choose _GitHub_ as the source and click **Connect**.
 4. Select the repository `GitProfileStats`.
 5. **Root Directory**: type `apps/api`.
 6. **Name**: (optional) `gitprofilestats-backend`.
@@ -280,28 +291,28 @@ pnpm dev
 
 # Common Errors (Beginner Edition)
 
-| Symptom | Likely Cause | How to Fix |
-|---------|--------------|-----------|
-| **502 Bad Gateway** on Render | Backend crashed or env var missing | Open Render dashboard → Logs → look for `Error: DATABASE_URL not set`. Add the missing variable to the Render env.
-| **OAuth callback fails** | Callback URL mismatch | Ensure the Callback URL in GitHub OAuth exactly matches your Vercel URL (`https://your-site.vercel.app/api/auth/callback/github`).
-| **Stats not loading** | `NEXT_PUBLIC_API_URL` incorrect | Verify the URL points to the Render service and includes `/api`.
-| **Redis connection error** | `UPSTASH_REDIS_URL` wrong or expired | Re‑copy the URL from Upstash dashboard; replace the value in `.env.local` and redeploy.
-| **CORS blocked** | Backend not allowing Vercel domain | Add `https://your-site.vercel.app` to backend CORS whitelist and redeploy.
-| **Missing env var warning** | `.env.local` not saved or wrong file name | Ensure the file is named exactly `.env.local` in the project root.
-| **Frontend shows “Failed to fetch”** | Backend URL unreachable | Open the Render service URL in a browser; should return `{ "status": "ok" }`.
-| **Render service sleeps** | Free tier idle timeout | Keep the keep‑alive cron job active (see Deploy Backend section).
-| **Vercel build fails** | Missing `NEXT_PUBLIC_*` vars | Add all required vars under Vercel project settings → Environment Variables.
-| **GitHub login loops back to login page** | `NEXTAUTH_URL` incorrect | Set `NEXTAUTH_URL` to your Vercel site URL (no trailing slash).
-| **Incorrect root directory** | Deployed from wrong folder | For Render: root `apps/api`. For Vercel: root `apps/web`.
-| **Build command error** | Using `npm` instead of `pnpm` | Use the exact commands `pnpm install && pnpm build`.
-| **Database migration not run** | Forgot to run `pnpm prisma migrate` | After setting `DATABASE_URL`, run `pnpm prisma migrate deploy` in backend.
-| **Session cookie not set** | `SESSION_SECRET` missing | Add a random secret string to both backend and frontend env files.
-| **SSL certificate error** | Using http instead of https URLs | Always use `https://` URLs for Render and Vercel.
-| **Missing README** | Not relevant for deployment but good practice | Add a README later.
-| **Port conflict** | Another app using 3001 | Change `PORT` in `.env.local` and update Render start command.
-| **Outdated pnpm version** | `pnpm -v` shows old version | Run `npm install -g pnpm@latest`.
-| **Incorrect markdown rendering** | Using backticks inside markdown tables | Escape backticks with \`.
-| **Image placeholders not showing** | Path wrong | Ensure placeholder paths start with `file:///` and point to an existing image file.
+| Symptom                                   | Likely Cause                                  | How to Fix                                                                                                                         |
+| ----------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **502 Bad Gateway** on Render             | Backend crashed or env var missing            | Open Render dashboard → Logs → look for `Error: DATABASE_URL not set`. Add the missing variable to the Render env.                 |
+| **OAuth callback fails**                  | Callback URL mismatch                         | Ensure the Callback URL in GitHub OAuth exactly matches your Vercel URL (`https://your-site.vercel.app/api/auth/callback/github`). |
+| **Stats not loading**                     | `NEXT_PUBLIC_API_URL` incorrect               | Verify the URL points to the Render service and includes `/api`.                                                                   |
+| **Redis connection error**                | `UPSTASH_REDIS_URL` wrong or expired          | Re‑copy the URL from Upstash dashboard; replace the value in `.env.local` and redeploy.                                            |
+| **CORS blocked**                          | Backend not allowing Vercel domain            | Add `https://your-site.vercel.app` to backend CORS whitelist and redeploy.                                                         |
+| **Missing env var warning**               | `.env.local` not saved or wrong file name     | Ensure the file is named exactly `.env.local` in the project root.                                                                 |
+| **Frontend shows “Failed to fetch”**      | Backend URL unreachable                       | Open the Render service URL in a browser; should return `{ "status": "ok" }`.                                                      |
+| **Render service sleeps**                 | Free tier idle timeout                        | Keep the keep‑alive cron job active (see Deploy Backend section).                                                                  |
+| **Vercel build fails**                    | Missing `NEXT_PUBLIC_*` vars                  | Add all required vars under Vercel project settings → Environment Variables.                                                       |
+| **GitHub login loops back to login page** | `NEXTAUTH_URL` incorrect                      | Set `NEXTAUTH_URL` to your Vercel site URL (no trailing slash).                                                                    |
+| **Incorrect root directory**              | Deployed from wrong folder                    | For Render: root `apps/api`. For Vercel: root `apps/web`.                                                                          |
+| **Build command error**                   | Using `npm` instead of `pnpm`                 | Use the exact commands `pnpm install && pnpm build`.                                                                               |
+| **Database migration not run**            | Forgot to run `pnpm prisma migrate`           | After setting `DATABASE_URL`, run `pnpm prisma migrate deploy` in backend.                                                         |
+| **Session cookie not set**                | `SESSION_SECRET` missing                      | Add a random secret string to both backend and frontend env files.                                                                 |
+| **SSL certificate error**                 | Using http instead of https URLs              | Always use `https://` URLs for Render and Vercel.                                                                                  |
+| **Missing README**                        | Not relevant for deployment but good practice | Add a README later.                                                                                                                |
+| **Port conflict**                         | Another app using 3001                        | Change `PORT` in `.env.local` and update Render start command.                                                                     |
+| **Outdated pnpm version**                 | `pnpm -v` shows old version                   | Run `npm install -g pnpm@latest`.                                                                                                  |
+| **Incorrect markdown rendering**          | Using backticks inside markdown tables        | Escape backticks with \`.                                                                                                          |
+| **Image placeholders not showing**        | Path wrong                                    | Ensure placeholder paths start with `file:///` and point to an existing image file.                                                |
 
 ---
 
@@ -383,4 +394,4 @@ pnpm dev
 
 ---
 
-*You now have a complete, beginner‑friendly deployment guide!*
+_You now have a complete, beginner‑friendly deployment guide!_

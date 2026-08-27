@@ -41,9 +41,10 @@ export class StatsService {
     }
 
     // 1. Fetch user profile
-    const profile = (!targetUsername || isSelf)
-      ? await this.gitHubService.getAuthenticatedUser(options?.token)
-      : await this.gitHubService.getUser(targetUsername, options?.token);
+    const profile =
+      !targetUsername || isSelf
+        ? await this.gitHubService.getAuthenticatedUser(options?.token)
+        : await this.gitHubService.getUser(targetUsername, options?.token);
 
     logger.debug({ username: profile.login }, 'Fetched user profile');
 

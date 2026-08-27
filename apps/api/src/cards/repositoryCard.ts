@@ -49,7 +49,20 @@ function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return 'Invalid Date';
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
   const month = months[date.getMonth()];
   const day = date.getDate();
   const year = date.getFullYear();

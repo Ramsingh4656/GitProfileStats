@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { env } from "@/config/env";
-import { CombinedStats, UserProfile } from "../types";
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { env } from '@/config/env';
+import { CombinedStats, UserProfile } from '../types';
 
 export function useDashboardStats() {
   const router = useRouter();
@@ -21,14 +21,14 @@ export function useDashboardStats() {
     try {
       const apiBase = env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiBase}/api/statistics?username=${username}`, {
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
         const errJson = await response.json().catch(() => ({}));
         const errText =
           errJson.error?.message ||
-          (typeof errJson.error === "string" ? errJson.error : null) ||
+          (typeof errJson.error === 'string' ? errJson.error : null) ||
           errJson.message;
         throw new Error(errText || `Failed to fetch stats (Status: ${response.status})`);
       }
@@ -37,12 +37,12 @@ export function useDashboardStats() {
       if (data.success && data.data) {
         setStats(data.data);
       } else {
-        throw new Error("Invalid statistics response format");
+        throw new Error('Invalid statistics response format');
       }
     } catch (err: unknown) {
-      console.error("Stats fetch failure:", err);
+      console.error('Stats fetch failure:', err);
       const errMsg = err instanceof Error ? err.message : String(err);
-      setStatsError(errMsg || "Failed to establish secure connection to GitHub APIs.");
+      setStatsError(errMsg || 'Failed to establish secure connection to GitHub APIs.');
     } finally {
       setLoadingStats(false);
     }
@@ -53,11 +53,11 @@ export function useDashboardStats() {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (!response.ok) {
-          throw new Error("Unauthorized");
+          throw new Error('Unauthorized');
         }
 
         const data = await response.json();
@@ -66,11 +66,11 @@ export function useDashboardStats() {
           setHasGithubToken(Boolean(data.data.hasGithubToken));
           loadStats(data.data.username);
         } else {
-          throw new Error("Invalid response format");
+          throw new Error('Invalid response format');
         }
       } catch (err) {
-        console.error("Session verification failed:", err);
-        router.push("/login");
+        console.error('Session verification failed:', err);
+        router.push('/login');
       } finally {
         setLoading(false);
       }

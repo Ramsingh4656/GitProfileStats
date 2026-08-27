@@ -1,9 +1,17 @@
-import Link from "next/link";
-import { ArrowLeft, Terminal, Sparkles, KeyRound } from "lucide-react";
-import { env } from "@/config/env";
+import Link from 'next/link';
+import { ArrowLeft, Terminal, Sparkles, KeyRound } from 'lucide-react';
+import { env } from '@/config/env';
 
 const Github = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
     <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
     <path d="M9 18c-4.51 2-5-2-7-2" />
   </svg>
@@ -17,7 +25,10 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
 
       {/* Back to Home Link */}
-      <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors group">
+      <Link
+        href="/"
+        className="absolute top-8 left-8 flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors group"
+      >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         <span>Back to home</span>
       </Link>
@@ -36,12 +47,13 @@ export default function LoginPage() {
         {/* Heading */}
         <h2 className="text-2xl font-bold tracking-tight text-white mb-2">Welcome Back</h2>
         <p className="text-zinc-400 text-sm text-center mb-8 max-w-xs">
-          Connect your GitHub account to personalize your profile cards and access real-time analytics.
+          Connect your GitHub account to personalize your profile cards and access real-time
+          analytics.
         </p>
 
         {/* Sign-In Button */}
-        <a 
-          href={`${env.NEXT_PUBLIC_API_URL}/api/v1/auth/github`} 
+        <a
+          href={`${env.NEXT_PUBLIC_API_URL}/api/v1/auth/github`}
           className="w-full py-3.5 rounded-xl font-bold bg-white text-zinc-950 hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl shadow-white/5 flex items-center justify-center gap-3 group mb-4 cursor-pointer"
         >
           <Github className="w-5 h-5 text-zinc-950 group-hover:rotate-12 transition-transform duration-300" />
@@ -59,7 +71,12 @@ export default function LoginPage() {
             <Sparkles className="w-3.5 h-3.5 text-violet-400" />
             <span>Secure encryption</span>
           </span>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-300 transition-colors">
+          <a
+            href="https://github.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-zinc-300 transition-colors"
+          >
             View Github Repo
           </a>
         </div>

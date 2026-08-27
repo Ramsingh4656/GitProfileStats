@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { Terminal, Home, LayoutDashboard, HelpCircle } from "lucide-react";
+import Link from 'next/link';
+import { Terminal, Home, LayoutDashboard, HelpCircle } from 'lucide-react';
 
 export default function NotFound() {
   return (
@@ -33,20 +33,21 @@ export default function NotFound() {
 
         {/* Description */}
         <p className="text-zinc-400 text-sm md:text-base mb-8 max-w-sm leading-relaxed">
-          The commit branch or route you requested could not be resolved. It might have been moved, deleted, or never existed in the repository tree.
+          The commit branch or route you requested could not be resolved. It might have been moved,
+          deleted, or never existed in the repository tree.
         </p>
 
         {/* Interactive Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="px-6 py-3 rounded-xl font-bold bg-white text-zinc-950 hover:bg-zinc-200 transition-all flex items-center justify-center gap-2"
           >
             <Home className="w-4 h-4 text-zinc-950" />
             <span>Go Back Home</span>
           </Link>
-          <Link 
-            href="/dashboard" 
+          <Link
+            href="/dashboard"
             className="px-6 py-3 rounded-xl font-bold border border-white/10 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-2"
           >
             <LayoutDashboard className="w-4 h-4 text-zinc-300" />

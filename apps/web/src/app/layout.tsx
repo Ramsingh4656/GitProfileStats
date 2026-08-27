@@ -1,45 +1,48 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "GitProfileStats | Beautiful GitHub Analytics & Profile Cards",
-  description: "Showcase your GitHub journey in style. Generate stunning, real-time SVG cards and interactive dashboards for your GitHub profile README.",
-  metadataBase: new URL("https://gitprofilestats.com"),
+  title: 'GitProfileStats | Beautiful GitHub Analytics & Profile Cards',
+  description:
+    'Showcase your GitHub journey in style. Generate stunning, real-time SVG cards and interactive dashboards for your GitHub profile README.',
+  metadataBase: new URL('https://gitprofilestats.com'),
   alternates: {
-    canonical: "/",
+    canonical: '/',
   },
   openGraph: {
-    title: "GitProfileStats | Beautiful GitHub Analytics & Profile Cards",
-    description: "Showcase your GitHub journey in style. Generate stunning, real-time SVG cards and interactive dashboards for your GitHub profile README.",
-    url: "https://gitprofilestats.com",
-    siteName: "GitProfileStats",
+    title: 'GitProfileStats | Beautiful GitHub Analytics & Profile Cards',
+    description:
+      'Showcase your GitHub journey in style. Generate stunning, real-time SVG cards and interactive dashboards for your GitHub profile README.',
+    url: 'https://gitprofilestats.com',
+    siteName: 'GitProfileStats',
     images: [
       {
-        url: "/og-image.png",
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: "GitProfileStats - Beautiful GitHub Analytics & Profile Cards",
+        alt: 'GitProfileStats - Beautiful GitHub Analytics & Profile Cards',
       },
     ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "GitProfileStats | Beautiful GitHub Analytics & Profile Cards",
-    description: "Showcase your GitHub journey in style. Generate stunning, real-time SVG cards and interactive dashboards for your GitHub profile README.",
-    images: ["/og-image.png"],
+    card: 'summary_large_image',
+    title: 'GitProfileStats | Beautiful GitHub Analytics & Profile Cards',
+    description:
+      'Showcase your GitHub journey in style. Generate stunning, real-time SVG cards and interactive dashboards for your GitHub profile README.',
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
@@ -47,9 +50,9 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
     },
   },
 };
@@ -60,10 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

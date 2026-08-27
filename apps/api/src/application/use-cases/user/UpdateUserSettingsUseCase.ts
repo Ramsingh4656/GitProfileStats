@@ -11,7 +11,10 @@ export class UpdateUserSettingsUseCase {
     private readonly userRepository: IUserRepository,
   ) {}
 
-  public async execute(userId: string, settings: Partial<IUserSettings>): Promise<IUserProfileResponse> {
+  public async execute(
+    userId: string,
+    settings: Partial<IUserSettings>,
+  ): Promise<IUserProfileResponse> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UserNotFoundError(userId);

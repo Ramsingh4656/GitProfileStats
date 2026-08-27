@@ -92,7 +92,8 @@ const MOCK_REPOSITORY = (owner: string, repo: string): any => ({
   owner: {
     login: owner || 'Ramsingh4656',
   },
-  description: 'A beautiful dashboard and profile card generator for your GitHub stats. Support custom themes, language cards, streak tracking, and more.',
+  description:
+    'A beautiful dashboard and profile card generator for your GitHub stats. Support custom themes, language cards, streak tracking, and more.',
   language: 'TypeScript',
   stargazers_count: 142,
   forks_count: 28,
@@ -172,7 +173,10 @@ export class CardController {
     const { username, githubAccessToken: token } = githubParams;
     const options = this.getCardOptions(req);
 
-    logger.info({ username, hasToken: !!token, options }, 'Received request to render profile card');
+    logger.info(
+      { username, hasToken: !!token, options },
+      'Received request to render profile card',
+    );
 
     void (async () => {
       try {
@@ -201,10 +205,7 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch {
-        logger.warn(
-          { username },
-          'Failed to render profile card, falling back to mock data',
-        );
+        logger.warn({ username }, 'Failed to render profile card, falling back to mock data');
         try {
           const mockUser = MOCK_USER(username || 'octocat');
           const svg = await renderProfileCard(mockUser, options);
@@ -334,10 +335,7 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour to mitigate GitHub API rate-limits
         res.status(200).send(svg);
       } catch {
-        logger.warn(
-          { username },
-          'Failed to render languages card, falling back to mock data',
-        );
+        logger.warn({ username }, 'Failed to render languages card, falling back to mock data');
         try {
           const svg = renderLanguagesCard(MOCK_LANGUAGES, { ...options, langsCount });
           res.setHeader('Content-Type', 'image/svg+xml');
@@ -413,7 +411,10 @@ export class CardController {
     const { owner, repo, githubAccessToken: token } = repoParams;
     const options = this.getCardOptions(req);
 
-    logger.info({ owner, repo, hasToken: !!token, options }, 'Received request to render repository card');
+    logger.info(
+      { owner, repo, hasToken: !!token, options },
+      'Received request to render repository card',
+    );
 
     void (async () => {
       try {
@@ -440,10 +441,7 @@ export class CardController {
         res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
         res.status(200).send(svg);
       } catch {
-        logger.warn(
-          { owner, repo },
-          'Failed to render repository card, falling back to mock data',
-        );
+        logger.warn({ owner, repo }, 'Failed to render repository card, falling back to mock data');
         try {
           const mockRepo = MOCK_REPOSITORY(owner || 'Ramsingh4656', repo || 'GitProfileStats');
           const svg = renderRepositoryCard(mockRepo, options);

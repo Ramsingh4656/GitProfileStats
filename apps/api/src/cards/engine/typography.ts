@@ -55,7 +55,7 @@ export function estimateTextWidth(text: string, fontSize: number): number {
   }
 
   const estimated = width * fontSize;
-  
+
   if (textWidthCache.size >= MAX_TEXT_WIDTH_CACHE_SIZE) {
     const firstKey = textWidthCache.keys().next().value;
     if (firstKey !== undefined) {

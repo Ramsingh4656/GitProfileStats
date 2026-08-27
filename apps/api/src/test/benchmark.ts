@@ -34,7 +34,7 @@ import {
   renderStatsCard,
   renderLanguagesCard,
   renderStreakCard,
-  renderRepositoryCard
+  renderRepositoryCard,
 } from '../cards/index.js';
 import { app } from '../app.js';
 import http from 'http';
@@ -53,7 +53,7 @@ function measure(fn: () => void | Promise<void>): Promise<number> | number {
 async function benchmarkDatabase() {
   console.log('\n--- 1. Database Query Benchmark ---');
   const repo = container.resolve(InMemoryUserRepository) as InMemoryUserRepository;
-  
+
   // Seed repository with 10,000 users
   console.log('Seeding 10,000 users...');
   const users: User[] = [];
@@ -92,7 +92,9 @@ async function benchmarkDatabase() {
       oldLookup(targetUsername);
     }
   });
-  console.log(`O(N) search (1,000 queries): ${oldDuration.toFixed(2)} ms (${(oldDuration / 1000).toFixed(4)} ms/op)`);
+  console.log(
+    `O(N) search (1,000 queries): ${oldDuration.toFixed(2)} ms (${(oldDuration / 1000).toFixed(4)} ms/op)`,
+  );
 
   // Run O(1) optimized lookup benchmark
   console.log(`Running optimized O(1) lookups for '${targetUsername}'...`);
@@ -101,7 +103,9 @@ async function benchmarkDatabase() {
       await repo.findByUsername(targetUsername);
     }
   });
-  console.log(`O(1) search (1,000 queries): ${newDuration.toFixed(2)} ms (${(newDuration / 1000).toFixed(4)} ms/op)`);
+  console.log(
+    `O(1) search (1,000 queries): ${newDuration.toFixed(2)} ms (${(newDuration / 1000).toFixed(4)} ms/op)`,
+  );
   console.log(`Speedup factor: ${(oldDuration / newDuration).toFixed(1)}x`);
 
   // Clean up
@@ -180,7 +184,9 @@ async function benchmarkSVGGeneration() {
       await renderProfileCard(mockUser, cardOptions);
     }
   });
-  console.log(`Profile Card: ${(profileTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (profileTime / 1000))} gen/sec)`);
+  console.log(
+    `Profile Card: ${(profileTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (profileTime / 1000))} gen/sec)`,
+  );
 
   // Stats Card
   const statsTime = await measure(() => {
@@ -188,7 +194,9 @@ async function benchmarkSVGGeneration() {
       renderStatsCard(mockStats, cardOptions);
     }
   });
-  console.log(`Stats Card: ${(statsTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (statsTime / 1000))} gen/sec)`);
+  console.log(
+    `Stats Card: ${(statsTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (statsTime / 1000))} gen/sec)`,
+  );
 
   // Languages Card
   const langsTime = await measure(() => {
@@ -196,7 +204,9 @@ async function benchmarkSVGGeneration() {
       renderLanguagesCard(mockLanguages, cardOptions);
     }
   });
-  console.log(`Languages Card: ${(langsTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (langsTime / 1000))} gen/sec)`);
+  console.log(
+    `Languages Card: ${(langsTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (langsTime / 1000))} gen/sec)`,
+  );
 
   // Streak Card
   const streakTime = await measure(() => {
@@ -204,7 +214,9 @@ async function benchmarkSVGGeneration() {
       renderStreakCard(mockStreak, cardOptions);
     }
   });
-  console.log(`Streak Card: ${(streakTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (streakTime / 1000))} gen/sec)`);
+  console.log(
+    `Streak Card: ${(streakTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (streakTime / 1000))} gen/sec)`,
+  );
 
   // Repository Card
   const repoTime = await measure(() => {
@@ -212,13 +224,15 @@ async function benchmarkSVGGeneration() {
       renderRepositoryCard(mockRepo, cardOptions);
     }
   });
-  console.log(`Repository Card: ${(repoTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (repoTime / 1000))} gen/sec)`);
+  console.log(
+    `Repository Card: ${(repoTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (repoTime / 1000))} gen/sec)`,
+  );
 }
 
 // 3. API RESPONSE TIME BENCHMARK (Express integration)
 async function benchmarkAPIResponse() {
   console.log('\n--- 3. API Response Time Benchmark ---');
-  
+
   // Start server on an ephemeral port
   const server = http.createServer(app);
   await new Promise<void>((resolve) => server.listen(0, resolve));
@@ -228,19 +242,27 @@ async function benchmarkAPIResponse() {
   const fetchEndpoint = async (path: string): Promise<number> => {
     const start = performance.now();
     await new Promise<void>((resolve, reject) => {
-      http.get(`${baseUrl}${path}`, (res) => {
-        let body = '';
-        res.on('data', (chunk) => body += chunk);
-        res.on('end', () => resolve());
-      }).on('error', reject);
+      http
+        .get(`${baseUrl}${path}`, (res) => {
+          let body = '';
+          res.on('data', (chunk) => (body += chunk));
+          res.on('end', () => resolve());
+        })
+        .on('error', reject);
     });
     return performance.now() - start;
   };
 
   const endpoints = [
     { name: 'Health Check (/health)', path: '/health' },
-    { name: 'Profile SVG (/api/cards/profile.svg?username=demo)', path: '/api/cards/profile.svg?username=demo' },
-    { name: 'Stats SVG (/api/cards/stats.svg?username=demo)', path: '/api/cards/stats.svg?username=demo' },
+    {
+      name: 'Profile SVG (/api/cards/profile.svg?username=demo)',
+      path: '/api/cards/profile.svg?username=demo',
+    },
+    {
+      name: 'Stats SVG (/api/cards/stats.svg?username=demo)',
+      path: '/api/cards/stats.svg?username=demo',
+    },
   ];
 
   for (const ep of endpoints) {
@@ -255,8 +277,8 @@ async function benchmarkAPIResponse() {
 
     latencies.sort((a, b) => a - b);
     const avg = latencies.reduce((s, x) => s + x, 0) / latencies.length;
-    const p50 = latencies[Math.floor(latencies.length * 0.50)];
-    const p90 = latencies[Math.floor(latencies.length * 0.90)];
+    const p50 = latencies[Math.floor(latencies.length * 0.5)];
+    const p90 = latencies[Math.floor(latencies.length * 0.9)];
     const p99 = latencies[Math.floor(latencies.length * 0.99)];
 
     console.log(`${ep.name}:`);

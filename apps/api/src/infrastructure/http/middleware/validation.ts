@@ -26,7 +26,9 @@ export interface IGitHubRequest extends Request {
 
 export const validateGitHubRequest = (req: Request, _res: Response, next: NextFunction): void => {
   if (req.query.token !== undefined || req.headers['x-github-token'] !== undefined) {
-    next(new AuthenticationError('GitHub tokens must be configured through the authenticated session'));
+    next(
+      new AuthenticationError('GitHub tokens must be configured through the authenticated session'),
+    );
     return;
   }
 
@@ -44,11 +46,7 @@ export const validateGitHubRequest = (req: Request, _res: Response, next: NextFu
 };
 
 const repositoryQuerySchema = z.object({
-  owner: z
-    .string()
-    .trim()
-    .min(1, 'Owner name cannot be empty')
-    .max(100, 'Owner name is too long'),
+  owner: z.string().trim().min(1, 'Owner name cannot be empty').max(100, 'Owner name is too long'),
   repo: z
     .string()
     .trim()
@@ -65,9 +63,15 @@ export interface IRepositoryRequest extends Request {
   };
 }
 
-export const validateRepositoryRequest = (req: Request, _res: Response, next: NextFunction): void => {
+export const validateRepositoryRequest = (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void => {
   if (req.query.token !== undefined || req.headers['x-github-token'] !== undefined) {
-    next(new AuthenticationError('GitHub tokens must be configured through the authenticated session'));
+    next(
+      new AuthenticationError('GitHub tokens must be configured through the authenticated session'),
+    );
     return;
   }
 

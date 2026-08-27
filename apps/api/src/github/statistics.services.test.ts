@@ -60,8 +60,22 @@ describe('Statistics Services', () => {
   describe('RepositoryStatsService', () => {
     it('should calculate repo stats correctly', async () => {
       mockGitHubService.getAllRepositories.mockResolvedValue([
-        { stargazers_count: 5, forks_count: 2, watchers_count: 5, open_issues_count: 1, size: 100, fork: false },
-        { stargazers_count: 10, forks_count: 3, watchers_count: 10, open_issues_count: 2, size: 200, fork: true },
+        {
+          stargazers_count: 5,
+          forks_count: 2,
+          watchers_count: 5,
+          open_issues_count: 1,
+          size: 100,
+          fork: false,
+        },
+        {
+          stargazers_count: 10,
+          forks_count: 3,
+          watchers_count: 10,
+          open_issues_count: 2,
+          size: 200,
+          fork: true,
+        },
       ]);
 
       const service = new RepositoryStatsService(mockGitHubService as unknown as GitHubService);
@@ -189,16 +203,18 @@ describe('Statistics Services', () => {
 
   describe('PullRequestService', () => {
     it('should count pull requests correctly from search query', async () => {
-      mockGitHubService.graphql.mockResolvedValueOnce({
-        viewer: { login: 'john_doe' },
-      }).mockResolvedValueOnce({
-        user: {
-          pullRequests: { totalCount: 42 },
-          openPRs: { totalCount: 10 },
-          closedPRs: { totalCount: 20 },
-          mergedPRs: { totalCount: 12 },
-        },
-      });
+      mockGitHubService.graphql
+        .mockResolvedValueOnce({
+          viewer: { login: 'john_doe' },
+        })
+        .mockResolvedValueOnce({
+          user: {
+            pullRequests: { totalCount: 42 },
+            openPRs: { totalCount: 10 },
+            closedPRs: { totalCount: 20 },
+            mergedPRs: { totalCount: 12 },
+          },
+        });
 
       const service = new PullRequestService(mockGitHubService as unknown as GitHubService);
       const prStats = await service.getPullRequestStats(undefined);
@@ -229,9 +245,7 @@ describe('Statistics Services', () => {
           user: {
             closedIssuesList: {
               pageInfo: { hasNextPage: false, endCursor: null },
-              nodes: [
-                { createdAt: '2026-07-28T00:00:00Z', closedAt: '2026-07-29T00:00:00Z' },
-              ],
+              nodes: [{ createdAt: '2026-07-28T00:00:00Z', closedAt: '2026-07-29T00:00:00Z' }],
             },
           },
         });
@@ -274,7 +288,9 @@ describe('Statistics Services', () => {
       const rankingService = { getRepositoryRankings: vi.fn().mockResolvedValue(mockRankings) };
       const languageCollector = { collectLanguages: vi.fn().mockResolvedValue(mockLanguages) };
       const commitStatsService = { getCommitStats: vi.fn().mockResolvedValue(mockCommitStats) };
-      const contributionService = { getContributionStats: vi.fn().mockResolvedValue(mockContributionStats) };
+      const contributionService = {
+        getContributionStats: vi.fn().mockResolvedValue(mockContributionStats),
+      };
       const prService = { getPullRequestStats: vi.fn().mockResolvedValue(mockPRStats) };
       const issueService = { getIssueStats: vi.fn().mockResolvedValue(mockIssueStats) };
 

@@ -1,31 +1,27 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { env } from "@/config/env";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { 
-  Terminal, 
-  LayoutDashboard, 
-  Code2, 
-  Activity, 
-  Settings, 
-  LogOut, 
-  Menu, 
+import React, { useState, useEffect } from 'react';
+import { env } from '@/config/env';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  Terminal,
+  LayoutDashboard,
+  Code2,
+  Activity,
+  Settings,
+  LogOut,
+  Menu,
   X,
   Bell,
   Search,
   ChevronDown,
   CreditCard,
-  Palette
-} from "lucide-react";
+  Palette,
+} from 'lucide-react';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<{
@@ -42,22 +38,22 @@ export default function DashboardLayout({
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (!response.ok) {
-          throw new Error("Unauthorized");
+          throw new Error('Unauthorized');
         }
 
         const data = await response.json();
         if (data.success && data.data) {
           setUser(data.data);
         } else {
-          throw new Error("Invalid response format");
+          throw new Error('Invalid response format');
         }
       } catch (err) {
-        console.error("Session verification failed:", err);
-        router.push("/login");
+        console.error('Session verification failed:', err);
+        router.push('/login');
       } finally {
         setLoading(false);
       }
@@ -67,16 +63,16 @@ export default function DashboardLayout({
   }, [router]);
 
   const handleLogout = () => {
-    router.push("/");
+    router.push('/');
   };
 
   const navLinks = [
-    { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Card Preview", href: "/dashboard/cards", icon: CreditCard },
-    { name: "Theme Gallery", href: "/dashboard/themes", icon: Palette },
-    { name: "Repositories", href: "/dashboard/repositories", icon: Code2 },
-    { name: "Activity", href: "/dashboard/activity", icon: Activity },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Card Preview', href: '/dashboard/cards', icon: CreditCard },
+    { name: 'Theme Gallery', href: '/dashboard/themes', icon: Palette },
+    { name: 'Repositories', href: '/dashboard/repositories', icon: Code2 },
+    { name: 'Activity', href: '/dashboard/activity', icon: Activity },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
   ];
 
   if (loading) {
@@ -93,8 +89,12 @@ export default function DashboardLayout({
             <div className="absolute -inset-1 rounded-2xl border border-violet-500/20 animate-ping [animation-duration:3s]" />
           </div>
           <div className="flex flex-col items-center gap-1 text-center">
-            <p className="text-xs font-bold tracking-widest text-white uppercase font-mono">Verifying Session</p>
-            <p className="text-[10px] text-zinc-500 font-medium">Establishing secure handshake context...</p>
+            <p className="text-xs font-bold tracking-widest text-white uppercase font-mono">
+              Verifying Session
+            </p>
+            <p className="text-[10px] text-zinc-500 font-medium">
+              Establishing secure handshake context...
+            </p>
           </div>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function DashboardLayout({
       {/* Background glow spots */}
       <div className="w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.15)_0%,transparent_70%)] absolute top-[-200px] left-[-100px] opacity-40 pointer-events-none filter blur-[40px]" />
       <div className="w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.15)_0%,transparent_70%)] absolute bottom-[-200px] right-[-100px] opacity-40 pointer-events-none filter blur-[40px]" />
-      
+
       {/* Desktop Sidebar (Left side, fixed layout) */}
       <aside className="hidden md:flex md:w-64 border-r border-white/5 bg-[#030014]/60 backdrop-blur-xl flex-col shrink-0 z-20">
         {/* Brand/Logo */}
@@ -130,14 +130,16 @@ export default function DashboardLayout({
                 href={link.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 relative group ${
                   isActive
-                    ? "bg-white/5 text-white border border-white/5 shadow-inner"
-                    : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"
+                    ? 'bg-white/5 text-white border border-white/5 shadow-inner'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.02]'
                 }`}
               >
                 {isActive && (
                   <div className="absolute left-0 top-3.5 bottom-3.5 w-1 rounded-r-md bg-gradient-to-b from-violet-500 to-fuchsia-500" />
                 )}
-                <Icon className={`w-4 h-4 transition-colors duration-200 ${isActive ? "text-violet-400" : "text-zinc-400 group-hover:text-white"}`} />
+                <Icon
+                  className={`w-4 h-4 transition-colors duration-200 ${isActive ? 'text-violet-400' : 'text-zinc-400 group-hover:text-white'}`}
+                />
                 <span>{link.name}</span>
               </Link>
             );
@@ -149,27 +151,27 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3 px-2 py-1.5">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px] overflow-hidden shrink-0">
               {user?.avatarUrl ? (
-                <Image 
-                  src={user.avatarUrl} 
-                  alt={`${user.username}'s GitHub avatar`} 
+                <Image
+                  src={user.avatarUrl}
+                  alt={`${user.username}'s GitHub avatar`}
                   width={40}
                   height={40}
                   className="w-full h-full rounded-full object-cover"
                 />
               ) : (
                 <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-bold text-sm text-white">
-                  {user?.username?.substring(0, 2).toUpperCase() || "US"}
+                  {user?.username?.substring(0, 2).toUpperCase() || 'US'}
                 </div>
               )}
             </div>
             <div className="min-w-0 flex-1">
               <h5 className="font-semibold text-sm text-white truncate">@{user?.username}</h5>
-              <p className="text-zinc-500 text-xs truncate">{user?.email || "GitHub User"}</p>
+              <p className="text-zinc-500 text-xs truncate">{user?.email || 'GitHub User'}</p>
             </div>
           </div>
 
-          <button 
-            onClick={handleLogout} 
+          <button
+            onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-zinc-500 hover:text-rose-400 hover:bg-rose-500/5 text-sm font-medium transition-all duration-200 group text-left cursor-pointer"
           >
             <LogOut className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200 text-zinc-500 group-hover:text-rose-400" />
@@ -182,7 +184,7 @@ export default function DashboardLayout({
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           {/* Backdrop Overlay */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setMobileSidebarOpen(false)}
           />
@@ -198,7 +200,7 @@ export default function DashboardLayout({
                   GitProfile<span className="text-violet-500">Stats</span>
                 </span>
               </div>
-              <button 
+              <button
                 onClick={() => setMobileSidebarOpen(false)}
                 className="p-1.5 rounded-lg border border-white/5 bg-white/5 text-zinc-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                 aria-label="Close sidebar menu"
@@ -219,14 +221,16 @@ export default function DashboardLayout({
                     onClick={() => setMobileSidebarOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 relative group ${
                       isActive
-                        ? "bg-white/5 text-white border border-white/5"
-                        : "text-zinc-400 hover:text-white hover:bg-white/[0.02]"
+                        ? 'bg-white/5 text-white border border-white/5'
+                        : 'text-zinc-400 hover:text-white hover:bg-white/[0.02]'
                     }`}
                   >
                     {isActive && (
                       <div className="absolute left-0 top-3.5 bottom-3.5 w-1 rounded-r-md bg-gradient-to-b from-violet-500 to-fuchsia-500" />
                     )}
-                    <Icon className={`w-4 h-4 transition-colors duration-200 ${isActive ? "text-violet-400" : "text-zinc-400 group-hover:text-white"}`} />
+                    <Icon
+                      className={`w-4 h-4 transition-colors duration-200 ${isActive ? 'text-violet-400' : 'text-zinc-400 group-hover:text-white'}`}
+                    />
                     <span>{link.name}</span>
                   </Link>
                 );
@@ -238,27 +242,27 @@ export default function DashboardLayout({
               <div className="flex items-center gap-3 px-2">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-[1px] overflow-hidden shrink-0">
                   {user?.avatarUrl ? (
-                    <Image 
-                      src={user.avatarUrl} 
-                      alt={`${user.username}'s GitHub avatar`} 
+                    <Image
+                      src={user.avatarUrl}
+                      alt={`${user.username}'s GitHub avatar`}
                       width={40}
                       height={40}
                       className="w-full h-full rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full rounded-full bg-zinc-950 flex items-center justify-center font-bold text-sm text-white">
-                      {user?.username?.substring(0, 2).toUpperCase() || "US"}
+                      {user?.username?.substring(0, 2).toUpperCase() || 'US'}
                     </div>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <h5 className="font-semibold text-sm text-white truncate">@{user?.username}</h5>
-                  <p className="text-zinc-500 text-xs truncate">{user?.email || "GitHub User"}</p>
+                  <p className="text-zinc-500 text-xs truncate">{user?.email || 'GitHub User'}</p>
                 </div>
               </div>
 
-              <button 
-                onClick={handleLogout} 
+              <button
+                onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:text-rose-400 hover:bg-rose-500/5 text-sm font-medium transition-all group text-left cursor-pointer"
               >
                 <LogOut className="w-4 h-4 text-zinc-500 group-hover:text-rose-400" />
@@ -282,22 +286,22 @@ export default function DashboardLayout({
             >
               <Menu className="w-5 h-5" />
             </button>
-            
+
             {/* Page title based on route */}
             <h2 className="text-lg font-bold text-white tracking-tight">
-              {pathname === "/dashboard"
-                ? "Dashboard Overview"
-                : pathname === "/dashboard/cards"
-                ? "Card Preview & Customizer"
-                : pathname === "/dashboard/themes"
-                ? "Theme Gallery"
-                : pathname === "/dashboard/repositories"
-                ? "GitHub Repositories"
-                : pathname === "/dashboard/activity"
-                ? "Recent Activity"
-                : pathname === "/dashboard/settings"
-                ? "User Settings"
-                : "GitProfileStats"}
+              {pathname === '/dashboard'
+                ? 'Dashboard Overview'
+                : pathname === '/dashboard/cards'
+                  ? 'Card Preview & Customizer'
+                  : pathname === '/dashboard/themes'
+                    ? 'Theme Gallery'
+                    : pathname === '/dashboard/repositories'
+                      ? 'GitHub Repositories'
+                      : pathname === '/dashboard/activity'
+                        ? 'Recent Activity'
+                        : pathname === '/dashboard/settings'
+                          ? 'User Settings'
+                          : 'GitProfileStats'}
             </h2>
           </div>
 
@@ -306,16 +310,16 @@ export default function DashboardLayout({
             {/* Mock Search Bar */}
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/5 bg-white/[0.02] text-zinc-400 focus-within:border-violet-500/50 transition-all">
               <Search className="w-4 h-4 text-zinc-500" />
-              <input 
-                type="text" 
-                placeholder="Search resources..." 
+              <input
+                type="text"
+                placeholder="Search resources..."
                 className="bg-transparent border-none text-xs text-white focus:outline-none w-40 md:w-48 placeholder-zinc-500"
                 aria-label="Search resources"
               />
             </div>
 
             {/* Notification Widget */}
-            <button 
+            <button
               className="p-2 rounded-lg border border-white/5 bg-white/[0.02] text-zinc-400 hover:text-white hover:bg-white/[0.05] relative transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               aria-label="Notifications"
             >
@@ -327,9 +331,9 @@ export default function DashboardLayout({
             <button className="flex items-center gap-2 border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] px-3 py-1.5 rounded-xl text-zinc-300 hover:text-white cursor-pointer transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500">
               <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
                 {user?.avatarUrl ? (
-                  <Image 
-                    src={user.avatarUrl} 
-                    alt={`${user.username}'s GitHub avatar`} 
+                  <Image
+                    src={user.avatarUrl}
+                    alt={`${user.username}'s GitHub avatar`}
                     width={24}
                     height={24}
                     className="w-full h-full object-cover"

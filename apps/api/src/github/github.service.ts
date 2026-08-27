@@ -244,7 +244,6 @@ export class GitHubService {
     return this.request<GitHubRepository[]>(endpoint, token);
   }
 
-
   /**
    * Fetches details of a specific repository.
    */

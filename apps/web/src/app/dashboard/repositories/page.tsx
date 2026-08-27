@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useDashboardStats } from "../hooks/useDashboardStats";
-import { useOnlineStatus } from "../hooks/useOnlineStatus";
-import { LANGUAGE_COLORS } from "../types";
+import React, { useState } from 'react';
+import { useDashboardStats } from '../hooks/useDashboardStats';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
+import { LANGUAGE_COLORS } from '../types';
 import {
   Code2,
   Folder,
@@ -18,19 +18,12 @@ import {
   AlertTriangle,
   RefreshCw,
   WifiOff,
-  ExternalLink
-} from "lucide-react";
+  ExternalLink,
+} from 'lucide-react';
 
 export default function RepositoriesPage() {
   const isOnline = useOnlineStatus();
-  const {
-    user,
-    loading,
-    loadingStats,
-    stats,
-    statsError,
-    loadStats
-  } = useDashboardStats();
+  const { user, loading, loadingStats, stats, statsError, loadStats } = useDashboardStats();
 
   const [syncing, setSyncing] = useState(false);
 
@@ -57,7 +50,10 @@ export default function RepositoriesPage() {
             </div>
             <div>
               <strong className="text-white font-bold block text-sm">Offline Mode Active</strong>
-              <span className="text-zinc-400">You are currently disconnected from the internet. Action buttons requiring connection are disabled.</span>
+              <span className="text-zinc-400">
+                You are currently disconnected from the internet. Action buttons requiring
+                connection are disabled.
+              </span>
             </div>
           </div>
           <button
@@ -79,18 +75,27 @@ export default function RepositoriesPage() {
             GitHub Repositories
           </h1>
           <p className="text-zinc-400 text-xs mt-2.5 leading-relaxed max-w-3xl font-medium">
-            Explore your repository counts, language composition breakdowns, and highlighted codebases.
+            Explore your repository counts, language composition breakdowns, and highlighted
+            codebases.
           </p>
         </div>
-        
+
         {user && (
           <button
             onClick={handleSync}
             disabled={syncing || loadingStats || !isOnline}
             className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-extrabold text-white rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-violet-500/15"
           >
-            <RefreshCw className={`w-4 h-4 ${(syncing || loadingStats) ? "animate-spin text-white" : "text-white"}`} />
-            <span>{!isOnline ? "Sync Disabled (Offline)" : syncing ? "Fetching stats..." : "Refresh Stats Data"}</span>
+            <RefreshCw
+              className={`w-4 h-4 ${syncing || loadingStats ? 'animate-spin text-white' : 'text-white'}`}
+            />
+            <span>
+              {!isOnline
+                ? 'Sync Disabled (Offline)'
+                : syncing
+                  ? 'Fetching stats...'
+                  : 'Refresh Stats Data'}
+            </span>
           </button>
         )}
       </div>
@@ -104,9 +109,7 @@ export default function RepositoriesPage() {
             </div>
             <div className="min-w-0 flex-1">
               <h4 className="font-bold text-base text-white">GitHub API Connection Failed</h4>
-              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
-                {statsError}
-              </p>
+              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">{statsError}</p>
             </div>
           </div>
           {isOnline && (
@@ -134,7 +137,8 @@ export default function RepositoriesPage() {
           <div className="max-w-md">
             <h3 className="font-extrabold text-lg text-white">No Statistics Loaded</h3>
             <p className="text-zinc-400 text-xs mt-1.5 leading-relaxed">
-              Your developer statistics details are currently empty. Please configure a personal access token in Settings or Overview to load statistics.
+              Your developer statistics details are currently empty. Please configure a personal
+              access token in Settings or Overview to load statistics.
             </p>
           </div>
         </div>
@@ -166,7 +170,6 @@ export default function RepositoriesPage() {
       {/* DATA LOADED VIEWS */}
       {stats && !loadingStats && (
         <div className="flex flex-col gap-6 w-full animate-in fade-in duration-300">
-          
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Repository Statistics (Left / 7 cols) */}
             <div className="glass-card rounded-3xl p-6 lg:col-span-7 flex flex-col justify-between">
@@ -180,19 +183,25 @@ export default function RepositoriesPage() {
                   <>
                     <div className="grid grid-cols-3 gap-4 mt-5">
                       <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Total</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                          Total
+                        </span>
                         <span className="text-xl font-extrabold text-white mt-1 block">
                           {stats.repositoryStats.total}
                         </span>
                       </div>
                       <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Public</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                          Public
+                        </span>
                         <span className="text-xl font-extrabold text-emerald-400 mt-1 block">
                           {stats.repositoryStats.public}
                         </span>
                       </div>
                       <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Private</span>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                          Private
+                        </span>
                         <span className="text-xl font-extrabold text-fuchsia-400 mt-1 block">
                           {stats.repositoryStats.private}
                         </span>
@@ -205,7 +214,7 @@ export default function RepositoriesPage() {
                           <Lock className="w-3.5 h-3.5 text-zinc-500" /> Private Repository access:
                         </span>
                         <span className="font-semibold text-zinc-300">
-                          {stats.repositoryStats.private > 0 ? "Enabled" : "None Detected"}
+                          {stats.repositoryStats.private > 0 ? 'Enabled' : 'None Detected'}
                         </span>
                       </div>
                       <div className="flex justify-between border-b border-white/3 pb-1.5">
@@ -234,7 +243,8 @@ export default function RepositoriesPage() {
                       </div>
                       <div className="flex justify-between">
                         <span className="flex items-center gap-1.5">
-                          <AlertTriangle className="w-3.5 h-3.5 text-zinc-500" /> Average Issue Close Time:
+                          <AlertTriangle className="w-3.5 h-3.5 text-zinc-500" /> Average Issue
+                          Close Time:
                         </span>
                         <span className="font-semibold text-zinc-300">
                           {stats.issueStats.averageCloseTimeFormatted}
@@ -250,7 +260,8 @@ export default function RepositoriesPage() {
                     <div>
                       <h4 className="font-bold text-xs text-white">No Repositories Found</h4>
                       <p className="text-[10px] text-zinc-500 leading-relaxed max-w-[240px] mx-auto mt-1">
-                        No public repositories were detected for this profile. Access token scopes may restrict private repository stats.
+                        No public repositories were detected for this profile. Access token scopes
+                        may restrict private repository stats.
                       </p>
                     </div>
                   </div>
@@ -288,11 +299,11 @@ export default function RepositoriesPage() {
                       {stats.languageStats.slice(0, 5).map((lang, index) => (
                         <div
                           key={lang.language}
-                          style={{ 
+                          style={{
                             width: `${lang.percentage}%`,
-                            backgroundColor: LANGUAGE_COLORS[lang.language] || "#8250df"
+                            backgroundColor: LANGUAGE_COLORS[lang.language] || '#8250df',
                           }}
-                          className={`h-full ${index === 0 ? "rounded-l-full" : ""} ${index === stats.languageStats.slice(0, 5).length - 1 ? "rounded-r-full" : ""}`}
+                          className={`h-full ${index === 0 ? 'rounded-l-full' : ''} ${index === stats.languageStats.slice(0, 5).length - 1 ? 'rounded-r-full' : ''}`}
                           title={`${lang.language}: ${lang.percentage}%`}
                         />
                       ))}
@@ -300,17 +311,30 @@ export default function RepositoriesPage() {
 
                     {/* Detail list rows */}
                     {stats.languageStats.slice(0, 5).map((lang) => {
-                      const dotColor = LANGUAGE_COLORS[lang.language] || "#8250df";
+                      const dotColor = LANGUAGE_COLORS[lang.language] || '#8250df';
                       return (
-                        <div key={lang.language} className="flex items-center justify-between text-xs">
+                        <div
+                          key={lang.language}
+                          className="flex items-center justify-between text-xs"
+                        >
                           <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: dotColor }} />
+                            <span
+                              className="w-2.5 h-2.5 rounded-full shrink-0"
+                              style={{ backgroundColor: dotColor }}
+                            />
                             <span className="font-bold text-zinc-300">{lang.language}</span>
-                            <span className="text-[10px] text-zinc-500">({lang.repositoryCount} {lang.repositoryCount === 1 ? "repo" : "repos"})</span>
+                            <span className="text-[10px] text-zinc-500">
+                              ({lang.repositoryCount}{' '}
+                              {lang.repositoryCount === 1 ? 'repo' : 'repos'})
+                            </span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-zinc-500 font-mono">{(lang.bytes / 1024).toFixed(0)} KB</span>
-                            <span className="font-extrabold text-white min-w-[42px] text-right">{lang.percentage}%</span>
+                            <span className="text-zinc-500 font-mono">
+                              {(lang.bytes / 1024).toFixed(0)} KB
+                            </span>
+                            <span className="font-extrabold text-white min-w-[42px] text-right">
+                              {lang.percentage}%
+                            </span>
                           </div>
                         </div>
                       );
@@ -324,7 +348,8 @@ export default function RepositoriesPage() {
                     <div>
                       <h4 className="font-bold text-xs text-white">No Languages Detected</h4>
                       <p className="text-[10px] text-zinc-500 leading-relaxed max-w-[200px] mx-auto mt-1">
-                        We couldn&apos;t analyze any programming language bytes in your public repositories.
+                        We couldn&apos;t analyze any programming language bytes in your public
+                        repositories.
                       </p>
                     </div>
                   </div>
@@ -359,13 +384,20 @@ export default function RepositoriesPage() {
                       {stats.repositoryRankings.mostStarred.name}
                     </h4>
                     <p className="text-zinc-500 text-xs mt-2 line-clamp-3 leading-relaxed">
-                      {stats.repositoryRankings.mostStarred.description || "No description provided."}
+                      {stats.repositoryRankings.mostStarred.description ||
+                        'No description provided.'}
                     </p>
                   </div>
                   <div className="flex items-center justify-between text-xs text-zinc-400 mt-4 border-t border-white/5 pt-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> {stats.repositoryRankings.mostStarred.stars}</span>
-                      <span className="flex items-center gap-1"><GitFork className="w-3 h-3 text-violet-500" /> {stats.repositoryRankings.mostStarred.forks}</span>
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-amber-500" />{' '}
+                        {stats.repositoryRankings.mostStarred.stars}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <GitFork className="w-3 h-3 text-violet-500" />{' '}
+                        {stats.repositoryRankings.mostStarred.forks}
+                      </span>
                     </div>
                     <a
                       href={stats.repositoryRankings.mostStarred.htmlUrl}
@@ -383,7 +415,9 @@ export default function RepositoriesPage() {
                   <Star className="w-5 h-5 text-zinc-600" />
                   <div>
                     <h4 className="font-bold text-xs text-zinc-400">No Starred Repos</h4>
-                    <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">We couldn&apos;t detect starred repositories.</p>
+                    <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">
+                      We couldn&apos;t detect starred repositories.
+                    </p>
                   </div>
                 </div>
               )}
@@ -400,13 +434,20 @@ export default function RepositoriesPage() {
                       {stats.repositoryRankings.mostForked.name}
                     </h4>
                     <p className="text-zinc-500 text-xs mt-2 line-clamp-3 leading-relaxed">
-                      {stats.repositoryRankings.mostForked.description || "No description provided."}
+                      {stats.repositoryRankings.mostForked.description ||
+                        'No description provided.'}
                     </p>
                   </div>
                   <div className="flex items-center justify-between text-xs text-zinc-400 mt-4 border-t border-white/5 pt-3">
                     <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1"><Star className="w-3 h-3 text-amber-500" /> {stats.repositoryRankings.mostForked.stars}</span>
-                      <span className="flex items-center gap-1"><GitFork className="w-3 h-3 text-violet-500" /> {stats.repositoryRankings.mostForked.forks}</span>
+                      <span className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-amber-500" />{' '}
+                        {stats.repositoryRankings.mostForked.stars}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <GitFork className="w-3 h-3 text-violet-500" />{' '}
+                        {stats.repositoryRankings.mostForked.forks}
+                      </span>
                     </div>
                     <a
                       href={stats.repositoryRankings.mostForked.htmlUrl}
@@ -424,7 +465,9 @@ export default function RepositoriesPage() {
                   <GitFork className="w-5 h-5 text-zinc-600" />
                   <div>
                     <h4 className="font-bold text-xs text-zinc-400">No Forked Repos</h4>
-                    <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">Forked repositories will show up here.</p>
+                    <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">
+                      Forked repositories will show up here.
+                    </p>
                   </div>
                 </div>
               )}
@@ -441,15 +484,18 @@ export default function RepositoriesPage() {
                       {stats.repositoryRankings.mostRecentlyUpdated.name}
                     </h4>
                     <p className="text-zinc-500 text-xs mt-2 line-clamp-3 leading-relaxed">
-                      {stats.repositoryRankings.mostRecentlyUpdated.description || "No description provided."}
+                      {stats.repositoryRankings.mostRecentlyUpdated.description ||
+                        'No description provided.'}
                     </p>
                   </div>
                   <div className="flex items-center justify-between text-xs text-zinc-400 mt-4 border-t border-white/5 pt-3">
                     <div className="flex items-center gap-1 truncate max-w-[130px]">
                       <span className="text-[10px] text-zinc-500 font-mono">
-                        {new Date(stats.repositoryRankings.mostRecentlyUpdated.updatedAt).toLocaleDateString(undefined, { 
-                          month: 'short', 
-                          day: 'numeric' 
+                        {new Date(
+                          stats.repositoryRankings.mostRecentlyUpdated.updatedAt,
+                        ).toLocaleDateString(undefined, {
+                          month: 'short',
+                          day: 'numeric',
                         })}
                       </span>
                     </div>
@@ -469,13 +515,14 @@ export default function RepositoriesPage() {
                   <Eye className="w-5 h-5 text-zinc-600" />
                   <div>
                     <h4 className="font-bold text-xs text-zinc-400">No Active Repos</h4>
-                    <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">Active public repositories will be listed here.</p>
+                    <p className="text-[9px] text-zinc-500 leading-relaxed max-w-[140px] mt-0.5">
+                      Active public repositories will be listed here.
+                    </p>
                   </div>
                 </div>
               )}
             </div>
           </div>
-
         </div>
       )}
     </div>

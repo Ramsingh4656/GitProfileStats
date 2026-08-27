@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #030014;
@@ -31,7 +31,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 
+  box-shadow:
     0 8px 32px 0 rgba(0, 0, 0, 0.4),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.05);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -39,7 +39,7 @@ body {
 
 .glass-card:hover {
   border-color: rgba(139, 92, 246, 0.35);
-  box-shadow: 
+  box-shadow:
     0 12px 40px rgba(139, 92, 246, 0.15),
     inset 0 1px 2px 0 rgba(255, 255, 255, 0.1);
   transform: translateY(-4px) scale(1.005);
@@ -90,7 +90,8 @@ body {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -103,7 +104,8 @@ body {
 }
 
 @keyframes pulse-slow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(1);
   }
@@ -125,4 +127,67 @@ body {
 
 .animate-shimmer {
   animation: shimmer 2s infinite;
+}
+
+/* Custom animations for Profile Card */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-banner-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 10s ease infinite;
+}
+
+.profile-avatar-container {
+  position: relative;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #8b5cf6, #ec4899, #8b5cf6);
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+.glass-card:hover .profile-avatar-container {
+  transform: scale(1.08) translateY(-2px);
+  animation: gradient-shift 2.5s ease infinite;
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.4);
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 4px rgba(139, 92, 246, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+    border-color: rgba(139, 92, 246, 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes profile-card-entrance {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-profile-entrance {
+  animation: profile-card-entrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

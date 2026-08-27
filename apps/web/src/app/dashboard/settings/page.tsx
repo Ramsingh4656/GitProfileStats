@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { env } from "@/config/env";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import { env } from '@/config/env';
+import { useRouter } from 'next/navigation';
 import {
   Palette,
   Sliders,
@@ -12,30 +12,94 @@ import {
   RefreshCw,
   Check,
   AlertTriangle,
-} from "lucide-react";
+} from 'lucide-react';
 
 // Predefined Themes with color preview swatches
 const THEME_OPTIONS = [
-  { id: "dark", name: "Dark Default", bg: "#0d1117", border: "#30363d", text: "#c9d1d9", accent: "#58a6ff", desc: "Default sleek dark mode" },
-  { id: "light", name: "Light Mode", bg: "#ffffff", border: "#d0d7de", text: "#24292f", accent: "#0969da", desc: "Clean bright look" },
-  { id: "github", name: "GitHub Green", bg: "#0d1117", border: "#30363d", text: "#c9d1d9", accent: "#2ea44f", desc: "Classic GitHub developer styling" },
-  { id: "dracula", name: "Dracula Classic", bg: "#282a36", border: "#44475a", text: "#f8f8f2", accent: "#50fa7b", desc: "Vibrant high-contrast dark theme" },
-  { id: "nord", name: "Nord Arctic", bg: "#2e3440", border: "#3b4252", text: "#d8dee9", accent: "#88c0d0", desc: "Clean and cool clean-room slate" }
+  {
+    id: 'dark',
+    name: 'Dark Default',
+    bg: '#0d1117',
+    border: '#30363d',
+    text: '#c9d1d9',
+    accent: '#58a6ff',
+    desc: 'Default sleek dark mode',
+  },
+  {
+    id: 'light',
+    name: 'Light Mode',
+    bg: '#ffffff',
+    border: '#d0d7de',
+    text: '#24292f',
+    accent: '#0969da',
+    desc: 'Clean bright look',
+  },
+  {
+    id: 'github',
+    name: 'GitHub Green',
+    bg: '#0d1117',
+    border: '#30363d',
+    text: '#c9d1d9',
+    accent: '#2ea44f',
+    desc: 'Classic GitHub developer styling',
+  },
+  {
+    id: 'dracula',
+    name: 'Dracula Classic',
+    bg: '#282a36',
+    border: '#44475a',
+    text: '#f8f8f2',
+    accent: '#50fa7b',
+    desc: 'Vibrant high-contrast dark theme',
+  },
+  {
+    id: 'nord',
+    name: 'Nord Arctic',
+    bg: '#2e3440',
+    border: '#3b4252',
+    text: '#d8dee9',
+    accent: '#88c0d0',
+    desc: 'Clean and cool clean-room slate',
+  },
 ];
 
 // Card Styles with visual description
 const STYLE_OPTIONS = [
-  { id: "classic", name: "Classic", desc: "Standard 10px rounded corners with standard thin border" },
-  { id: "glassmorphism", name: "Glassmorphism", desc: "Frosted translucent panel style with 16px soft corners" },
-  { id: "modern", name: "Modern Flat", desc: "Bold flat panel with 12px corners and solid background" },
-  { id: "minimal", name: "Minimalist", desc: "Borderless layout with sharp 0px corners for absolute minimalism" }
+  {
+    id: 'classic',
+    name: 'Classic',
+    desc: 'Standard 10px rounded corners with standard thin border',
+  },
+  {
+    id: 'glassmorphism',
+    name: 'Glassmorphism',
+    desc: 'Frosted translucent panel style with 16px soft corners',
+  },
+  {
+    id: 'modern',
+    name: 'Modern Flat',
+    desc: 'Bold flat panel with 12px corners and solid background',
+  },
+  {
+    id: 'minimal',
+    name: 'Minimalist',
+    desc: 'Borderless layout with sharp 0px corners for absolute minimalism',
+  },
 ];
 
 // Sorting options for language collector card
 const SORTING_OPTIONS = [
-  { id: "size", name: "Sort by Size (Bytes)", desc: "Show languages based on total bytes of source code written" },
-  { id: "count", name: "Sort by Repo Count", desc: "Sort languages based on the number of repositories featuring them" },
-  { id: "alphabetical", name: "Alphabetical", desc: "Order languages standard alphabetically A-Z" }
+  {
+    id: 'size',
+    name: 'Sort by Size (Bytes)',
+    desc: 'Show languages based on total bytes of source code written',
+  },
+  {
+    id: 'count',
+    name: 'Sort by Repo Count',
+    desc: 'Sort languages based on the number of repositories featuring them',
+  },
+  { id: 'alphabetical', name: 'Alphabetical', desc: 'Order languages standard alphabetically A-Z' },
 ];
 
 interface SettingsState {
@@ -59,15 +123,15 @@ export default function SettingsPage() {
 
   // Settings State
   const [settings, setSettings] = useState<SettingsState>({
-    preferredTheme: "dark",
-    defaultCardStyle: "classic",
-    languageSorting: "size",
+    preferredTheme: 'dark',
+    defaultCardStyle: 'classic',
+    languageSorting: 'size',
     defaultCardVisibility: {
       profile: true,
       stats: true,
       languages: true,
       streak: true,
-    }
+    },
   });
 
   // Verify session & Load saved settings
@@ -76,7 +140,7 @@ export default function SettingsPage() {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -91,8 +155,8 @@ export default function SettingsPage() {
           }
         }
       } catch (err) {
-        console.error("Failed to load user settings:", err);
-        setErrorMsg("Failed to retrieve user preferences from the backend. Using default config.");
+        console.error('Failed to load user settings:', err);
+        setErrorMsg('Failed to retrieve user preferences from the backend. Using default config.');
       } finally {
         setLoading(false);
       }
@@ -110,12 +174,12 @@ export default function SettingsPage() {
     try {
       const apiBase = env.NEXT_PUBLIC_API_URL;
       const response = await fetch(`${apiBase}/api/v1/users/settings`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
-        body: JSON.stringify(settings)
+        credentials: 'include',
+        body: JSON.stringify(settings),
       });
 
       if (!response.ok) {
@@ -127,23 +191,23 @@ export default function SettingsPage() {
         setSaveSuccess(true);
         setTimeout(() => setSaveSuccess(false), 3000);
       } else {
-        throw new Error(data.error || "Save operation failed.");
+        throw new Error(data.error || 'Save operation failed.');
       }
     } catch (err: unknown) {
-      console.error("Failed to save settings:", err);
-      setErrorMsg(err instanceof Error ? err.message : "Error saving preferences to backend.");
+      console.error('Failed to save settings:', err);
+      setErrorMsg(err instanceof Error ? err.message : 'Error saving preferences to backend.');
     } finally {
       setSaving(false);
     }
   };
 
-  const updateVisibility = (key: keyof SettingsState["defaultCardVisibility"]) => {
+  const updateVisibility = (key: keyof SettingsState['defaultCardVisibility']) => {
     setSettings((prev) => ({
       ...prev,
       defaultCardVisibility: {
         ...prev.defaultCardVisibility,
-        [key]: !prev.defaultCardVisibility[key]
-      }
+        [key]: !prev.defaultCardVisibility[key],
+      },
     }));
   };
 
@@ -188,7 +252,8 @@ export default function SettingsPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-white tracking-tight">System Preferences</h1>
           <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
-            Configure defaults for theme colors, layouts, and cards visibility that render across your profile README embeds.
+            Configure defaults for theme colors, layouts, and cards visibility that render across
+            your profile README embeds.
           </p>
         </div>
         <button
@@ -201,7 +266,7 @@ export default function SettingsPage() {
           ) : (
             <Save className="w-4 h-4 text-white" />
           )}
-          <span>{saving ? "Saving Changes..." : "Save Settings"}</span>
+          <span>{saving ? 'Saving Changes...' : 'Save Settings'}</span>
         </button>
       </div>
 
@@ -221,8 +286,8 @@ export default function SettingsPage() {
                   onClick={() => setSettings((prev) => ({ ...prev, preferredTheme: theme.id }))}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     isSelected
-                      ? "bg-white/5 border-violet-500/50 shadow-inner"
-                      : "border-white/5 hover:border-white/10 hover:bg-white/[0.01]"
+                      ? 'bg-white/5 border-violet-500/50 shadow-inner'
+                      : 'border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
                   }`}
                   role="radio"
                   aria-checked={isSelected}
@@ -233,13 +298,27 @@ export default function SettingsPage() {
                       {theme.name}
                       {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-violet-400" />}
                     </span>
-                    <span className="text-[10px] text-zinc-400 font-medium leading-normal">{theme.desc}</span>
+                    <span className="text-[10px] text-zinc-400 font-medium leading-normal">
+                      {theme.desc}
+                    </span>
                   </div>
                   {/* Theme Palette Swatch preview dots */}
                   <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-2 rounded-xl border border-white/5 shrink-0">
-                    <div className="w-3 h-3 rounded-full border border-white/10" style={{ backgroundColor: theme.bg }} title="Background" />
-                    <div className="w-3 h-3 rounded-full border border-white/10" style={{ backgroundColor: theme.text }} title="Text color" />
-                    <div className="w-3 h-3 rounded-full border border-white/10" style={{ backgroundColor: theme.accent }} title="Accent color" />
+                    <div
+                      className="w-3 h-3 rounded-full border border-white/10"
+                      style={{ backgroundColor: theme.bg }}
+                      title="Background"
+                    />
+                    <div
+                      className="w-3 h-3 rounded-full border border-white/10"
+                      style={{ backgroundColor: theme.text }}
+                      title="Text color"
+                    />
+                    <div
+                      className="w-3 h-3 rounded-full border border-white/10"
+                      style={{ backgroundColor: theme.accent }}
+                      title="Accent color"
+                    />
                   </div>
                 </button>
               );
@@ -253,7 +332,11 @@ export default function SettingsPage() {
             <Sliders className="w-5 h-5 text-violet-400" />
             Default Card Style
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" role="radiogroup" aria-label="Default card style">
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            role="radiogroup"
+            aria-label="Default card style"
+          >
             {STYLE_OPTIONS.map((style) => {
               const isSelected = settings.defaultCardStyle === style.id;
               return (
@@ -262,8 +345,8 @@ export default function SettingsPage() {
                   onClick={() => setSettings((prev) => ({ ...prev, defaultCardStyle: style.id }))}
                   className={`flex flex-col gap-2 p-5 rounded-2xl border transition-all text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     isSelected
-                      ? "bg-white/5 border-violet-500/50 shadow-inner"
-                      : "border-white/5 hover:border-white/10 hover:bg-white/[0.01]"
+                      ? 'bg-white/5 border-violet-500/50 shadow-inner'
+                      : 'border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
                   }`}
                   role="radio"
                   aria-checked={isSelected}
@@ -299,8 +382,8 @@ export default function SettingsPage() {
                   onClick={() => setSettings((prev) => ({ ...prev, languageSorting: opt.id }))}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
                     isSelected
-                      ? "bg-white/5 border-violet-500/50 shadow-inner"
-                      : "border-white/5 hover:border-white/10 hover:bg-white/[0.01]"
+                      ? 'bg-white/5 border-violet-500/50 shadow-inner'
+                      : 'border-white/5 hover:border-white/10 hover:bg-white/[0.01]'
                   }`}
                   role="radio"
                   aria-checked={isSelected}
@@ -310,11 +393,13 @@ export default function SettingsPage() {
                     <span className="text-xs font-bold text-white">{opt.name}</span>
                     <span className="text-[10px] text-zinc-400 leading-normal">{opt.desc}</span>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                    isSelected
-                      ? "border-violet-500 bg-violet-500/10 text-violet-400"
-                      : "border-white/10 text-transparent"
-                  }`}>
+                  <div
+                    className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                      isSelected
+                        ? 'border-violet-500 bg-violet-500/10 text-violet-400'
+                        : 'border-white/10 text-transparent'
+                    }`}
+                  >
                     <Check className="w-3.5 h-3.5" />
                   </div>
                 </button>
@@ -331,23 +416,46 @@ export default function SettingsPage() {
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { key: "profile", label: "Profile Card", desc: "Short overview of profile name and bio status" },
-              { key: "stats", label: "Stats Card", desc: "Repo count, stars, contributions, and issues metrics" },
-              { key: "languages", label: "Languages Card", desc: "Top programming languages percentage bar breakdown" },
-              { key: "streak", label: "Streak Card", desc: "Contributions streaks tracking details" }
+              {
+                key: 'profile',
+                label: 'Profile Card',
+                desc: 'Short overview of profile name and bio status',
+              },
+              {
+                key: 'stats',
+                label: 'Stats Card',
+                desc: 'Repo count, stars, contributions, and issues metrics',
+              },
+              {
+                key: 'languages',
+                label: 'Languages Card',
+                desc: 'Top programming languages percentage bar breakdown',
+              },
+              {
+                key: 'streak',
+                label: 'Streak Card',
+                desc: 'Contributions streaks tracking details',
+              },
             ].map((card) => {
-              const isVisible = settings.defaultCardVisibility[card.key as keyof SettingsState["defaultCardVisibility"]];
+              const isVisible =
+                settings.defaultCardVisibility[
+                  card.key as keyof SettingsState['defaultCardVisibility']
+                ];
               return (
                 <div
                   key={card.key}
                   className="flex flex-col gap-3 p-4 rounded-2xl border border-white/5 bg-white/[0.01]"
                 >
                   <div className="flex items-center justify-between">
-                    <span id={`label-${card.key}`} className="text-xs font-bold text-white">{card.label}</span>
+                    <span id={`label-${card.key}`} className="text-xs font-bold text-white">
+                      {card.label}
+                    </span>
                     <button
-                      onClick={() => updateVisibility(card.key as keyof SettingsState["defaultCardVisibility"])}
+                      onClick={() =>
+                        updateVisibility(card.key as keyof SettingsState['defaultCardVisibility'])
+                      }
                       className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
-                        isVisible ? "bg-violet-600" : "bg-zinc-800"
+                        isVisible ? 'bg-violet-600' : 'bg-zinc-800'
                       }`}
                       role="switch"
                       aria-checked={isVisible}
@@ -355,7 +463,7 @@ export default function SettingsPage() {
                     >
                       <div
                         className={`w-4 h-4 rounded-full bg-white transition-transform duration-200 ${
-                          isVisible ? "translate-x-4" : "translate-x-0"
+                          isVisible ? 'translate-x-4' : 'translate-x-0'
                         }`}
                       />
                     </button>

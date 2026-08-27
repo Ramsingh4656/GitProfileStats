@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { env } from "@/config/env";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import { env } from '@/config/env';
+import { useRouter } from 'next/navigation';
 import {
   Palette,
   Terminal,
@@ -12,64 +12,64 @@ import {
   Check,
   Code2,
   AlertTriangle,
-  Download
-} from "lucide-react";
+  Download,
+} from 'lucide-react';
 
 // Themes information matching the backend
 const THEMES_INFO = [
   {
-    id: "dark",
-    name: "Dark Default",
-    desc: "Sleek and professional dark mode",
-    bg: "#0d1117",
-    border: "#30363d",
-    text: "#c9d1d9",
-    accent: "#58a6ff",
-    secondary: "#8b949e",
+    id: 'dark',
+    name: 'Dark Default',
+    desc: 'Sleek and professional dark mode',
+    bg: '#0d1117',
+    border: '#30363d',
+    text: '#c9d1d9',
+    accent: '#58a6ff',
+    secondary: '#8b949e',
   },
   {
-    id: "light",
-    name: "Light Mode",
-    desc: "Clean, crisp and classic bright look",
-    bg: "#ffffff",
-    border: "#d0d7de",
-    text: "#24292f",
-    accent: "#0969da",
-    secondary: "#57606a",
+    id: 'light',
+    name: 'Light Mode',
+    desc: 'Clean, crisp and classic bright look',
+    bg: '#ffffff',
+    border: '#d0d7de',
+    text: '#24292f',
+    accent: '#0969da',
+    secondary: '#57606a',
   },
   {
-    id: "github",
-    name: "GitHub Green",
-    desc: "Vibrant developer-focused green theme",
-    bg: "#0d1117",
-    border: "#30363d",
-    text: "#c9d1d9",
-    accent: "#2ea44f",
-    secondary: "#8b949e",
+    id: 'github',
+    name: 'GitHub Green',
+    desc: 'Vibrant developer-focused green theme',
+    bg: '#0d1117',
+    border: '#30363d',
+    text: '#c9d1d9',
+    accent: '#2ea44f',
+    secondary: '#8b949e',
   },
   {
-    id: "dracula",
-    name: "Dracula Classic",
-    desc: "Vibrant high-contrast hacker aesthetic",
-    bg: "#282a36",
-    border: "#44475a",
-    text: "#f8f8f2",
-    accent: "#50fa7b",
-    secondary: "#6272a4",
+    id: 'dracula',
+    name: 'Dracula Classic',
+    desc: 'Vibrant high-contrast hacker aesthetic',
+    bg: '#282a36',
+    border: '#44475a',
+    text: '#f8f8f2',
+    accent: '#50fa7b',
+    secondary: '#6272a4',
   },
   {
-    id: "nord",
-    name: "Nord Arctic",
-    desc: "Chilly, clean, and cool north-sea design",
-    bg: "#2e3440",
-    border: "#3b4252",
-    text: "#d8dee9",
-    accent: "#88c0d0",
-    secondary: "#4c566a",
+    id: 'nord',
+    name: 'Nord Arctic',
+    desc: 'Chilly, clean, and cool north-sea design',
+    bg: '#2e3440',
+    border: '#3b4252',
+    text: '#d8dee9',
+    accent: '#88c0d0',
+    secondary: '#4c566a',
   },
 ];
 
-type CardType = "profile" | "stats" | "languages" | "streak" | "repository";
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository';
 
 interface CardConfig {
   title: string;
@@ -80,32 +80,32 @@ interface CardConfig {
 
 const CARD_TYPES: Record<CardType, CardConfig> = {
   profile: {
-    title: "Profile Card",
-    desc: "Compact developer identity overview",
+    title: 'Profile Card',
+    desc: 'Compact developer identity overview',
     defaultWidth: 400,
     defaultHeight: 120,
   },
   stats: {
-    title: "Stats Card",
-    desc: "Repository count, stars, forks, commits, and issues tracker",
+    title: 'Stats Card',
+    desc: 'Repository count, stars, forks, commits, and issues tracker',
     defaultWidth: 495,
     defaultHeight: 195,
   },
   languages: {
-    title: "Languages Card",
-    desc: "Breakdown of coding languages and bytes written",
+    title: 'Languages Card',
+    desc: 'Breakdown of coding languages and bytes written',
     defaultWidth: 495,
     defaultHeight: 195,
   },
   streak: {
-    title: "Streak Card",
-    desc: "Contributions count, current coding streak, and longest streak",
+    title: 'Streak Card',
+    desc: 'Contributions count, current coding streak, and longest streak',
     defaultWidth: 495,
     defaultHeight: 195,
   },
   repository: {
-    title: "Repository Card",
-    desc: "Repository status, stars, forks, and licenses info",
+    title: 'Repository Card',
+    desc: 'Repository status, stars, forks, and licenses info',
     defaultWidth: 495,
     defaultHeight: 150,
   },
@@ -115,7 +115,7 @@ interface PreviewState {
   svg: string;
   loading: boolean;
   error: string | null;
-  copied: "url" | "markdown" | "html" | "svg" | null;
+  copied: 'url' | 'markdown' | 'html' | 'svg' | null;
 }
 
 interface UserSettings {
@@ -134,14 +134,14 @@ export default function ThemeGalleryPage() {
   const router = useRouter();
 
   // Target config states
-  const [username, setUsername] = useState("octocat");
-  const [usernameInput, setUsernameInput] = useState("octocat");
-  const [repoName, setRepoName] = useState("GitProfileStats");
-  const [repoNameInput, setRepoNameInput] = useState("GitProfileStats");
-  
+  const [username, setUsername] = useState('octocat');
+  const [usernameInput, setUsernameInput] = useState('octocat');
+  const [repoName, setRepoName] = useState('GitProfileStats');
+  const [repoNameInput, setRepoNameInput] = useState('GitProfileStats');
+
   // Customization controls
-  const [selectedCard, setSelectedCard] = useState<CardType>("profile");
-  const [preferredTheme, setPreferredTheme] = useState<string>("dark");
+  const [selectedCard, setSelectedCard] = useState<CardType>('profile');
+  const [preferredTheme, setPreferredTheme] = useState<string>('dark');
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
 
   // Status triggers
@@ -151,11 +151,11 @@ export default function ThemeGalleryPage() {
 
   // Map of previews per theme id
   const [previews, setPreviews] = useState<Record<string, PreviewState>>({
-    dark: { svg: "", loading: true, error: null, copied: null },
-    light: { svg: "", loading: true, error: null, copied: null },
-    github: { svg: "", loading: true, error: null, copied: null },
-    dracula: { svg: "", loading: true, error: null, copied: null },
-    nord: { svg: "", loading: true, error: null, copied: null },
+    dark: { svg: '', loading: true, error: null, copied: null },
+    light: { svg: '', loading: true, error: null, copied: null },
+    github: { svg: '', loading: true, error: null, copied: null },
+    dracula: { svg: '', loading: true, error: null, copied: null },
+    nord: { svg: '', loading: true, error: null, copied: null },
   });
 
   // Verify auth session, load user settings to find current preferredTheme
@@ -164,7 +164,7 @@ export default function ThemeGalleryPage() {
       try {
         const apiBase = env.NEXT_PUBLIC_API_URL;
         const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          credentials: "include",
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -183,7 +183,7 @@ export default function ThemeGalleryPage() {
           }
         }
       } catch (err) {
-        console.error("Failed to load user profile in theme gallery:", err);
+        console.error('Failed to load user profile in theme gallery:', err);
       }
     };
 
@@ -201,30 +201,28 @@ export default function ThemeGalleryPage() {
 
       try {
         const params = new URLSearchParams();
-        params.append("theme", theme.id);
+        params.append('theme', theme.id);
 
-
-
-        let endpoint = "";
-        if (selectedCard === "repository") {
-          params.append("owner", username);
-          params.append("repo", repoName);
+        let endpoint = '';
+        if (selectedCard === 'repository') {
+          params.append('owner', username);
+          params.append('repo', repoName);
           endpoint = `${apiBase}/api/cards/repository.svg?${params.toString()}`;
         } else {
-          params.append("username", username);
+          params.append('username', username);
           endpoint = `${apiBase}/api/cards/${selectedCard}.svg?${params.toString()}`;
         }
 
         const response = await fetch(endpoint, {
-          credentials: "include",
+          credentials: 'include',
         });
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
 
         const svgContent = await response.text();
-        if (!svgContent.startsWith("<svg")) {
-          throw new Error("Invalid SVG content response");
+        if (!svgContent.startsWith('<svg')) {
+          throw new Error('Invalid SVG content response');
         }
 
         setPreviews((prev) => ({
@@ -244,7 +242,7 @@ export default function ThemeGalleryPage() {
           [theme.id]: {
             ...prev[theme.id],
             loading: false,
-            error: error.message || "Failed to load card.",
+            error: error.message || 'Failed to load card.',
           },
         }));
       }
@@ -263,31 +261,30 @@ export default function ThemeGalleryPage() {
   };
 
   // Helper to construct embed code strings
-  const getEmbedCode = (themeId: string, format: "url" | "markdown" | "html") => {
+  const getEmbedCode = (themeId: string, format: 'url' | 'markdown' | 'html') => {
     const apiBase = env.NEXT_PUBLIC_API_URL;
     const params = new URLSearchParams();
-    params.append("theme", themeId);
+    params.append('theme', themeId);
 
-
-    let endpoint = "";
-    if (selectedCard === "repository") {
-      params.append("owner", username);
-      params.append("repo", repoName);
+    let endpoint = '';
+    if (selectedCard === 'repository') {
+      params.append('owner', username);
+      params.append('repo', repoName);
       endpoint = `${apiBase}/api/cards/repository.svg?${params.toString()}`;
     } else {
-      params.append("username", username);
+      params.append('username', username);
       endpoint = `${apiBase}/api/cards/${selectedCard}.svg?${params.toString()}`;
     }
 
-    if (format === "url") return endpoint;
-    if (format === "markdown") return `![GitHub Profile Stats Card](${endpoint})`;
+    if (format === 'url') return endpoint;
+    if (format === 'markdown') return `![GitHub Profile Stats Card](${endpoint})`;
     return `<img src="${endpoint}" alt="GitHub Profile Stats Card" />`;
   };
 
   // Copy code to clipboard
-  const handleCopyCode = async (themeId: string, format: "url" | "markdown" | "html" | "svg") => {
-    let content = "";
-    if (format === "svg") {
+  const handleCopyCode = async (themeId: string, format: 'url' | 'markdown' | 'html' | 'svg') => {
+    let content = '';
+    if (format === 'svg') {
       content = previews[themeId].svg;
     } else {
       content = getEmbedCode(themeId, format);
@@ -306,7 +303,7 @@ export default function ThemeGalleryPage() {
         }));
       }, 2000);
     } catch (err) {
-      console.error("Copy theme embed code failed:", err);
+      console.error('Copy theme embed code failed:', err);
     }
   };
 
@@ -314,9 +311,9 @@ export default function ThemeGalleryPage() {
   const handleDownloadSVG = (themeId: string) => {
     const svgContent = previews[themeId].svg;
     if (!svgContent) return;
-    const svgBlob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
     const blobUrl = URL.createObjectURL(svgBlob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = blobUrl;
     link.download = `${username}-${themeId}-${selectedCard}-card.svg`;
     document.body.appendChild(link);
@@ -333,12 +330,12 @@ export default function ThemeGalleryPage() {
 
     try {
       const apiBase = env.NEXT_PUBLIC_API_URL;
-      
+
       // Merge setting preferences safely
       const updatedSettings = {
         preferredTheme: themeId,
-        defaultCardStyle: userSettings?.defaultCardStyle || "classic",
-        languageSorting: userSettings?.languageSorting || "size",
+        defaultCardStyle: userSettings?.defaultCardStyle || 'classic',
+        languageSorting: userSettings?.languageSorting || 'size',
         defaultCardVisibility: userSettings?.defaultCardVisibility || {
           profile: true,
           stats: true,
@@ -348,11 +345,11 @@ export default function ThemeGalleryPage() {
       };
 
       const response = await fetch(`${apiBase}/api/v1/users/settings`, {
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(updatedSettings),
       });
 
@@ -367,12 +364,12 @@ export default function ThemeGalleryPage() {
         setApplySuccess(themeId);
         setTimeout(() => setApplySuccess(null), 3000);
       } else {
-        throw new Error(data.error || "Theme apply failed.");
+        throw new Error(data.error || 'Theme apply failed.');
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      console.error("Theme gallery error applying theme settings:", error);
-      setErrorMsg(error.message || "Failed to update preferred theme settings.");
+      console.error('Theme gallery error applying theme settings:', error);
+      setErrorMsg(error.message || 'Failed to update preferred theme settings.');
     } finally {
       setApplyingTheme(null);
     }
@@ -388,7 +385,8 @@ export default function ThemeGalleryPage() {
       {applySuccess && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl shadow-xl shadow-emerald-950/20 text-emerald-400 text-sm font-semibold animate-in fade-in slide-in-from-bottom-4 duration-300">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-          Preferred theme updated to <span className="font-extrabold capitalize">{applySuccess}</span>!
+          Preferred theme updated to{' '}
+          <span className="font-extrabold capitalize">{applySuccess}</span>!
         </div>
       )}
 
@@ -408,13 +406,18 @@ export default function ThemeGalleryPage() {
           Theme Gallery
         </h1>
         <p className="text-zinc-400 text-xs mt-2.5 leading-relaxed max-w-3xl font-medium">
-          Browse all built-in style designs for your GitHub Profile Cards. Customize targets, select a card format, compare live mock templates, and apply templates directly to your dashboard settings.
+          Browse all built-in style designs for your GitHub Profile Cards. Customize targets, select
+          a card format, compare live mock templates, and apply templates directly to your dashboard
+          settings.
         </p>
       </div>
 
       {/* Config Form Panel */}
       <div className="glass-card rounded-3xl p-6 flex flex-col lg:flex-row items-center justify-between gap-6 z-10">
-        <form onSubmit={handleApplyTargets} className="flex flex-col sm:flex-row gap-4 items-end w-full lg:w-auto">
+        <form
+          onSubmit={handleApplyTargets}
+          className="flex flex-col sm:flex-row gap-4 items-end w-full lg:w-auto"
+        >
           <div className="flex flex-col gap-1.5 w-full sm:w-44">
             <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5 font-medium">
               <Terminal className="w-3.5 h-3.5 text-violet-400" /> Username
@@ -454,13 +457,14 @@ export default function ThemeGalleryPage() {
             <Info className="w-4 h-4 text-violet-400 shrink-0" />
             <span className="font-medium">
               Target: <strong className="text-white font-semibold">@{username}</strong>
-              {selectedCard === "repository" && (
-                <> / <strong className="text-white font-semibold">{repoName}</strong></>
+              {selectedCard === 'repository' && (
+                <>
+                  {' '}
+                  / <strong className="text-white font-semibold">{repoName}</strong>
+                </>
               )}
             </span>
           </div>
-
-
         </div>
       </div>
 
@@ -475,8 +479,8 @@ export default function ThemeGalleryPage() {
               onClick={() => setSelectedCard(type)}
               className={`px-4.5 py-2.5 rounded-2xl text-xs font-semibold tracking-wide border cursor-pointer transition-all ${
                 isSelected
-                  ? "bg-white/5 border-violet-500/50 text-white shadow-inner"
-                  : "border-white/5 text-zinc-400 hover:text-white hover:bg-white/[0.01]"
+                  ? 'bg-white/5 border-violet-500/50 text-white shadow-inner'
+                  : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/[0.01]'
               }`}
             >
               {config.title}
@@ -488,7 +492,12 @@ export default function ThemeGalleryPage() {
       {/* Themes Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start z-10">
         {THEMES_INFO.map((theme) => {
-          const preview = previews[theme.id] || { svg: "", loading: true, error: null, copied: null };
+          const preview = previews[theme.id] || {
+            svg: '',
+            loading: true,
+            error: null,
+            copied: null,
+          };
           const isActive = preferredTheme === theme.id;
           const isApplying = applyingTheme === theme.id;
 
@@ -496,7 +505,7 @@ export default function ThemeGalleryPage() {
             <div
               key={theme.id}
               className={`glass-card rounded-3xl p-6 flex flex-col gap-5 border transition-all ${
-                isActive ? "border-violet-500/40 ring-1 ring-violet-500/10 shadow-lg" : ""
+                isActive ? 'border-violet-500/40 ring-1 ring-violet-500/10 shadow-lg' : ''
               }`}
             >
               {/* Theme Header Info */}
@@ -518,16 +527,16 @@ export default function ThemeGalleryPage() {
                   onClick={() => handleApplyTheme(theme.id)}
                   className={`px-3.5 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider border transition-all cursor-pointer ${
                     isActive
-                      ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-400 cursor-default"
-                      : "border-white/5 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white active:scale-95 disabled:opacity-50"
+                      ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-400 cursor-default'
+                      : 'border-white/5 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white active:scale-95 disabled:opacity-50'
                   }`}
                 >
                   {isApplying ? (
                     <RefreshCw className="w-3 h-3 animate-spin text-zinc-400 inline" />
                   ) : isActive ? (
-                    "Active"
+                    'Active'
                   ) : (
-                    "Apply Theme"
+                    'Apply Theme'
                   )}
                 </button>
               </div>
@@ -536,16 +545,36 @@ export default function ThemeGalleryPage() {
               <div className="w-full flex items-center justify-center p-6 bg-black/40 rounded-2xl border border-white/5 min-h-[220px] relative overflow-hidden group/preview">
                 {preview.loading ? (
                   <div className="flex flex-col items-center gap-3">
-                    <svg className="animate-spin h-6 w-6 text-violet-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-6 w-6 text-violet-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
-                    <span className="text-[10px] text-zinc-500 font-bold tracking-wider uppercase">Loading SVG Preview...</span>
+                    <span className="text-[10px] text-zinc-500 font-bold tracking-wider uppercase">
+                      Loading SVG Preview...
+                    </span>
                   </div>
                 ) : preview.error ? (
                   <div className="flex flex-col items-center gap-2 p-4 text-center max-w-[80%]">
                     <AlertTriangle className="w-8 h-8 text-rose-500/80 animate-bounce" />
-                    <span className="text-[11px] font-bold text-zinc-400 leading-normal">{preview.error}</span>
+                    <span className="text-[11px] font-bold text-zinc-400 leading-normal">
+                      {preview.error}
+                    </span>
                   </div>
                 ) : (
                   <div className="w-full flex justify-center items-center select-none overflow-hidden py-2">
@@ -553,7 +582,7 @@ export default function ThemeGalleryPage() {
                       className="shrink-0 flex items-center justify-center w-full [&>svg]:w-full [&>svg]:h-full"
                       style={{
                         maxWidth: `${CARD_TYPES[selectedCard].defaultWidth}px`,
-                        aspectRatio: `${CARD_TYPES[selectedCard].defaultWidth} / ${CARD_TYPES[selectedCard].defaultHeight}`
+                        aspectRatio: `${CARD_TYPES[selectedCard].defaultWidth} / ${CARD_TYPES[selectedCard].defaultHeight}`,
                       }}
                       dangerouslySetInnerHTML={{ __html: preview.svg }}
                     />
@@ -563,7 +592,9 @@ export default function ThemeGalleryPage() {
 
               {/* Theme Color Palette Swatches */}
               <div className="flex items-center justify-between border-t border-white/5 pt-4">
-                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Palette Color Swatches</span>
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Palette Color Swatches
+                </span>
                 <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5">
                   <div
                     className="w-4 h-4 rounded-full border border-white/10 relative group/swatch cursor-help"
@@ -612,11 +643,11 @@ export default function ThemeGalleryPage() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 <button
                   disabled={preview.loading || !!preview.error}
-                  onClick={() => handleCopyCode(theme.id, "markdown")}
+                  onClick={() => handleCopyCode(theme.id, 'markdown')}
                   className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] text-zinc-300 hover:text-white font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                   title="Copy GitHub Markdown Embed Code"
                 >
-                  {preview.copied === "markdown" ? (
+                  {preview.copied === 'markdown' ? (
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
                     <Copy className="w-3.5 h-3.5" />
@@ -626,11 +657,11 @@ export default function ThemeGalleryPage() {
 
                 <button
                   disabled={preview.loading || !!preview.error}
-                  onClick={() => handleCopyCode(theme.id, "html")}
+                  onClick={() => handleCopyCode(theme.id, 'html')}
                   className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] text-zinc-300 hover:text-white font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                   title="Copy HTML Image Embed Code"
                 >
-                  {preview.copied === "html" ? (
+                  {preview.copied === 'html' ? (
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
                     <Copy className="w-3.5 h-3.5" />
@@ -640,11 +671,11 @@ export default function ThemeGalleryPage() {
 
                 <button
                   disabled={preview.loading || !!preview.error}
-                  onClick={() => handleCopyCode(theme.id, "url")}
+                  onClick={() => handleCopyCode(theme.id, 'url')}
                   className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 text-[10px] text-zinc-300 hover:text-white font-bold uppercase tracking-wider transition-all cursor-pointer active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
                   title="Copy Direct SVG URL Endpoint Link"
                 >
-                  {preview.copied === "url" ? (
+                  {preview.copied === 'url' ? (
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
                     <Copy className="w-3.5 h-3.5" />

@@ -48,7 +48,6 @@ A lightweight, open‑source service that provides real‑time GitHub statistics
 > [!NOTE]
 > Screenshots are currently unavailable in this documentation.
 
-
 ## Live Demo
 
 - **Frontend** – Deployed on Vercel. Visit the live dashboard to explore statistics and card previews.
@@ -83,15 +82,15 @@ flowchart TD
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js (App Router), React 18, Tailwind CSS, TypeScript |
-| Backend | Express, TypeScript, tsyringe (DI), Helmet, CORS, Compression |
-| Database | **Neon PostgreSQL** (managed) |
-| Cache | **Upstash Redis** (managed) |
-| Authentication | GitHub OAuth (OAuth App) |
-| SVG Rendering | Custom SVG engine using TypeScript (no external image libraries) |
-| CI/CD | GitHub Actions, Vercel (frontend), Render (backend) |
+| Layer          | Technology                                                       |
+| -------------- | ---------------------------------------------------------------- |
+| Frontend       | Next.js (App Router), React 18, Tailwind CSS, TypeScript         |
+| Backend        | Express, TypeScript, tsyringe (DI), Helmet, CORS, Compression    |
+| Database       | **Neon PostgreSQL** (managed)                                    |
+| Cache          | **Upstash Redis** (managed)                                      |
+| Authentication | GitHub OAuth (OAuth App)                                         |
+| SVG Rendering  | Custom SVG engine using TypeScript (no external image libraries) |
+| CI/CD          | GitHub Actions, Vercel (frontend), Render (backend)              |
 
 ---
 
@@ -200,30 +199,30 @@ GitProfileStats/
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `GITHUB_CLIENT_ID` | Yes | OAuth client ID from GitHub App |
-| `GITHUB_CLIENT_SECRET` | Yes | OAuth client secret |
-| `GITHUB_CALLBACK_URL` | Yes | Callback URL registered in the GitHub App |
-| `GITHUB_TOKEN` | No (optional) | Personal Access Token to access private repositories |
-| `WEB_BASE_URL` | Yes | Frontend base URL (used for CORS) |
-| `NEXT_PUBLIC_API_URL` | Yes | Backend API base URL for the frontend |
-| `PORT` | No (default `4000`) | Port for the Express server |
-| `NODE_ENV` | No (default `development`) | Runtime environment |
-| `LOG_LEVEL` | No (default `info`) | Logging verbosity |
+| Variable               | Required                   | Description                                          |
+| ---------------------- | -------------------------- | ---------------------------------------------------- |
+| `GITHUB_CLIENT_ID`     | Yes                        | OAuth client ID from GitHub App                      |
+| `GITHUB_CLIENT_SECRET` | Yes                        | OAuth client secret                                  |
+| `GITHUB_CALLBACK_URL`  | Yes                        | Callback URL registered in the GitHub App            |
+| `GITHUB_TOKEN`         | No (optional)              | Personal Access Token to access private repositories |
+| `WEB_BASE_URL`         | Yes                        | Frontend base URL (used for CORS)                    |
+| `NEXT_PUBLIC_API_URL`  | Yes                        | Backend API base URL for the frontend                |
+| `PORT`                 | No (default `4000`)        | Port for the Express server                          |
+| `NODE_ENV`             | No (default `development`) | Runtime environment                                  |
+| `LOG_LEVEL`            | No (default `info`)        | Logging verbosity                                    |
 
 ---
 
 ## Usage
 
-- **Login** – Click *Login with GitHub* on the dashboard, grant the requested scopes.
+- **Login** – Click _Login with GitHub_ on the dashboard, grant the requested scopes.
 - **Generate cards** – Use the card endpoints, e.g.:
   ```text
   https://<backend-url>/cards/profile.svg?username=your‑github‑name&theme=dark
   https://<backend-url>/cards/stats.svg?username=your‑github‑name&accent=%23ff6600
   ```
 - **Preview cards** – The dashboard UI shows live previews for the authenticated user.
-- **Copy Markdown** – Click the *Copy Markdown* button on a card preview to get a ready‑to‑paste snippet:
+- **Copy Markdown** – Click the _Copy Markdown_ button on a card preview to get a ready‑to‑paste snippet:
   ```markdown
   ![GitHub profile](https://<backend-url>/cards/profile.svg?username=your‑github‑name)
   ```
@@ -233,15 +232,16 @@ GitProfileStats/
 
 ## SVG Endpoints
 
-| Endpoint | Description |
-|---|---|
-| `/cards/profile.svg` | Render a user profile card |
-| `/cards/stats.svg` | Render a statistics card (stars, repos, followers, etc.) |
-| `/cards/languages.svg` | Top language usage card |
-| `/cards/streak.svg` | Contribution streak card |
+| Endpoint                | Description                                                                |
+| ----------------------- | -------------------------------------------------------------------------- |
+| `/cards/profile.svg`    | Render a user profile card                                                 |
+| `/cards/stats.svg`      | Render a statistics card (stars, repos, followers, etc.)                   |
+| `/cards/languages.svg`  | Top language usage card                                                    |
+| `/cards/streak.svg`     | Contribution streak card                                                   |
 | `/cards/repository.svg` | Repository information card (requires `owner` and `repo` query parameters) |
 
 All endpoints accept the following optional query parameters for customisation:
+
 - `theme` – theme name (`light`, `dark`, `github`, `dracula`, `nord`)
 - `accent` – hex colour for accent elements
 - `background` – hex colour for card background
@@ -255,32 +255,34 @@ All endpoints accept the following optional query parameters for customisation:
 
 ## API Documentation
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/health` | Simple health‑check, returns `OK`
-| `GET` | `/auth/github` | Initiates GitHub OAuth flow |
-| `GET` | `/auth/github/callback` | Handles OAuth callback, issues JWT |
-| `GET` | `/api/v1/users/me` | Returns authenticated user profile (requires JWT) |
-| `GET` | `/api/statistics?username={username}` | Returns combined statistics for the given GitHub username |
-| `GET` | `/cards/*` | See *SVG Endpoints* table above |
+| Method | Endpoint                              | Description                                               |
+| ------ | ------------------------------------- | --------------------------------------------------------- |
+| `GET`  | `/health`                             | Simple health‑check, returns `OK`                         |
+| `GET`  | `/auth/github`                        | Initiates GitHub OAuth flow                               |
+| `GET`  | `/auth/github/callback`               | Handles OAuth callback, issues JWT                        |
+| `GET`  | `/api/v1/users/me`                    | Returns authenticated user profile (requires JWT)         |
+| `GET`  | `/api/statistics?username={username}` | Returns combined statistics for the given GitHub username |
+| `GET`  | `/cards/*`                            | See _SVG Endpoints_ table above                           |
 
 All JSON responses follow the structure:
+
 ```json
 { "success": true, "data": { … } }
 ```
+
 Error responses use `{ "success": false, "error": "Message" }`.
 
 ---
 
 ## Themes
 
-| Theme | Preview |
-|---|---|
-| `light` | ![light](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/light.png) |
-| `dark` | ![dark](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/dark.png) |
-| `github` | ![github](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/github.png) |
+| Theme     | Preview                                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------------------- |
+| `light`   | ![light](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/light.png)     |
+| `dark`    | ![dark](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/dark.png)       |
+| `github`  | ![github](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/github.png)   |
 | `dracula` | ![dracula](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/dracula.png) |
-| `nord` | ![nord](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/nord.png) |
+| `nord`    | ![nord](https://raw.githubusercontent.com/Ramsingh4656/GitProfileStats/main/docs/themes/nord.png)       |
 
 Custom themes can be created by passing colour overrides via query parameters (`accent`, `background`, `font_family`).
 
@@ -296,7 +298,7 @@ All deployment steps are documented in the dedicated guide:
 
 ## Development
 
-1. **Run both services locally** (see *Installation* above).
+1. **Run both services locally** (see _Installation_ above).
 2. **Hot‑reload** – `pnpm dev` watches source files for both backend and frontend.
 3. **Testing** – Run unit and integration tests with:
    ```bash

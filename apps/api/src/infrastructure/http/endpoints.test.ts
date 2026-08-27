@@ -172,7 +172,11 @@ describe('API Endpoints', () => {
         }),
       };
     }
-    if (/\/users\/[^/]+($|\?)/.test(urlString) || urlString.endsWith('/user') || urlString.includes('/user?')) {
+    if (
+      /\/users\/[^/]+($|\?)/.test(urlString) ||
+      urlString.endsWith('/user') ||
+      urlString.includes('/user?')
+    ) {
       const parts = urlString.split('?')[0].split('/');
       const login = parts[parts.length - 1] || 'demo';
       return {
@@ -478,13 +482,16 @@ describe('API Endpoints', () => {
         .set('Cookie', sessionCookie as string);
 
       expect(response.status).toBe(200);
-      
+
       // The backend should query public endpoint for 'attacker' (/users/attacker), NOT /user or /user/repos
-      const hasUserReposCall = mockFetch.mock.calls.some(([url]) => String(url).includes('/user/repos'));
-      const hasViewerReposGraphQLCall = mockFetch.mock.calls.some(([url, opts]) => 
-        String(url).includes('/graphql') && String(opts?.body).includes('viewer {')
+      const hasUserReposCall = mockFetch.mock.calls.some(([url]) =>
+        String(url).includes('/user/repos'),
       );
-      
+      const hasViewerReposGraphQLCall = mockFetch.mock.calls.some(
+        ([url, opts]) =>
+          String(url).includes('/graphql') && String(opts?.body).includes('viewer {'),
+      );
+
       expect(hasUserReposCall).toBe(false);
       expect(hasViewerReposGraphQLCall).toBe(false);
     });

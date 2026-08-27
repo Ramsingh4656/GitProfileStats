@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useDashboardStats } from "../hooks/useDashboardStats";
-import { useOnlineStatus } from "../hooks/useOnlineStatus";
+import React, { useState } from 'react';
+import { useDashboardStats } from '../hooks/useDashboardStats';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import {
   CalendarDays,
   Flame,
@@ -14,19 +14,12 @@ import {
   WifiOff,
   Folder,
   KeyRound,
-  X
-} from "lucide-react";
+  X,
+} from 'lucide-react';
 
 export default function ActivityPage() {
   const isOnline = useOnlineStatus();
-  const {
-    user,
-    loading,
-    loadingStats,
-    stats,
-    statsError,
-    loadStats
-  } = useDashboardStats();
+  const { user, loading, loadingStats, stats, statsError, loadStats } = useDashboardStats();
 
   const [syncing, setSyncing] = useState(false);
 
@@ -39,20 +32,33 @@ export default function ActivityPage() {
   };
 
   const getContributionColor = (count: number) => {
-    if (count === 0) return "rgba(255, 255, 255, 0.03)";
-    if (count <= 2) return "rgba(139, 92, 246, 0.25)";
-    if (count <= 5) return "rgba(139, 92, 246, 0.55)";
-    if (count <= 8) return "rgba(139, 92, 246, 0.85)";
-    return "rgba(236, 72, 153, 0.95)";
+    if (count === 0) return 'rgba(255, 255, 255, 0.03)';
+    if (count <= 2) return 'rgba(139, 92, 246, 0.25)';
+    if (count <= 5) return 'rgba(139, 92, 246, 0.55)';
+    if (count <= 8) return 'rgba(139, 92, 246, 0.85)';
+    return 'rgba(236, 72, 153, 0.95)';
   };
 
   const renderMonthLabels = () => {
     if (!stats?.contributionStats?.contributionCalendar?.weeks) return null;
     const weeks = stats.contributionStats.contributionCalendar.weeks;
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     const labels: { text: string; index: number }[] = [];
     let lastMonth = -1;
-    
+
     weeks.forEach((week, wIndex) => {
       if (week.contributionDays && week.contributionDays[0]) {
         const date = new Date(week.contributionDays[0].date);
@@ -67,11 +73,7 @@ export default function ActivityPage() {
     return (
       <div className="relative h-5 text-[10px] text-zinc-500 font-semibold mb-1 select-none min-w-[720px]">
         {labels.map((lbl, idx) => (
-          <span
-            key={idx}
-            className="absolute"
-            style={{ left: `${lbl.index * 13.5}px` }}
-          >
+          <span key={idx} className="absolute" style={{ left: `${lbl.index * 13.5}px` }}>
             {lbl.text}
           </span>
         ))}
@@ -94,7 +96,10 @@ export default function ActivityPage() {
             </div>
             <div>
               <strong className="text-white font-bold block text-sm">Offline Mode Active</strong>
-              <span className="text-zinc-400">You are currently disconnected from the internet. Action buttons requiring connection are disabled.</span>
+              <span className="text-zinc-400">
+                You are currently disconnected from the internet. Action buttons requiring
+                connection are disabled.
+              </span>
             </div>
           </div>
           <button
@@ -116,18 +121,27 @@ export default function ActivityPage() {
             Recent Activity
           </h1>
           <p className="text-zinc-400 text-xs mt-2.5 leading-relaxed max-w-3xl font-medium">
-            View detailed stats about your contribution history, streaks, and commit frequencies over the last year.
+            View detailed stats about your contribution history, streaks, and commit frequencies
+            over the last year.
           </p>
         </div>
-        
+
         {user && (
           <button
             onClick={handleSync}
             disabled={syncing || loadingStats || !isOnline}
             className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-xs font-extrabold text-white rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none shadow-lg shadow-violet-500/15"
           >
-            <RefreshCw className={`w-4 h-4 ${(syncing || loadingStats) ? "animate-spin text-white" : "text-white"}`} />
-            <span>{!isOnline ? "Sync Disabled (Offline)" : syncing ? "Fetching stats..." : "Refresh Stats Data"}</span>
+            <RefreshCw
+              className={`w-4 h-4 ${syncing || loadingStats ? 'animate-spin text-white' : 'text-white'}`}
+            />
+            <span>
+              {!isOnline
+                ? 'Sync Disabled (Offline)'
+                : syncing
+                  ? 'Fetching stats...'
+                  : 'Refresh Stats Data'}
+            </span>
           </button>
         )}
       </div>
@@ -141,9 +155,7 @@ export default function ActivityPage() {
             </div>
             <div className="min-w-0 flex-1">
               <h4 className="font-bold text-base text-white">GitHub API Connection Failed</h4>
-              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
-                {statsError}
-              </p>
+              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">{statsError}</p>
             </div>
           </div>
           {isOnline && (
@@ -171,7 +183,8 @@ export default function ActivityPage() {
           <div className="max-w-md">
             <h3 className="font-extrabold text-lg text-white">No Statistics Loaded</h3>
             <p className="text-zinc-400 text-xs mt-1.5 leading-relaxed">
-              Your developer statistics details are currently empty. Please configure a personal access token in Settings or Overview to load statistics.
+              Your developer statistics details are currently empty. Please configure a personal
+              access token in Settings or Overview to load statistics.
             </p>
           </div>
         </div>
@@ -182,7 +195,10 @@ export default function ActivityPage() {
         <div className="flex flex-col gap-6 w-full">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="glass-card rounded-3xl p-5 relative overflow-hidden flex flex-col gap-2">
+              <div
+                key={i}
+                className="glass-card rounded-3xl p-5 relative overflow-hidden flex flex-col gap-2"
+              >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full animate-shimmer" />
                 <div className="w-8 h-8 rounded-lg bg-zinc-800/40 animate-pulse" />
                 <div className="h-3 bg-zinc-800/40 rounded w-1/2 animate-pulse mt-2" />
@@ -201,7 +217,6 @@ export default function ActivityPage() {
       {/* DATA LOADED VIEWS */}
       {stats && !loadingStats && (
         <div className="flex flex-col gap-6 w-full animate-in fade-in duration-300">
-          
           {/* Metrics Overview Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="glass-card rounded-3xl p-5 flex flex-col gap-3 group relative overflow-hidden">
@@ -251,7 +266,10 @@ export default function ActivityPage() {
                 <CalendarDays className="w-5 h-5 text-violet-400" />
                 Annual Contribution Pulse
               </h3>
-              <p className="text-zinc-500 text-xs mt-0.5">A day-by-day heatmap visualizing your GitHub contributions and development momentum over the past year.</p>
+              <p className="text-zinc-500 text-xs mt-0.5">
+                A day-by-day heatmap visualizing your GitHub contributions and development momentum
+                over the past year.
+              </p>
             </div>
 
             <div className="pt-2">
@@ -265,19 +283,21 @@ export default function ActivityPage() {
                           <div
                             key={day.date}
                             className="w-[10px] h-[10px] rounded-[2px] transition-colors duration-200 cursor-pointer relative group"
-                            style={{ 
-                              backgroundColor: getContributionColor(day.contributionCount) 
+                            style={{
+                              backgroundColor: getContributionColor(day.contributionCount),
                             }}
                           >
                             {/* Hover Tooltip */}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex bg-zinc-950/95 border border-white/10 rounded-xl px-2.5 py-1.5 text-[10px] whitespace-nowrap z-50 shadow-2xl pointer-events-none flex-col gap-0.5 font-sans">
-                              <span className="font-extrabold text-zinc-100">{day.contributionCount} contributions</span>
+                              <span className="font-extrabold text-zinc-100">
+                                {day.contributionCount} contributions
+                              </span>
                               <span className="text-zinc-500 font-medium">
-                                {new Date(day.date).toLocaleDateString(undefined, { 
-                                  weekday: 'short', 
-                                  month: 'short', 
-                                  day: 'numeric', 
-                                  year: 'numeric' 
+                                {new Date(day.date).toLocaleDateString(undefined, {
+                                  weekday: 'short',
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
                                 })}
                               </span>
                             </div>
@@ -317,32 +337,39 @@ export default function ActivityPage() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Total Commits</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                  Total Commits
+                </span>
                 <span className="text-xl font-extrabold text-white mt-1 block">
                   {stats.commitStats.totalCommits.toLocaleString()}
                 </span>
               </div>
               <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">This Year</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                  This Year
+                </span>
                 <span className="text-xl font-extrabold text-violet-400 mt-1 block">
                   {stats.commitStats.commitsThisYear.toLocaleString()}
                 </span>
               </div>
               <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">This Month</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                  This Month
+                </span>
                 <span className="text-xl font-extrabold text-fuchsia-400 mt-1 block">
                   {stats.commitStats.commitsThisMonth.toLocaleString()}
                 </span>
               </div>
               <div className="bg-black/35 border border-white/5 rounded-2xl p-4 text-center">
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">This Week</span>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">
+                  This Week
+                </span>
                 <span className="text-xl font-extrabold text-cyan-400 mt-1 block">
                   {stats.commitStats.commitsThisWeek.toLocaleString()}
                 </span>
               </div>
             </div>
           </div>
-
         </div>
       )}
     </div>
