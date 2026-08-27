@@ -53,6 +53,15 @@ router.get(
   cardController.getTopContributedCard,
 );
 
+// Register repository rankings card route under /cards/rankings.svg
+router.get(
+  '/cards/rankings.svg',
+  optionalAuthGuard,
+  validateGitHubRequest,
+  cacheMiddleware(300),
+  cardController.getRankingsCard,
+);
+
 // Register streak card route under /cards/streak.svg
 router.get(
   '/cards/streak.svg',

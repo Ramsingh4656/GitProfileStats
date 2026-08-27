@@ -69,7 +69,7 @@ const THEMES_INFO = [
   },
 ];
 
-type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies' | 'top-contributed';
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies' | 'top-contributed' | 'rankings';
 
 interface CardConfig {
   title: string;
@@ -121,6 +121,12 @@ const CARD_TYPES: Record<CardType, CardConfig> = {
     defaultWidth: 490,
     defaultHeight: 195,
   },
+  rankings: {
+    title: 'Repository Rankings',
+    desc: 'Highlights of your repositories (Most Starred, Most Forked, Recently Updated)',
+    defaultWidth: 490,
+    defaultHeight: 240,
+  },
 };
 
 interface PreviewState {
@@ -141,6 +147,7 @@ interface UserSettings {
     streak: boolean;
     trophies?: boolean;
     topContributed?: boolean;
+    rankings?: boolean;
   };
 }
 
@@ -357,6 +364,7 @@ export default function ThemeGalleryPage() {
           streak: true,
           trophies: true,
           topContributed: true,
+          rankings: true,
         },
       };
 

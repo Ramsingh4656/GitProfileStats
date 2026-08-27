@@ -6,5 +6,7 @@ export * from './streakCard.js';
 export * from './repositoryCard.js';
 export * from './trophiesCard.js';
 export * from './topContributedCard.js';
+export * from './rankingsCard.js';
+
 
 

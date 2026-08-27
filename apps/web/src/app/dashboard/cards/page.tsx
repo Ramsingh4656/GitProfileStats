@@ -76,7 +76,7 @@ interface CardState {
   zoom: number;
 }
 
-type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies' | 'top-contributed';
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies' | 'top-contributed' | 'rankings';
 
 const CARD_INFOS: Record<
   CardType,
@@ -124,6 +124,12 @@ const CARD_INFOS: Record<
     defaultWidth: 490,
     defaultHeight: 195,
   },
+  rankings: {
+    title: 'Repository Rankings',
+    desc: 'Highlights of your repositories (Most Starred, Most Forked, Recently Updated)',
+    defaultWidth: 490,
+    defaultHeight: 240,
+  },
 };
 
 export default function CardPreviewPage() {
@@ -153,6 +159,7 @@ export default function CardPreviewPage() {
     repository: true,
     trophies: true,
     'top-contributed': true,
+    rankings: true,
   });
   const [readmeLayout, setReadmeLayout] = useState<'vertical' | 'centered' | 'grid'>('vertical');
   const [customApiHost, setCustomApiHost] = useState(() => {
@@ -178,6 +185,7 @@ export default function CardPreviewPage() {
     repository: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
     trophies: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
     'top-contributed': { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
+    rankings: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
   });
 
   // Verify auth session on load
@@ -231,6 +239,7 @@ export default function CardPreviewPage() {
                   repository: defaultCardVisibility.repository ?? true,
                   trophies: defaultCardVisibility.trophies ?? true,
                   'top-contributed': defaultCardVisibility.topContributed ?? true,
+                  rankings: defaultCardVisibility.rankings ?? true,
                 });
               }
             }
@@ -247,7 +256,7 @@ export default function CardPreviewPage() {
   // Main effect to fetch SVGs when parameters change
   useEffect(() => {
     const apiBase = env.NEXT_PUBLIC_API_URL;
-    const types: CardType[] = ['profile', 'stats', 'languages', 'streak', 'repository', 'trophies', 'top-contributed'];
+    const types: CardType[] = ['profile', 'stats', 'languages', 'streak', 'repository', 'trophies', 'top-contributed', 'rankings'];
 
     types.forEach(async (type) => {
       setCards((prev) => ({
@@ -344,6 +353,7 @@ export default function CardPreviewPage() {
       repository: { ...prev.repository, zoom: val },
       trophies: { ...prev.trophies, zoom: val },
       'top-contributed': { ...prev['top-contributed'], zoom: val },
+      rankings: { ...prev.rankings, zoom: val },
     }));
   };
 

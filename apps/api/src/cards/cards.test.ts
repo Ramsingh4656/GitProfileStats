@@ -7,6 +7,7 @@ import {
   renderRepositoryCard,
   renderTrophiesCard,
   renderTopContributedCard,
+  renderRankingsCard,
   calculateTrophy,
 } from './index.js';
 
@@ -263,6 +264,79 @@ describe('Card Generators', () => {
 
       expect(svg).toContain('No contributions detected');
       expect(svg).toContain('Contributions to public/private repositories will show up here.');
+    });
+  });
+
+  describe('renderRankingsCard', () => {
+    const mockRankings = {
+      username: 'john_doe',
+      name: 'John Doe',
+      mostStarred: {
+        id: 1,
+        name: 'starred-repo',
+        fullName: 'john_doe/starred-repo',
+        htmlUrl: 'https://github.com/john_doe/starred-repo',
+        description: 'Starred repo description.',
+        stars: 15,
+        forks: 3,
+        size: 50,
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-08-01T00:00:00Z',
+      },
+      mostForked: {
+        id: 2,
+        name: 'forked-repo',
+        fullName: 'john_doe/forked-repo',
+        htmlUrl: 'https://github.com/john_doe/forked-repo',
+        description: 'Forked repo description.',
+        stars: 5,
+        forks: 42,
+        size: 60,
+        createdAt: '2026-01-02T00:00:00Z',
+        updatedAt: '2026-08-02T00:00:00Z',
+      },
+      mostRecentlyUpdated: {
+        id: 3,
+        name: 'updated-repo',
+        fullName: 'john_doe/updated-repo',
+        htmlUrl: 'https://github.com/john_doe/updated-repo',
+        description: 'Updated repo description.',
+        stars: 2,
+        forks: 1,
+        size: 70,
+        createdAt: '2026-01-03T00:00:00Z',
+        updatedAt: '2026-08-28T00:00:00Z',
+      },
+    };
+
+    it('should generate a valid rankings card SVG', () => {
+      const svg = renderRankingsCard(mockRankings, dummyOptions);
+
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('width="490"');
+      expect(svg).toContain('height="240"');
+      expect(svg).toContain('</svg>');
+      expect(svg).toContain("John Doe&apos;s Repository Rankings");
+      expect(svg).toContain('starred-repo');
+      expect(svg).toContain('forked-repo');
+      expect(svg).toContain('updated-repo');
+      expect(svg).toContain('15'); // Stars stat
+      expect(svg).toContain('42'); // Forks stat
+      expect(svg).toContain('Aug 28'); // Date stat
+    });
+
+    it('should handle null/empty rankings gracefully', () => {
+      const svg = renderRankingsCard({
+        username: 'john_doe',
+        name: null,
+        mostStarred: null,
+        mostForked: null,
+        mostRecentlyUpdated: null,
+      }, dummyOptions);
+
+      expect(svg).toContain("john_doe&apos;s Repository Rankings");
+      expect(svg).toContain('No repository found');
+      expect(svg).toContain('No repository meets this highlight criteria.');
     });
   });
 });

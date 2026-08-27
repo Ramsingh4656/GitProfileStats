@@ -113,6 +113,7 @@ interface SettingsState {
     streak: boolean;
     trophies: boolean;
     topContributed: boolean;
+    rankings: boolean;
   };
 }
 
@@ -135,6 +136,7 @@ export default function SettingsPage() {
       streak: true,
       trophies: true,
       topContributed: true,
+      rankings: true,
     },
   });
 
@@ -449,6 +451,11 @@ export default function SettingsPage() {
                 key: 'topContributed',
                 label: 'Top Contributed Card',
                 desc: 'Top N repositories by commit/contribution activity',
+              },
+              {
+                key: 'rankings',
+                label: 'Rankings Card',
+                desc: 'Highlights of your repositories (Most Starred, Most Forked, Recently Updated)',
               },
             ].map((card) => {
               const isVisible =

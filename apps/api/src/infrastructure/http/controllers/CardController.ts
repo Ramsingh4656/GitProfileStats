@@ -10,6 +10,7 @@ import {
   LanguageCollectorService,
   ContributionService,
   ContributedReposService,
+  RepositoryRankingService,
 } from '../../../github/index.js';
 import type { IGitHubRequest, IRepositoryRequest } from '../middleware/validation.js';
 import {
@@ -20,6 +21,7 @@ import {
   renderRepositoryCard,
   renderTrophiesCard,
   renderTopContributedCard,
+  renderRankingsCard,
   type CardOptions,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
@@ -115,6 +117,47 @@ const MOCK_CONTRIBUTIONS = [
   { name: 'react', owner: 'facebook', primaryLanguage: { name: 'JavaScript', color: '#f1e05a' }, contributionCount: 19 },
 ];
 
+const MOCK_RANKINGS = (username: string) => ({
+  username: username || 'octocat',
+  name: 'The Octocat',
+  mostStarred: {
+    id: 1,
+    name: 'Hello-World',
+    fullName: 'octocat/Hello-World',
+    htmlUrl: 'https://github.com/octocat/Hello-World',
+    description: 'My first repository on GitHub!',
+    stars: 142,
+    forks: 28,
+    size: 120,
+    createdAt: '2011-01-25T18:44:36Z',
+    updatedAt: '2026-08-01T08:00:00Z',
+  },
+  mostForked: {
+    id: 2,
+    name: 'Spoon-Knife',
+    fullName: 'octocat/Spoon-Knife',
+    htmlUrl: 'https://github.com/octocat/Spoon-Knife',
+    description: 'This repo is for spooning-and-knifing.',
+    stars: 89,
+    forks: 142,
+    size: 80,
+    createdAt: '2011-01-27T19:30:00Z',
+    updatedAt: '2026-08-02T09:00:00Z',
+  },
+  mostRecentlyUpdated: {
+    id: 3,
+    name: 'octocat.github.io',
+    fullName: 'octocat/octocat.github.io',
+    htmlUrl: 'https://github.com/octocat/octocat.github.io',
+    description: 'My personal website homepage.',
+    stars: 42,
+    forks: 12,
+    size: 200,
+    createdAt: '2011-02-01T20:00:00Z',
+    updatedAt: '2026-08-28T01:00:00Z',
+  },
+});
+
 @injectable()
 export class CardController {
   constructor(
@@ -134,6 +177,8 @@ export class CardController {
     private readonly contributionService: ContributionService,
     @inject(ContributedReposService)
     private readonly contributedReposService: ContributedReposService,
+    @inject(RepositoryRankingService)
+    private readonly repositoryRankingService: RepositoryRankingService,
   ) {}
 
   /**
@@ -434,6 +479,71 @@ export class CardController {
         logger.warn({ username }, 'Failed to render top contributed repos card, falling back to mock data');
         try {
           const svg = renderTopContributedCard(MOCK_CONTRIBUTIONS, { ...options, limit });
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
+      }
+    })();
+  };
+
+  /**
+   * Generates and returns the user's repository rankings card as an SVG.
+   */
+  public getRankingsCard = (req: Request, res: Response, next: NextFunction): void => {
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
+    const { username, githubAccessToken: token } = githubParams;
+    const options = this.getCardOptions(req);
+
+    logger.info({ username, hasToken: !!token, options }, 'Received request to render rankings card');
+
+    void (async () => {
+      try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const svg = renderRankingsCard(MOCK_RANKINGS(username || 'octocat'), options);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).send(svg);
+          return;
+        }
+
+        // Fetch user and rankings in parallel
+        const [user, rankings] = await Promise.all([
+          username
+            ? this.gitHubService.getUser(username, token)
+            : this.gitHubService.getAuthenticatedUser(token),
+          this.repositoryRankingService.getRepositoryRankings(username, { token }),
+        ]);
+
+        logger.debug({ username: user.login }, 'Fetched user profile and rankings for card');
+
+        // Render SVG Rankings Card
+        const svg = renderRankingsCard(
+          {
+            username: user.login,
+            name: user.name,
+            mostStarred: rankings.mostStarred,
+            mostForked: rankings.mostForked,
+            mostRecentlyUpdated: rankings.mostRecentlyUpdated,
+          },
+          options,
+        );
+
+        // Return response with SVG headers and caching
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+        res.status(200).send(svg);
+      } catch {
+        logger.warn({ username }, 'Failed to render rankings card, falling back to mock data');
+        try {
+          const svg = renderRankingsCard(MOCK_RANKINGS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);

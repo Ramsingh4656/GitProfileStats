@@ -9,6 +9,7 @@ export interface IUserSettings {
     streak: boolean;
     trophies: boolean;
     topContributed: boolean;
+    rankings: boolean;
   };
 }
 
@@ -43,6 +44,7 @@ export class User {
       streak: true,
       trophies: true,
       topContributed: true,
+      rankings: true,
     },
   };
 
