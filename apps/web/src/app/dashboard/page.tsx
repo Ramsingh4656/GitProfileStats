@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { env } from "@/config/env";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { 
   MapPin, 
@@ -35,202 +34,26 @@ import {
 } from "lucide-react";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
-// Curated GitHub language colors
-const LANGUAGE_COLORS: Record<string, string> = {
-  TypeScript: "#3178c6",
-  JavaScript: "#f1e05a",
-  Python: "#3572A5",
-  CSS: "#563d7c",
-  HTML: "#e34c26",
-  Shell: "#89e051",
-  Go: "#00ADD8",
-  Rust: "#dea584",
-  Java: "#b07219",
-  Ruby: "#701516",
-  C: "#555555",
-  "C++": "#f34b7d",
-  "C#": "#178600",
-  PHP: "#4F5D95",
-  Swift: "#F05138",
-  Kotlin: "#A97BFF",
-  Dart: "#00B4AB",
-};
-
-interface RankedRepository {
-  id: number;
-  name: string;
-  fullName: string;
-  htmlUrl: string;
-  description: string | null;
-  stars: number;
-  forks: number;
-  size: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface RepositoryStats {
-  total: number;
-  public: number;
-  private: number;
-  forks: number;
-  original: number;
-  archived: number;
-  disabled: number;
-  totalStars: number;
-  totalForks: number;
-  totalWatchers: number;
-  openIssuesCount: number;
-}
-
-interface RepositoryRankings {
-  mostStarred: RankedRepository | null;
-  mostForked: RankedRepository | null;
-  largest: RankedRepository | null;
-  smallest: RankedRepository | null;
-  newest: RankedRepository | null;
-  oldest: RankedRepository | null;
-  mostRecentlyUpdated: RankedRepository | null;
-}
-
-interface LanguageStat {
-  language: string;
-  bytes: number;
-  percentage: number;
-  repositoryCount: number;
-}
-
-interface CommitStats {
-  username: string;
-  totalCommits: number;
-  commitsThisYear: number;
-  commitsThisMonth: number;
-  commitsThisWeek: number;
-}
-
-interface ContributionDay {
-  color: string;
-  contributionCount: number;
-  date: string;
-  weekday: number;
-}
-
-interface ContributionWeek {
-  contributionDays: ContributionDay[];
-}
-
-interface ContributionStats {
-  username: string;
-  totalContributions: number;
-  currentStreak: number;
-  longestStreak: number;
-  contributionCalendar: {
-    totalContributions: number;
-    weeks: ContributionWeek[];
-  };
-}
-
-interface CombinedStats {
-  repositoryStats: RepositoryStats;
-  repositoryRankings: RepositoryRankings;
-  languageStats: LanguageStat[];
-  commitStats: CommitStats;
-  contributionStats: ContributionStats;
-  pullRequestStats: {
-    totalPullRequests: number;
-    openPullRequests: number;
-    closedPullRequests: number;
-    mergedPullRequests: number;
-  };
-  issueStats: {
-    totalIssuesOpened: number;
-    totalIssuesClosed: number;
-    averageCloseTimeFormatted: string;
-  };
-}
-
-
+import { useDashboardStats } from "./hooks/useDashboardStats";
+import { LANGUAGE_COLORS } from "./types";
 
 export default function DashboardPage() {
-  const router = useRouter();
   const isOnline = useOnlineStatus();
-  const [user, setUser] = useState<{
-    id: string;
-    username: string;
-    email: string | null;
-    avatarUrl: string;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [stats, setStats] = useState<CombinedStats | null>(null);
-  const [statsError, setStatsError] = useState<string | null>(null);
+  const {
+    user,
+    loading,
+    loadingStats,
+    stats,
+    statsError,
+    setStatsError,
+    hasGithubToken,
+    loadStats,
+    setHasGithubToken,
+  } = useDashboardStats();
+
   const [syncing, setSyncing] = useState(false);
   const [patToken, setPatToken] = useState("");
-  const [hasGithubToken, setHasGithubToken] = useState(false);
   const [showPatInput, setShowPatInput] = useState(false);
-
-  const loadStats = useCallback(async (username: string) => {
-    setLoadingStats(true);
-    setStatsError(null);
-
-    try {
-      const apiBase = env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiBase}/api/statistics?username=${username}`, {
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const errJson = await response.json().catch(() => ({}));
-        const errText = errJson.error?.message || (typeof errJson.error === 'string' ? errJson.error : null) || errJson.message;
-        throw new Error(errText || `Failed to fetch stats (Status: ${response.status})`);
-      }
-
-      const data = await response.json();
-      if (data.success && data.data) {
-        setStats(data.data);
-      } else {
-        throw new Error("Invalid statistics response format");
-      }
-    } catch (err: unknown) {
-      console.error("Stats fetch failure:", err);
-      const errMsg = err instanceof Error ? err.message : String(err);
-      setStatsError(errMsg || "Failed to establish secure connection to GitHub APIs.");
-    } finally {
-      setLoadingStats(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const apiBase = env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${apiBase}/api/v1/users/me`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error("Unauthorized");
-        }
-
-        const data = await response.json();
-        if (data.success && data.data) {
-          setUser(data.data);
-          setHasGithubToken(Boolean(data.data.hasGithubToken));
-          // Trigger data loading with verified profile username
-          loadStats(data.data.username);
-        } else {
-          throw new Error("Invalid response format");
-        }
-      } catch (err) {
-        console.error("Session verification failed:", err);
-        router.push("/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [router, loadStats]);
 
   const handleSavePat = async () => {
     if (!user || !patToken.trim()) return;
