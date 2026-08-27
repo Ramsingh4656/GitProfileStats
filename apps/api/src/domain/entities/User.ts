@@ -8,6 +8,7 @@ export interface IUserSettings {
     languages: boolean;
     streak: boolean;
     trophies: boolean;
+    topContributed: boolean;
   };
 }
 
@@ -41,6 +42,7 @@ export class User {
       languages: true,
       streak: true,
       trophies: true,
+      topContributed: true,
     },
   };
 

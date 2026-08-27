@@ -76,7 +76,7 @@ interface CardState {
   zoom: number;
 }
 
-type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies';
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies' | 'top-contributed';
 
 const CARD_INFOS: Record<
   CardType,
@@ -118,6 +118,12 @@ const CARD_INFOS: Record<
     defaultWidth: 490,
     defaultHeight: 195,
   },
+  'top-contributed': {
+    title: 'Top Contributed Repos',
+    desc: 'Ranked list of repositories you contributed to by commit activity',
+    defaultWidth: 490,
+    defaultHeight: 195,
+  },
 };
 
 export default function CardPreviewPage() {
@@ -128,6 +134,7 @@ export default function CardPreviewPage() {
   const [username, setUsername] = useState('octocat');
   const [selectedTheme, setSelectedTheme] = useState('dark');
   const [langsCount, setLangsCount] = useState(5);
+  const [contribLimit, setContribLimit] = useState(5);
   const [customAccent, setCustomAccent] = useState('');
   const [customBackground, setCustomBackground] = useState('');
   const [borderRadius, setBorderRadius] = useState(10);
@@ -145,6 +152,7 @@ export default function CardPreviewPage() {
     streak: true,
     repository: true,
     trophies: true,
+    'top-contributed': true,
   });
   const [readmeLayout, setReadmeLayout] = useState<'vertical' | 'centered' | 'grid'>('vertical');
   const [customApiHost, setCustomApiHost] = useState(() => {
@@ -169,6 +177,7 @@ export default function CardPreviewPage() {
     streak: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
     repository: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
     trophies: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
+    'top-contributed': { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
   });
 
   // Verify auth session on load
@@ -221,6 +230,7 @@ export default function CardPreviewPage() {
                   streak: defaultCardVisibility.streak ?? true,
                   repository: defaultCardVisibility.repository ?? true,
                   trophies: defaultCardVisibility.trophies ?? true,
+                  'top-contributed': defaultCardVisibility.topContributed ?? true,
                 });
               }
             }
@@ -237,7 +247,7 @@ export default function CardPreviewPage() {
   // Main effect to fetch SVGs when parameters change
   useEffect(() => {
     const apiBase = env.NEXT_PUBLIC_API_URL;
-    const types: CardType[] = ['profile', 'stats', 'languages', 'streak', 'repository', 'trophies'];
+    const types: CardType[] = ['profile', 'stats', 'languages', 'streak', 'repository', 'trophies', 'top-contributed'];
 
     types.forEach(async (type) => {
       setCards((prev) => ({
@@ -258,6 +268,10 @@ export default function CardPreviewPage() {
 
         if (type === 'languages') {
           params.append('langs_count', langsCount.toString());
+        }
+
+        if (type === 'top-contributed') {
+          params.append('limit', contribLimit.toString());
         }
 
         if (customAccent) {
@@ -311,6 +325,7 @@ export default function CardPreviewPage() {
     repoName,
     selectedTheme,
     langsCount,
+    contribLimit,
     customAccent,
     customBackground,
     borderRadius,
@@ -328,6 +343,7 @@ export default function CardPreviewPage() {
       streak: { ...prev.streak, zoom: val },
       repository: { ...prev.repository, zoom: val },
       trophies: { ...prev.trophies, zoom: val },
+      'top-contributed': { ...prev['top-contributed'], zoom: val },
     }));
   };
 
@@ -371,6 +387,9 @@ export default function CardPreviewPage() {
     params.append('theme', selectedTheme);
     if (type === 'languages') {
       params.append('langs_count', langsCount.toString());
+    }
+    if (type === 'top-contributed') {
+      params.append('limit', contribLimit.toString());
     }
     if (customAccent) {
       params.append('accent', customAccent.replace('#', ''));
@@ -446,6 +465,9 @@ export default function CardPreviewPage() {
       params.append('theme', selectedTheme);
       if (type === 'languages') {
         params.append('langs_count', langsCount.toString());
+      }
+      if (type === 'top-contributed') {
+        params.append('limit', contribLimit.toString());
       }
       if (customAccent) {
         params.append('accent', customAccent.replace('#', ''));
@@ -883,6 +905,25 @@ export default function CardPreviewPage() {
               />
               <span className="text-[9px] text-zinc-500 leading-tight">
                 Adjusts the number of top languages rendering on the language breakdown card.
+              </span>
+            </div>
+
+            {/* Top Contributed Repos Limit */}
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-zinc-300 font-medium">Contributed Repos Limit</span>
+                <span className="font-bold text-violet-400 font-mono">{contribLimit} repos</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={contribLimit}
+                onChange={(e) => setContribLimit(parseInt(e.target.value))}
+                className="w-full accent-violet-500 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+              />
+              <span className="text-[9px] text-zinc-500 leading-tight">
+                Adjusts the maximum number of repositories listed in the top contributed card.
               </span>
             </div>
 

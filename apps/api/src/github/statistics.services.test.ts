@@ -8,6 +8,7 @@ import { ContributionService } from './contribution.service.js';
 import { PullRequestService } from './pull-request.service.js';
 import { IssueStatisticsService } from './issue-statistics.service.js';
 import { GitHubStatisticsService } from './github-statistics.service.js';
+import { ContributedReposService } from './contributed-repos.service.js';
 import { GitHubService } from './github.service.js';
 
 describe('Statistics Services', () => {
@@ -317,6 +318,62 @@ describe('Statistics Services', () => {
         pullRequestStats: mockPRStats,
         issueStats: mockIssueStats,
       });
+    });
+  });
+
+  describe('ContributedReposService', () => {
+    it('should fetch and sort contributed repositories correctly', async () => {
+      mockGitHubService.graphql
+        .mockResolvedValueOnce({
+          user: { login: 'john_doe' },
+        })
+        .mockResolvedValueOnce({
+          user: {
+            contributionsCollection: {
+              commitContributionsByRepository: [
+                {
+                  repository: {
+                    name: 'repo-A',
+                    owner: { login: 'owner-A' },
+                    primaryLanguage: { name: 'TypeScript', color: '#3178c6' },
+                  },
+                  contributions: { totalCount: 15 },
+                },
+                {
+                  repository: {
+                    name: 'repo-B',
+                    owner: { login: 'owner-B' },
+                    primaryLanguage: { name: 'JavaScript', color: '#f1e05a' },
+                  },
+                  contributions: { totalCount: 42 },
+                },
+                {
+                  repository: {
+                    name: 'repo-C',
+                    owner: { login: 'owner-C' },
+                    primaryLanguage: null,
+                  },
+                  contributions: { totalCount: 15 },
+                },
+              ],
+            },
+          },
+        });
+
+      const service = new ContributedReposService(mockGitHubService as unknown as GitHubService);
+      const repos = await service.getTopContributedRepos('john_doe');
+
+      expect(repos).toHaveLength(3);
+      // Highest contribution count first
+      expect(repos[0]).toEqual({
+        name: 'repo-B',
+        owner: 'owner-B',
+        primaryLanguage: { name: 'JavaScript', color: '#f1e05a' },
+        contributionCount: 42,
+      });
+      // Sort alphabetically if contribution count is identical
+      expect(repos[1].name).toBe('repo-A');
+      expect(repos[2].name).toBe('repo-C');
     });
   });
 });

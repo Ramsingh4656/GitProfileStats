@@ -379,6 +379,16 @@ describe('API Endpoints', () => {
       expect(svgText).toContain('<svg');
       expect(svgText).toContain('</svg>');
     });
+
+    it('should generate top contributed repos card SVG', async () => {
+      const response = await request(app)
+        .get('/api/cards/top-contributed.svg?username=demo')
+        .expect('Content-Type', /image\/svg\+xml/);
+      expect(response.status).toBe(200);
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
+    });
   });
 
   describe('User and Authentication Routes', () => {

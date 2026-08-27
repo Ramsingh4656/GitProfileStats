@@ -9,6 +9,7 @@ import {
   IssueStatisticsService,
   LanguageCollectorService,
   ContributionService,
+  ContributedReposService,
 } from '../../../github/index.js';
 import type { IGitHubRequest, IRepositoryRequest } from '../middleware/validation.js';
 import {
@@ -18,6 +19,7 @@ import {
   renderStreakCard,
   renderRepositoryCard,
   renderTrophiesCard,
+  renderTopContributedCard,
   type CardOptions,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
@@ -105,6 +107,14 @@ const MOCK_REPOSITORY = (owner: string, repo: string): any => ({
   updated_at: '2026-08-01T08:00:00Z',
 });
 
+const MOCK_CONTRIBUTIONS = [
+  { name: 'GitProfileStats', owner: 'Ramsingh4656', primaryLanguage: { name: 'TypeScript', color: '#3178c6' }, contributionCount: 142 },
+  { name: 'typescript', owner: 'microsoft', primaryLanguage: { name: 'TypeScript', color: '#3178c6' }, contributionCount: 88 },
+  { name: 'vscode', owner: 'microsoft', primaryLanguage: { name: 'TypeScript', color: '#3178c6' }, contributionCount: 54 },
+  { name: 'next.js', owner: 'vercel', primaryLanguage: { name: 'JavaScript', color: '#f1e05a' }, contributionCount: 32 },
+  { name: 'react', owner: 'facebook', primaryLanguage: { name: 'JavaScript', color: '#f1e05a' }, contributionCount: 19 },
+];
+
 @injectable()
 export class CardController {
   constructor(
@@ -122,6 +132,8 @@ export class CardController {
     private readonly languageCollectorService: LanguageCollectorService,
     @inject(ContributionService)
     private readonly contributionService: ContributionService,
+    @inject(ContributedReposService)
+    private readonly contributedReposService: ContributedReposService,
   ) {}
 
   /**
@@ -363,6 +375,65 @@ export class CardController {
         logger.warn({ username }, 'Failed to render trophies card, falling back to mock data');
         try {
           const svg = renderTrophiesCard(MOCK_STATS(username || 'octocat'), options);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
+      }
+    })();
+  };
+
+  /**
+   * Generates and returns the user's top contributed repositories card as an SVG.
+   */
+  public getTopContributedCard = (req: Request, res: Response, next: NextFunction): void => {
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
+    const { username, githubAccessToken: token } = githubParams;
+    const options = this.getCardOptions(req);
+    const limitStr = req.query.limit as string | undefined;
+    const limit = limitStr ? parseInt(limitStr, 10) : undefined;
+
+    logger.info(
+      { username, hasToken: !!token, options, limit },
+      'Received request to render top contributed repos card',
+    );
+
+    void (async () => {
+      try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const svg = renderTopContributedCard(MOCK_CONTRIBUTIONS, { ...options, limit });
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).send(svg);
+          return;
+        }
+
+        // Fetch top contributed repos
+        const repos = await this.contributedReposService.getTopContributedRepos(username, { token });
+
+        logger.debug(
+          { username, reposCount: repos.length },
+          'Fetched top contributed repositories for card',
+        );
+
+        // Render SVG Top Contributed Card
+        const svg = renderTopContributedCard(repos, { ...options, limit });
+
+        // Return response with SVG headers and caching
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+        res.status(200).send(svg);
+      } catch {
+        logger.warn({ username }, 'Failed to render top contributed repos card, falling back to mock data');
+        try {
+          const svg = renderTopContributedCard(MOCK_CONTRIBUTIONS, { ...options, limit });
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);

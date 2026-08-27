@@ -44,6 +44,15 @@ router.get(
   cardController.getTrophiesCard,
 );
 
+// Register top contributed repos card route under /cards/top-contributed.svg
+router.get(
+  '/cards/top-contributed.svg',
+  optionalAuthGuard,
+  validateGitHubRequest,
+  cacheMiddleware(300),
+  cardController.getTopContributedCard,
+);
+
 // Register streak card route under /cards/streak.svg
 router.get(
   '/cards/streak.svg',

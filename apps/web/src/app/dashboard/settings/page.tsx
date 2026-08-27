@@ -112,6 +112,7 @@ interface SettingsState {
     languages: boolean;
     streak: boolean;
     trophies: boolean;
+    topContributed: boolean;
   };
 }
 
@@ -133,6 +134,7 @@ export default function SettingsPage() {
       languages: true,
       streak: true,
       trophies: true,
+      topContributed: true,
     },
   });
 
@@ -442,6 +444,11 @@ export default function SettingsPage() {
                 key: 'trophies',
                 label: 'Trophies Card',
                 desc: 'Achievement badges for stars, commits, followers, and repo count',
+              },
+              {
+                key: 'topContributed',
+                label: 'Top Contributed Card',
+                desc: 'Top N repositories by commit/contribution activity',
               },
             ].map((card) => {
               const isVisible =

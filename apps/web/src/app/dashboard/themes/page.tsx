@@ -69,7 +69,7 @@ const THEMES_INFO = [
   },
 ];
 
-type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies';
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies' | 'top-contributed';
 
 interface CardConfig {
   title: string;
@@ -115,6 +115,12 @@ const CARD_TYPES: Record<CardType, CardConfig> = {
     defaultWidth: 490,
     defaultHeight: 195,
   },
+  'top-contributed': {
+    title: 'Top Contributed Repos',
+    desc: 'Ranked list of repositories you contributed to by commit activity',
+    defaultWidth: 490,
+    defaultHeight: 195,
+  },
 };
 
 interface PreviewState {
@@ -134,6 +140,7 @@ interface UserSettings {
     languages: boolean;
     streak: boolean;
     trophies?: boolean;
+    topContributed?: boolean;
   };
 }
 
@@ -349,6 +356,7 @@ export default function ThemeGalleryPage() {
           languages: true,
           streak: true,
           trophies: true,
+          topContributed: true,
         },
       };
 

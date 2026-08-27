@@ -6,6 +6,7 @@ import {
   renderStreakCard,
   renderRepositoryCard,
   renderTrophiesCard,
+  renderTopContributedCard,
   calculateTrophy,
 } from './index.js';
 
@@ -220,6 +221,43 @@ describe('Card Generators', () => {
       expect(svg).toContain('Issues');
       expect(svg).toContain('Followers');
       expect(svg).toContain('Repos');
+    });
+  });
+
+  describe('renderTopContributedCard', () => {
+    const mockContributions = [
+      { name: 'repo-A', owner: 'owner-A', primaryLanguage: { name: 'TypeScript', color: '#3178c6' }, contributionCount: 15 },
+      { name: 'repo-B', owner: 'owner-B', primaryLanguage: { name: 'JavaScript', color: '#f1e05a' }, contributionCount: 42 },
+      { name: 'repo-C', owner: 'owner-C', primaryLanguage: null, contributionCount: 5 },
+    ];
+
+    it('should generate a valid top contributed repos card SVG with default limit', () => {
+      const svg = renderTopContributedCard(mockContributions, dummyOptions);
+
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('width="490"');
+      expect(svg).toContain('height="195"'); // default limit 5 -> height 195
+      expect(svg).toContain('</svg>');
+      expect(svg).toContain('Top Contributed Repositories');
+      expect(svg).toContain('owner-A/repo-A');
+      expect(svg).toContain('owner-B/repo-B');
+      expect(svg).toContain('15 commits');
+      expect(svg).toContain('42 commits');
+    });
+
+    it('should scale dynamic height based on the limit parameter', () => {
+      const svgLimit3 = renderTopContributedCard(mockContributions, { ...dummyOptions, limit: 3 });
+      const svgLimit7 = renderTopContributedCard(mockContributions, { ...dummyOptions, limit: 7 });
+
+      expect(svgLimit3).toContain('height="143"'); // 65 + 3 * 26 = 143
+      expect(svgLimit7).toContain('height="247"'); // 65 + 7 * 26 = 247
+    });
+
+    it('should handle empty contributions array gracefully', () => {
+      const svg = renderTopContributedCard([], dummyOptions);
+
+      expect(svg).toContain('No contributions detected');
+      expect(svg).toContain('Contributions to public/private repositories will show up here.');
     });
   });
 });
