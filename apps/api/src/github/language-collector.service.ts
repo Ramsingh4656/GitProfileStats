@@ -34,14 +34,26 @@ export class LanguageCollectorService implements ILanguageCollectorService {
   ): Promise<LanguageCollectionResult> {
     logger.info({ username, hasToken: !!options?.token }, 'Collecting language stats');
 
+    let targetUsername = username;
+    if (options?.token && targetUsername) {
+      try {
+        const authUser = await this.gitHubService.getAuthenticatedUser(options.token);
+        if (authUser.login.toLowerCase() === targetUsername.toLowerCase()) {
+          targetUsername = undefined;
+        }
+      } catch (err) {
+        logger.warn({ err }, 'Failed to check authenticated user in collectLanguages');
+      }
+    }
+
     try {
-      return await this.collectLanguagesGraphQL(username, options);
+      return await this.collectLanguagesGraphQL(targetUsername, options);
     } catch (err: unknown) {
       logger.warn(
         { err: err instanceof Error ? err.message : err },
         'Failed to collect languages using GraphQL, falling back to REST',
       );
-      return await this.collectLanguagesREST(username, options);
+      return await this.collectLanguagesREST(targetUsername, options);
     }
   }
 

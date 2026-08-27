@@ -190,6 +190,21 @@ export class GitHubService {
     return this.request<GitHubUser>(`/users/${username}`, token);
   }
 
+  private async isSelfUser(username?: string, token?: string): Promise<boolean> {
+    if (!username) {
+      return true;
+    }
+    if (!token) {
+      return false;
+    }
+    try {
+      const authUser = await this.getAuthenticatedUser(token);
+      return authUser.login.toLowerCase() === username.toLowerCase();
+    } catch {
+      return false;
+    }
+  }
+
   /**
    * Fetches repositories.
    * If username is provided, fetches public repositories for that user.
@@ -215,13 +230,20 @@ export class GitHubService {
     if (page) queryParams.append('page', page.toString());
     if (perPage) queryParams.append('per_page', perPage.toString());
 
+    const isSelf = await this.isSelfUser(username, token);
+    if (isSelf) {
+      queryParams.append('type', 'owner');
+    }
+
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    const endpoint = username
-      ? `/users/${username}/repos${queryString}`
-      : `/user/repos${queryString}`;
+    const userString = username || '';
+    const endpoint = isSelf
+      ? `/user/repos${queryString}`
+      : `/users/${userString}/repos${queryString}`;
 
     return this.request<GitHubRepository[]>(endpoint, token);
   }
+
 
   /**
    * Fetches details of a specific repository.

@@ -67,7 +67,7 @@ describe('GitHubService', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'https://api.github.com/user/repos?page=1&per_page=30',
+        'https://api.github.com/user/repos?page=1&per_page=30&type=owner',
         expect.any(Object),
       );
       expect(repos).toEqual(mockRepos);
@@ -75,15 +75,41 @@ describe('GitHubService', () => {
 
     it('should fetch repositories for specific user when username is provided', async () => {
       const mockRepos = [{ id: 102, name: 'repo-2' }];
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockRepos,
-      });
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ login: 'different_user' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockRepos,
+        });
 
       const repos = await gitHubService.getRepositories('john_doe', 'some-token');
 
-      expect(mockFetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenLastCalledWith(
         'https://api.github.com/users/john_doe/repos',
+        expect.any(Object),
+      );
+      expect(repos).toEqual(mockRepos);
+    });
+
+    it('should fetch repositories from /user/repos when username matches authenticated user', async () => {
+      const mockRepos = [{ id: 104, name: 'repo-4' }];
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ login: 'john_doe' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockRepos,
+        });
+
+      const repos = await gitHubService.getRepositories('john_doe', 'some-token');
+
+      expect(mockFetch).toHaveBeenLastCalledWith(
+        'https://api.github.com/user/repos?type=owner',
         expect.any(Object),
       );
       expect(repos).toEqual(mockRepos);

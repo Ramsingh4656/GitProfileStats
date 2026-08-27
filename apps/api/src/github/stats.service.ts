@@ -26,15 +26,29 @@ export class StatsService {
   public async getStats(username?: string, options?: { token?: string }): Promise<IGitHubStats> {
     logger.info({ username, hasToken: !!options?.token }, 'Generating profile stats');
 
+    let targetUsername = username;
+    let isSelf = false;
+    if (options?.token && targetUsername) {
+      try {
+        const authUser = await this.gitHubService.getAuthenticatedUser(options.token);
+        if (authUser.login.toLowerCase() === targetUsername.toLowerCase()) {
+          isSelf = true;
+          targetUsername = undefined;
+        }
+      } catch (err) {
+        logger.warn({ err }, 'Failed to check authenticated user in getStats');
+      }
+    }
+
     // 1. Fetch user profile
-    const profile = username
-      ? await this.gitHubService.getUser(username, options?.token)
-      : await this.gitHubService.getAuthenticatedUser(options?.token);
+    const profile = (!targetUsername || isSelf)
+      ? await this.gitHubService.getAuthenticatedUser(options?.token)
+      : await this.gitHubService.getUser(targetUsername, options?.token);
 
     logger.debug({ username: profile.login }, 'Fetched user profile');
 
     // 2. Fetch all repositories
-    const repos = await this.gitHubService.getAllRepositories(username, options);
+    const repos = await this.gitHubService.getAllRepositories(targetUsername, options);
     logger.debug({ count: repos.length }, 'Fetched repositories list');
 
     // 3. Aggregate statistics

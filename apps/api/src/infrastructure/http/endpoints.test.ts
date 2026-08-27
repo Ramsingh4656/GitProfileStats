@@ -118,6 +118,27 @@ describe('API Endpoints', () => {
           }),
         };
       }
+      if (query.includes('viewer { repositories') || query.includes('viewer{repositories')) {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              viewer: {
+                repositories: {
+                  pageInfo: { hasNextPage: false, endCursor: null },
+                  nodes: [],
+                },
+              },
+            },
+          }),
+        };
+      }
+
+      // Default GraphQL fallback to prevent throwing "returned no data"
+      return {
+        ok: true,
+        json: async () => ({ data: {} }),
+      };
     }
 
     // 2. REST Mocking
@@ -126,6 +147,8 @@ describe('API Endpoints', () => {
         ok: true,
         json: async () => [
           {
+            name: 'test',
+            owner: { login: 'demo' },
             stargazers_count: 5,
             forks_count: 2,
             watchers_count: 5,
@@ -409,7 +432,7 @@ describe('API Endpoints', () => {
         .get('/api/statistics?username=demo')
         .set('Cookie', sessionCookie as string);
       expect(statisticsResponse.status).toBe(200);
-      const userRequest = mockFetch.mock.calls.find(([url]) => String(url).includes('/users/demo'));
+      const userRequest = mockFetch.mock.calls.find(([url]) => String(url).includes('/user'));
       expect(userRequest?.[1]?.headers?.Authorization).toBe('Bearer mock-access-token');
       expect(JSON.stringify(statisticsResponse.body)).not.toContain('mock-access-token');
 
