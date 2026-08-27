@@ -21,7 +21,7 @@ export class HealthController {
       } else {
         try {
           const timeout = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error('GitHub API timeout')), 3000),
+            setTimeout(() => { reject(new Error('GitHub API timeout')); }, 3000),
           );
 
           await Promise.race([this.gitHubService.getAuthenticatedUser(), timeout]);

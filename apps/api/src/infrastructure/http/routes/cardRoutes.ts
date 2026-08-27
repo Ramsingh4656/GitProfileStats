@@ -35,6 +35,15 @@ router.get(
   cardController.getLanguagesCard,
 );
 
+// Register trophies card route under /cards/trophies.svg
+router.get(
+  '/cards/trophies.svg',
+  optionalAuthGuard,
+  validateGitHubRequest,
+  cacheMiddleware(300),
+  cardController.getTrophiesCard,
+);
+
 // Register streak card route under /cards/streak.svg
 router.get(
   '/cards/streak.svg',

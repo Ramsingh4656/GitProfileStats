@@ -4,11 +4,11 @@ import { container } from '../../../config/container.js';
 import { logger } from '../../../config/logger.js';
 import type { IResponseCache } from '../../cache/IResponseCache.js';
 
-type HttpCacheEntry = {
+interface HttpCacheEntry {
   body: any;
   headers: Record<string, string | string[] | undefined>;
   statusCode: number;
-};
+}
 
 const responseCache = container.resolve<IResponseCache>('ResponseCache');
 

@@ -7,6 +7,7 @@ export interface IUserSettings {
     stats: boolean;
     languages: boolean;
     streak: boolean;
+    trophies: boolean;
   };
 }
 
@@ -39,6 +40,7 @@ export class User {
       stats: true,
       languages: true,
       streak: true,
+      trophies: true,
     },
   };
 

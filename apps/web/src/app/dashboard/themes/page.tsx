@@ -69,7 +69,7 @@ const THEMES_INFO = [
   },
 ];
 
-type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository';
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies';
 
 interface CardConfig {
   title: string;
@@ -109,6 +109,12 @@ const CARD_TYPES: Record<CardType, CardConfig> = {
     defaultWidth: 450,
     defaultHeight: 150,
   },
+  trophies: {
+    title: 'Trophies Card',
+    desc: 'Achievement-style badges for stars, commits, pull requests, issues, followers, and repo count',
+    defaultWidth: 490,
+    defaultHeight: 195,
+  },
 };
 
 interface PreviewState {
@@ -127,6 +133,7 @@ interface UserSettings {
     stats: boolean;
     languages: boolean;
     streak: boolean;
+    trophies?: boolean;
   };
 }
 
@@ -341,6 +348,7 @@ export default function ThemeGalleryPage() {
           stats: true,
           languages: true,
           streak: true,
+          trophies: true,
         },
       };
 

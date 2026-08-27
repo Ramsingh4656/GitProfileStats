@@ -35,6 +35,7 @@ import {
   renderLanguagesCard,
   renderStreakCard,
   renderRepositoryCard,
+  renderTrophiesCard,
 } from '../cards/index.js';
 import { app } from '../app.js';
 import http from 'http';
@@ -227,6 +228,16 @@ async function benchmarkSVGGeneration() {
   console.log(
     `Repository Card: ${(repoTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (repoTime / 1000))} gen/sec)`,
   );
+
+  // Trophies Card
+  const trophiesTime = await measure(() => {
+    for (let i = 0; i < runs; i++) {
+      renderTrophiesCard(mockStats, cardOptions);
+    }
+  });
+  console.log(
+    `Trophies Card: ${(trophiesTime / runs).toFixed(3)} ms/gen (${Math.round(runs / (trophiesTime / 1000))} gen/sec)`,
+  );
 }
 
 // 3. API RESPONSE TIME BENCHMARK (Express integration)
@@ -262,6 +273,10 @@ async function benchmarkAPIResponse() {
     {
       name: 'Stats SVG (/api/cards/stats.svg?username=demo)',
       path: '/api/cards/stats.svg?username=demo',
+    },
+    {
+      name: 'Trophies SVG (/api/cards/trophies.svg?username=demo)',
+      path: '/api/cards/trophies.svg?username=demo',
     },
   ];
 

@@ -25,6 +25,7 @@ describe('PostgresUserRepository', () => {
         stats: true,
         languages: true,
         streak: true,
+        trophies: true,
       },
     },
     githubAccessToken: 'initial-token',

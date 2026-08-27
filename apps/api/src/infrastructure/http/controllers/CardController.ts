@@ -17,6 +17,7 @@ import {
   renderLanguagesCard,
   renderStreakCard,
   renderRepositoryCard,
+  renderTrophiesCard,
   type CardOptions,
 } from '../../../cards/index.js';
 import { logger } from '../../../config/logger.js';
@@ -292,6 +293,76 @@ export class CardController {
         logger.warn({ username }, 'Failed to render stats card, falling back to mock data');
         try {
           const svg = renderStatsCard(MOCK_STATS(username || 'octocat'), options);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).send(svg);
+        } catch (fallbackError) {
+          next(fallbackError);
+        }
+      }
+    })();
+  };
+
+  /**
+   * Generates and returns the user's trophies card as an SVG.
+   */
+  public getTrophiesCard = (req: Request, res: Response, next: NextFunction): void => {
+    const githubParams = (req as IGitHubRequest).githubParams;
+    if (!githubParams) {
+      next(new Error('GitHub parameters not found'));
+      return;
+    }
+    const { username, githubAccessToken: token } = githubParams;
+    const options = this.getCardOptions(req);
+
+    logger.info({ username, hasToken: !!token, options }, 'Received request to render trophies card');
+
+    void (async () => {
+      try {
+        const forceMock = req.query.mock === 'true';
+        if (this.shouldMock(username, token, forceMock)) {
+          const svg = renderTrophiesCard(MOCK_STATS(username || 'octocat'), options);
+          res.setHeader('Content-Type', 'image/svg+xml');
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).send(svg);
+          return;
+        }
+
+        // Fetch all required stats in parallel
+        const [stats, commitStats, prStats, issueStats] = await Promise.all([
+          this.statsService.getStats(username, { token }),
+          this.commitStatsService.getCommitStats(username, { token }),
+          this.pullRequestService.getPullRequestStats(username, { token }),
+          this.issueStatisticsService.getIssueStats(username, { token }),
+        ]);
+
+        logger.debug({ username: stats.username }, 'Fetched all user stats for trophies card');
+
+        const totalRepositories = stats.publicRepositories + stats.privateRepositories;
+
+        // Render SVG Trophies Card
+        const svg = renderTrophiesCard(
+          {
+            username: stats.username,
+            name: stats.name,
+            totalStars: stats.totalStars,
+            totalCommits: commitStats.totalCommits,
+            totalRepositories,
+            pullRequests: prStats.totalPullRequests,
+            issues: issueStats.totalIssuesOpened,
+            followers: stats.followers,
+          },
+          options,
+        );
+
+        // Return response with SVG headers and caching
+        res.setHeader('Content-Type', 'image/svg+xml');
+        res.setHeader('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+        res.status(200).send(svg);
+      } catch {
+        logger.warn({ username }, 'Failed to render trophies card, falling back to mock data');
+        try {
+          const svg = renderTrophiesCard(MOCK_STATS(username || 'octocat'), options);
           res.setHeader('Content-Type', 'image/svg+xml');
           res.setHeader('Cache-Control', 'public, max-age=300');
           res.status(200).send(svg);

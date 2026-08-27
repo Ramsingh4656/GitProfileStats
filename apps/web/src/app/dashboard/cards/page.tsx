@@ -76,7 +76,7 @@ interface CardState {
   zoom: number;
 }
 
-type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository';
+type CardType = 'profile' | 'stats' | 'languages' | 'streak' | 'repository' | 'trophies';
 
 const CARD_INFOS: Record<
   CardType,
@@ -112,6 +112,12 @@ const CARD_INFOS: Record<
     defaultWidth: 450,
     defaultHeight: 150,
   },
+  trophies: {
+    title: 'Trophies Card',
+    desc: 'Achievement-style badges for stars, commits, pull requests, issues, followers, and repo count',
+    defaultWidth: 490,
+    defaultHeight: 195,
+  },
 };
 
 export default function CardPreviewPage() {
@@ -138,6 +144,7 @@ export default function CardPreviewPage() {
     languages: true,
     streak: true,
     repository: true,
+    trophies: true,
   });
   const [readmeLayout, setReadmeLayout] = useState<'vertical' | 'centered' | 'grid'>('vertical');
   const [customApiHost, setCustomApiHost] = useState(() => {
@@ -161,6 +168,7 @@ export default function CardPreviewPage() {
     languages: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
     streak: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
     repository: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
+    trophies: { svg: '', loading: true, error: null, copied: null, tab: 'preview', zoom: 1 },
   });
 
   // Verify auth session on load
@@ -212,6 +220,7 @@ export default function CardPreviewPage() {
                   languages: defaultCardVisibility.languages ?? true,
                   streak: defaultCardVisibility.streak ?? true,
                   repository: defaultCardVisibility.repository ?? true,
+                  trophies: defaultCardVisibility.trophies ?? true,
                 });
               }
             }
@@ -228,7 +237,7 @@ export default function CardPreviewPage() {
   // Main effect to fetch SVGs when parameters change
   useEffect(() => {
     const apiBase = env.NEXT_PUBLIC_API_URL;
-    const types: CardType[] = ['profile', 'stats', 'languages', 'streak', 'repository'];
+    const types: CardType[] = ['profile', 'stats', 'languages', 'streak', 'repository', 'trophies'];
 
     types.forEach(async (type) => {
       setCards((prev) => ({
@@ -318,6 +327,7 @@ export default function CardPreviewPage() {
       languages: { ...prev.languages, zoom: val },
       streak: { ...prev.streak, zoom: val },
       repository: { ...prev.repository, zoom: val },
+      trophies: { ...prev.trophies, zoom: val },
     }));
   };
 

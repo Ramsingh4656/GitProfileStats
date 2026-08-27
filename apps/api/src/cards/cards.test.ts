@@ -5,6 +5,8 @@ import {
   renderLanguagesCard,
   renderStreakCard,
   renderRepositoryCard,
+  renderTrophiesCard,
+  calculateTrophy,
 } from './index.js';
 
 describe('Card Generators', () => {
@@ -175,6 +177,49 @@ describe('Card Generators', () => {
       expect(svg).toContain('Mock repository description');
       expect(svg).toContain('TypeScript');
       expect(svg).toContain('99');
+    });
+  });
+
+  describe('renderTrophiesCard', () => {
+    it('should calculate trophy tiers correctly', () => {
+      expect(calculateTrophy('stars', 5)).toEqual({ tier: 'NONE', tierName: 'Beginner', color: '#8b949e' });
+      expect(calculateTrophy('stars', 10)).toEqual({ tier: 'BRONZE', tierName: 'Bronze', color: '#c5a059' });
+      expect(calculateTrophy('stars', 50)).toEqual({ tier: 'SILVER', tierName: 'Silver', color: '#a6a6a6' });
+      expect(calculateTrophy('stars', 200)).toEqual({ tier: 'GOLD', tierName: 'Gold', color: '#ffd700' });
+      expect(calculateTrophy('stars', 1000)).toEqual({ tier: 'PLATINUM', tierName: 'Platinum', color: '#00e5ff' });
+
+      expect(calculateTrophy('commits', 50)).toEqual({ tier: 'NONE', tierName: 'Beginner', color: '#8b949e' });
+      expect(calculateTrophy('commits', 100)).toEqual({ tier: 'BRONZE', tierName: 'Bronze', color: '#c5a059' });
+      expect(calculateTrophy('commits', 500)).toEqual({ tier: 'SILVER', tierName: 'Silver', color: '#a6a6a6' });
+      expect(calculateTrophy('commits', 2000)).toEqual({ tier: 'GOLD', tierName: 'Gold', color: '#ffd700' });
+      expect(calculateTrophy('commits', 10000)).toEqual({ tier: 'PLATINUM', tierName: 'Platinum', color: '#00e5ff' });
+    });
+
+    it('should generate a valid trophies card SVG', () => {
+      const mockStats = {
+        username: 'john_doe',
+        name: 'John Doe',
+        totalStars: 42,
+        totalCommits: 1337,
+        totalRepositories: 8,
+        pullRequests: 15,
+        issues: 2,
+        followers: 12,
+      };
+
+      const svg = renderTrophiesCard(mockStats, dummyOptions);
+
+      expect(svg).toContain('<svg');
+      expect(svg).toContain('width="490"');
+      expect(svg).toContain('height="195"');
+      expect(svg).toContain('</svg>');
+      expect(svg).toContain('John Doe');
+      expect(svg).toContain('Stars');
+      expect(svg).toContain('Commits');
+      expect(svg).toContain('PRs');
+      expect(svg).toContain('Issues');
+      expect(svg).toContain('Followers');
+      expect(svg).toContain('Repos');
     });
   });
 });

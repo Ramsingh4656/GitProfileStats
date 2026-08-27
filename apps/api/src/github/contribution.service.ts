@@ -28,9 +28,9 @@ export interface IContributionStats {
 
 interface IGraphQLContributionCalendar {
   totalContributions: number;
-  weeks: Array<{
+  weeks: {
     contributionDays: IContributionDay[];
-  }>;
+  }[];
 }
 
 interface IGraphQLResponse {

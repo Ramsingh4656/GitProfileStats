@@ -127,7 +127,7 @@ export class LanguageCollectorService implements ILanguageCollectorService {
 
       const response = await this.gitHubService.graphql<any>(query, variables, token);
       const data = username ? response?.user : response?.viewer;
-      if (!data || !data.repositories) {
+      if (!data?.repositories) {
         break;
       }
 

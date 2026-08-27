@@ -30,10 +30,10 @@ interface IClosedIssuesResponse {
         hasNextPage: boolean;
         endCursor: string | null;
       };
-      nodes: Array<{
+      nodes: {
         createdAt: string;
         closedAt: string | null;
-      }>;
+      }[];
     };
   };
 }
@@ -143,7 +143,7 @@ export class IssueStatisticsService {
           options?.token,
         );
 
-      if (!pageData.user || !pageData.user.closedIssuesList) {
+      if (!pageData.user?.closedIssuesList) {
         break;
       }
 

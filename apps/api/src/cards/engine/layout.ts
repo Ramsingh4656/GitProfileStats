@@ -186,7 +186,7 @@ export function computeLayout(
     let totalHeight = totalSpacing;
 
     for (const status of childStatuses) {
-      let childWidthConstraint = innerMaxWidth;
+      const childWidthConstraint = innerMaxWidth;
       let childHeightConstraint = 0;
 
       if (status.isFlex) {
@@ -316,7 +316,7 @@ export function computeLayout(
 
     for (const status of childStatuses) {
       let childWidthConstraint = 0;
-      let childHeightConstraint = innerMaxHeight;
+      const childHeightConstraint = innerMaxHeight;
 
       if (status.isFlex) {
         const flexVal = status.child.flex ?? 1;

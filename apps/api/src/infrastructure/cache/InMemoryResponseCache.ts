@@ -1,10 +1,10 @@
 import { injectable } from 'tsyringe';
 import type { IResponseCache } from './IResponseCache.js';
 
-type CacheEntry = {
+interface CacheEntry {
   value: unknown;
   expiresAt: number;
-};
+}
 
 const MAX_CACHE_SIZE = 1000;
 

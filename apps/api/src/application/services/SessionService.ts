@@ -5,11 +5,11 @@ import { env } from '../../config/env.js';
 export const SESSION_COOKIE_NAME = 'gitprofilestats_session';
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
-type SessionClaims = {
+interface SessionClaims {
   sub: string;
   iat: number;
   exp: number;
-};
+}
 
 @injectable()
 export class SessionService {

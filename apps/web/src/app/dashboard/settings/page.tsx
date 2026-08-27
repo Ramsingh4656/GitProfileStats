@@ -111,6 +111,7 @@ interface SettingsState {
     stats: boolean;
     languages: boolean;
     streak: boolean;
+    trophies: boolean;
   };
 }
 
@@ -131,6 +132,7 @@ export default function SettingsPage() {
       stats: true,
       languages: true,
       streak: true,
+      trophies: true,
     },
   });
 
@@ -435,6 +437,11 @@ export default function SettingsPage() {
                 key: 'streak',
                 label: 'Streak Card',
                 desc: 'Contributions streaks tracking details',
+              },
+              {
+                key: 'trophies',
+                label: 'Trophies Card',
+                desc: 'Achievement badges for stars, commits, followers, and repo count',
               },
             ].map((card) => {
               const isVisible =

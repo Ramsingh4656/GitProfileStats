@@ -4,7 +4,7 @@ import { User } from '../../../domain/entities/User.js';
 import type { IUserSettings } from '../../../domain/entities/User.js';
 import type { IUserRepository } from '../../../domain/interfaces/IUserRepository.js';
 
-type UserRow = {
+interface UserRow {
   id: string;
   github_id: string;
   username: string;
@@ -15,7 +15,7 @@ type UserRow = {
   updated_at: Date | string;
   settings: IUserSettings | null;
   github_access_token: string | null;
-};
+}
 
 const USER_COLUMNS = `
   id,

@@ -360,6 +360,16 @@ describe('API Endpoints', () => {
       expect(svgText).toContain('</svg>');
     });
 
+    it('should generate trophies card SVG', async () => {
+      const response = await request(app)
+        .get('/api/cards/trophies.svg?username=demo')
+        .expect('Content-Type', /image\/svg\+xml/);
+      expect(response.status).toBe(200);
+      const svgText = response.text || (response.body && response.body.toString('utf-8')) || '';
+      expect(svgText).toContain('<svg');
+      expect(svgText).toContain('</svg>');
+    });
+
     it('should generate repository card SVG', async () => {
       const response = await request(app)
         .get('/api/cards/repository.svg?owner=demo&repo=test')
