@@ -103,7 +103,7 @@ export class AuthController {
       res.cookie(SESSION_COOKIE_NAME, session, {
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: SESSION_MAX_AGE_SECONDS * 1000,
         path: '/',
       });

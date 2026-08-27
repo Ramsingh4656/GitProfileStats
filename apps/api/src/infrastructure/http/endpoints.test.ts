@@ -378,7 +378,7 @@ describe('API Endpoints', () => {
       expect(setCookie?.some((cookie) => cookie.startsWith('gitprofilestats_session='))).toBe(true);
       expect(setCookie?.some((cookie) => cookie.includes('HttpOnly'))).toBe(true);
       expect(setCookie?.some((cookie) => cookie.includes('Secure'))).toBe(true);
-      expect(setCookie?.some((cookie) => cookie.includes('SameSite=Lax'))).toBe(true);
+      expect(setCookie?.some((cookie) => cookie.includes('SameSite=None'))).toBe(true);
 
       const sessionCookie = setCookie
         ?.find((cookie) => cookie.startsWith('gitprofilestats_session='))
