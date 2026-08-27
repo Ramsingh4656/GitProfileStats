@@ -91,36 +91,41 @@ function createTrophyBlock(
   value: number,
   tierName: string,
   tierColor: string,
+  tier: TrophyTier,
 ): LayoutNode {
+  const isNone = tier === 'NONE';
+  const fill = isNone ? 'rgba(255, 255, 255, 0.03)' : `${tierColor}0d`;
+  const stroke = isNone ? 'var(--color-border)' : tierColor;
+  const strokeWidth = isNone ? 1 : 1.5;
+
   return {
     type: 'row',
     width: 'fill',
-    height: 'fill',
+    height: 48,
     padding: 8,
     spacing: 8,
     alignItems: 'center',
     style: {
-      rx: 6,
-      ry: 6,
-      fill: 'rgba(255, 255, 255, 0.03)',
-      stroke: 'var(--color-border)',
-      strokeWidth: 1,
-      className: 'trophy-block',
+      rx: 8,
+      ry: 8,
+      fill,
+      stroke,
+      strokeWidth,
+      className: `trophy-block trophy-block-${tier.toLowerCase()}`,
     },
     children: [
-      // Left circle badge with icon
+      // Left badge with icon
       {
         type: 'leaf',
-        width: 30,
-        height: 30,
+        width: 28,
+        height: 28,
         render: (x: number, y: number, w: number, _h: number) => {
-          const circleRadius = w / 2;
-          const cx = x + circleRadius;
-          const cy = y + circleRadius;
-          const iconSize = w * 0.6;
+          const rx = 6;
+          const ry = 6;
+          const iconSize = 16;
           const iconOffset = (w - iconSize) / 2;
           return `
-            <circle cx="${cx}" cy="${cy}" r="${circleRadius}" fill="${tierColor}20" stroke="${tierColor}" stroke-width="1" />
+            <rect x="${x}" y="${y}" width="${w}" height="${w}" rx="${rx}" ry="${ry}" fill="${tierColor}15" stroke="${tierColor}30" stroke-width="1" />
             ${icon({
               name: iconName,
               x: x + iconOffset,
@@ -135,7 +140,7 @@ function createTrophyBlock(
       {
         type: 'column',
         width: 'fill',
-        spacing: 2,
+        spacing: 1,
         justifyContent: 'center',
         children: [
           {
@@ -143,8 +148,8 @@ function createTrophyBlock(
             width: 'auto',
             height: 'auto',
             measure: () => ({
-              width: estimateTextWidth(label, 11),
-              height: 12,
+              width: estimateTextWidth(label, 10),
+              height: 11,
             }),
             render: (x: number, y: number) =>
               renderTypography(
@@ -154,7 +159,7 @@ function createTrophyBlock(
                   text: label,
                   dominantBaseline: 'hanging',
                 },
-                11,
+                10,
                 700,
                 'var(--color-text)',
               ),
@@ -217,17 +222,39 @@ export function renderTrophiesCard(stats: ITrophiesStatsData, options?: CardOpti
   const resolvedTheme = resolveThemeWithOptions(options);
   const titleText = `${stats.name ?? stats.username}'s GitHub Trophies`;
 
-  const starTrophy = calculateTrophy('stars', stats.totalStars);
-  const commitTrophy = calculateTrophy('commits', stats.totalCommits);
-  const prTrophy = calculateTrophy('prs', stats.pullRequests);
-  const issueTrophy = calculateTrophy('issues', stats.issues);
-  const followerTrophy = calculateTrophy('followers', stats.followers);
-  const repoTrophy = calculateTrophy('repos', stats.totalRepositories);
+  // Dynamically map all available categories
+  const trophies = [
+    { category: 'stars', label: 'Stars', icon: 'star', value: stats.totalStars },
+    { category: 'commits', label: 'Commits', icon: 'commit', value: stats.totalCommits },
+    { category: 'prs', label: 'PRs', icon: 'pullRequest', value: stats.pullRequests },
+    { category: 'issues', label: 'Issues', icon: 'issue', value: stats.issues },
+    { category: 'followers', label: 'Followers', icon: 'followers', value: stats.followers },
+    { category: 'repos', label: 'Repos', icon: 'repo', value: stats.totalRepositories },
+  ] as const;
+
+  const activeTrophies = trophies.filter(t => t.value !== undefined && t.value !== null);
+
+  const trophyBlocks = activeTrophies.map(t => {
+    const trophy = calculateTrophy(t.category, t.value);
+    return createTrophyBlock(t.icon, t.label, t.value, trophy.tierName, trophy.color, trophy.tier);
+  });
+
+  const itemsPerRow = 3;
+  const gridRows: LayoutNode[] = [];
+  for (let i = 0; i < trophyBlocks.length; i += itemsPerRow) {
+    const rowItems = trophyBlocks.slice(i, i + itemsPerRow);
+    gridRows.push({
+      type: 'row',
+      width: 'fill',
+      spacing: 10,
+      children: rowItems,
+    });
+  }
 
   const rootNode: ContainerNode = {
     type: 'column',
     width: 490,
-    height: 195,
+    height: 'auto',
     padding: 20,
     spacing: 16,
     justifyContent: 'center',
@@ -284,41 +311,18 @@ export function renderTrophiesCard(stats: ITrophiesStatsData, options?: CardOpti
           },
         ],
       },
-      // Trophies Grid Column (2 rows)
+      // Trophies Grid Column
       {
         type: 'column',
         width: 'fill',
         spacing: 10,
-        children: [
-          // Row 1
-          {
-            type: 'row',
-            width: 'fill',
-            spacing: 10,
-            children: [
-              createTrophyBlock('star', 'Stars', stats.totalStars, starTrophy.tierName, starTrophy.color),
-              createTrophyBlock('commit', 'Commits', stats.totalCommits, commitTrophy.tierName, commitTrophy.color),
-              createTrophyBlock('pullRequest', 'PRs', stats.pullRequests, prTrophy.tierName, prTrophy.color),
-            ],
-          },
-          // Row 2
-          {
-            type: 'row',
-            width: 'fill',
-            spacing: 10,
-            children: [
-              createTrophyBlock('issue', 'Issues', stats.issues, issueTrophy.tierName, issueTrophy.color),
-              createTrophyBlock('followers', 'Followers', stats.followers, followerTrophy.tierName, followerTrophy.color),
-              createTrophyBlock('repo', 'Repos', stats.totalRepositories, repoTrophy.tierName, repoTrophy.color),
-            ],
-          },
-        ],
+        children: gridRows,
       },
     ],
   };
 
-  // Compute and Render layout
-  const computed = computeLayout(rootNode, 490, 195);
+  // Compute layout dynamically based on auto height
+  const computed = computeLayout(rootNode, 490, 1000);
   const layoutContent = renderLayout(computed);
 
   // Gradient definitions using adjusted background colors
@@ -339,18 +343,33 @@ export function renderTrophiesCard(stats: ITrophiesStatsData, options?: CardOpti
       transition: transform 0.3s ease, filter 0.3s ease;
     }
     .trophy-block {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: filter 0.2s ease, transform 0.2s ease, stroke-width 0.2s ease;
+      cursor: pointer;
     }
     .trophy-block:hover {
-      transform: translateY(-2px);
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+    .trophy-block-platinum:hover {
+      filter: drop-shadow(0px 0px 4px #00e5ff80);
+    }
+    .trophy-block-gold:hover {
+      filter: drop-shadow(0px 0px 4px #ffd70080);
+    }
+    .trophy-block-silver:hover {
+      filter: drop-shadow(0px 0px 4px #a6a6a680);
+    }
+    .trophy-block-bronze:hover {
+      filter: drop-shadow(0px 0px 4px #c5a05980);
+    }
+    .trophy-block-none:hover {
+      filter: drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.1));
     }
   `;
 
   return svgDocument(
     {
       width: 490,
-      height: 195,
+      height: computed.height,
       theme: resolvedTheme,
       customStyles,
     },

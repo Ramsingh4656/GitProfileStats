@@ -116,7 +116,7 @@ const CARD_INFOS: Record<
     title: 'Trophies Card',
     desc: 'Achievement-style badges for stars, commits, pull requests, issues, followers, and repo count',
     defaultWidth: 490,
-    defaultHeight: 195,
+    defaultHeight: 182,
   },
   'top-contributed': {
     title: 'Top Contributed Repos',

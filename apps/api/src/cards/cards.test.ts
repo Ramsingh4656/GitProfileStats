@@ -196,7 +196,7 @@ describe('Card Generators', () => {
       expect(calculateTrophy('commits', 10000)).toEqual({ tier: 'PLATINUM', tierName: 'Platinum', color: '#00e5ff' });
     });
 
-    it('should generate a valid trophies card SVG', () => {
+    it('should generate a valid trophies card SVG with dynamic height and tier-based styles', () => {
       const mockStats = {
         username: 'john_doe',
         name: 'John Doe',
@@ -212,7 +212,7 @@ describe('Card Generators', () => {
 
       expect(svg).toContain('<svg');
       expect(svg).toContain('width="490"');
-      expect(svg).toContain('height="195"');
+      expect(svg).toContain('height="182"'); // dynamic height: 20 padding-top + 20 title + 16 spacing + 48 row1 + 10 spacing + 48 row2 + 20 padding-bottom = 182
       expect(svg).toContain('</svg>');
       expect(svg).toContain('John Doe');
       expect(svg).toContain('Stars');
@@ -221,6 +221,11 @@ describe('Card Generators', () => {
       expect(svg).toContain('Issues');
       expect(svg).toContain('Followers');
       expect(svg).toContain('Repos');
+
+      // Check for tier color coding classes
+      expect(svg).toContain('trophy-block-silver'); // Stars (42 -> Silver)
+      expect(svg).toContain('trophy-block-bronze'); // Commits (1337 -> Bronze)
+      expect(svg).toContain('trophy-block-none');   // Issues (2 -> None/Beginner)
     });
   });
 
